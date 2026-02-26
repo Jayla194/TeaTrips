@@ -6,6 +6,7 @@ import LocationCarousel from "../components/LocationCarousel";
 import { getLondonAttractionsAZ } from "../utils/exploreCarousels";
 import { pillMatches } from "../utils/categoryMapping";
 import LocationCard from "../components/LocationCard";
+import { apiUrl } from "../utils/api";
 
 import AttractionsIcon from "../assets/Attraction.svg";
 import FoodIcon  from "../assets/Food.svg";
@@ -52,7 +53,7 @@ export default function Explore(){
             setLoading(true);
             setError("");
 
-            const res = await fetch("http://localhost:5000/api/locations", {
+            const res = await fetch(apiUrl("/api/locations"), {
                 signal : controller.signal,
             });
             if (!res.ok) throw new Error("Failed to load locations");

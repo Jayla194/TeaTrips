@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect} from "react";
 import LocationCard from "../components/LocationCard";
+import { apiUrl } from "../utils/api";
 
 export default function Profile(){
     
@@ -15,7 +16,7 @@ export default function Profile(){
     useEffect(()=> {
         async function loadUser(){
             try{
-                const res = await fetch("http://localhost:5000/api/auth/user",{
+                const res = await fetch(apiUrl("/api/auth/user"),{
                     credentials:"include"
                 });
 
@@ -39,7 +40,7 @@ export default function Profile(){
                 setLoading(true);
                 setError("");
 
-                const res = await fetch("http://localhost:5000/api/saved",{
+                const res = await fetch(apiUrl("/api/saved"),{
                     credentials:"include"
                 });
 

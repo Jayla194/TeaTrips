@@ -5,17 +5,19 @@ const bcrypt = require("bcrypt");
 const db = require("../config/db");
 const jwt = require("jsonwebtoken");
 
+const isProduction = process.env.NODE_ENV === "production";
+const cookieOptions = {
+    httpOnly: true,
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
+    // Lasts for 30 days
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+};
 
 function setCookie(res, payload){
     const token = jwt.sign(payload, process.env.JWT_SECRET);
 
-    res.cookie("tt_token",token, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: false,
-        // Lasts for 30 days
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-    })
+    res.cookie("tt_token", token, cookieOptions);
 }
 
 // Registration
@@ -106,10 +108,6 @@ exports.user = async (req,res)=> {
 };
 // Logs out user
 exports.logout = (req,res)=>{
-    res.clearCookie("tt_token", {
-        httpOnly:true,
-        sameSite:"lax",
-        secure:false
-    });
+    res.clearCookie("tt_token", cookieOptions);
     res.json({message:"Logged Out"})
 };

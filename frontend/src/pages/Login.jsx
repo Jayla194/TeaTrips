@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { apiUrl } from "../utils/api";
 
 
 function Login () {
@@ -26,7 +27,7 @@ function Login () {
         try {
             setLoading(true)
 
-            const res = await fetch("http://localhost:5000/api/auth/login",{
+            const res = await fetch(apiUrl("/api/auth/login"),{
                 method:"POST",
                 credentials: "include",
                 headers: {"Content-Type": "application/json"},

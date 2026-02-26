@@ -4,6 +4,7 @@ import HotelCard from "../components/Itinerary/HotelCard";
 
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { useEffect, useState, useRef } from "react";
+import { apiUrl } from "../utils/api";
 
 export default function Itinerary() {
     const [itinerary, setItinerary] = useState(null);
@@ -22,7 +23,7 @@ export default function Itinerary() {
 
         async function fetchItinerary() {
             try {
-                const res = await fetch("http://localhost:5000/api/itinerary/generate", {
+                const res = await fetch(apiUrl("/api/itinerary/generate"), {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -103,7 +104,6 @@ export default function Itinerary() {
         </div>
     );
 }
-
 
 
 

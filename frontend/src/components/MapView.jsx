@@ -1,6 +1,7 @@
 import { MapContainer, TileLayer , Marker, Popup, useMap} from "react-leaflet";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { apiUrl } from "../utils/api";
 
 function GoToLocation({ location }) {
     const map = useMap();
@@ -42,7 +43,7 @@ export default function MapView({
             return;
         }
 
-        fetch("http://localhost:5000/api/locations")
+        fetch(apiUrl("/api/locations"))
         .then(res => res.json())
         .then(data => setLocations(data));
     }, [locationsOverride]);
@@ -89,4 +90,3 @@ export default function MapView({
         </MapContainer>
     );
 }
-

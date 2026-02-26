@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import MapView from "../components/MapView";
+import { apiUrl } from "../utils/api";
 
 
 function rating(avg){
@@ -38,7 +39,7 @@ export default function LocationDetails(){
                 setLoading(true);
                 setError("");
 
-                const res = await fetch(`http://localhost:5000/api/locations/${id}`);
+                const res = await fetch(apiUrl(`/api/locations/${id}`));
                 if (!res.ok) throw new Error(`Failed to load (${res.status})`);
 
                 const data = await res.json();
@@ -61,7 +62,7 @@ export default function LocationDetails(){
         let cancelled = false;
         async function loadSavedStatus(){
             try {
-                const res = await fetch("http://localhost:5000/api/saved",{
+                const res = await fetch(apiUrl("/api/saved"),{
                     credentials:"include"
                 });
                 if (!res.ok){
@@ -89,7 +90,7 @@ export default function LocationDetails(){
         try{
             const method = isSaved ? "DELETE" : "POST";
 
-            const res = await fetch(`http://localhost:5000/api/saved/${id}`,{
+            const res = await fetch(apiUrl(`/api/saved/${id}`),{
                 method,
                 credentials:"include"
             });

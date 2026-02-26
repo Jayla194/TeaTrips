@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Container, Navbar, Nav } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/TeaTripsLogo.png";
+import { apiUrl } from "../../utils/api";
 
 export default function TopNav(){
 
@@ -11,7 +12,7 @@ export default function TopNav(){
     useEffect(() => {
         const loadUser = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/auth/user",{
+                const res = await fetch(apiUrl("/api/auth/user"),{
                     credentials:"include"
                 });
                 if (!res.ok){
@@ -30,7 +31,7 @@ export default function TopNav(){
 
     const handleLogout = async () => {
         try {
-            await fetch("http://localhost:5000/api/auth/logout",{
+            await fetch(apiUrl("/api/auth/logout"),{
                 method:"POST",
                 credentials:"include"
             });
