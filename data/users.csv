@@ -1,0 +1,8 @@
+﻿user_id,first_name,last_name,email,password_hash,role
+0,Jayla,Green,jayla@test.com,$2b$10$cMTciufOHLyV6fo7hH8z4eod8Pjc7wyE7Cs5/Q4QpuDwxNf6eMmoS,user
+1,Admin,User,Admin@email.com,$2b$10$cMTciufOHLyV6fo7hH8z4eod8Pjc7wyE7Cs5/Q4QpuDwxNf6eMmoS,admin
+2,Jude,Duarte,Jude@gmail.com,$2b$10$cMTciufOHLyV6fo7hH8z4eod8Pjc7wyE7Cs5/Q4QpuDwxNf6eMmoS,user
+4,Jayla,Green,jayla194green@gmail.com,$2b$10$AXZ4i1tOmMnfl7OlY4CNeefwosBIZcp34oo.cLtJP7KFb/xFs6B7i,user
+7,Henry,Castillo,HCastle@gmail.com,$2b$10$ZZ10N6eCRxNex.XWvBeuAejqWu2BcBaeOwEpyQxc9QCoMBtd1mkSy,user
+8,Isla,Fields	,Nature@yahoo.co.uk	,$2b$10$q.XImWGU6xMdsp2998Ojg.2mSwmXMsq6o5OzZ1H4s7i.XH9m4utGe,user
+9,Chloe,Summers,chloe.summers@testmai.com,$2b$10$.tXbPQJrnPievtGEH7kpo.B3EH.n082yutHTAEWH69KFqaBkijeWO,user
