@@ -106,7 +106,7 @@ export default function LocationDetails(){
             }
 
             setIsSaved(!isSaved);
-            setError(isSaved ? "Saved to your profile.":"Removed from saved Locations");
+            setError(isSaved ?"Removed from saved Locations" :"Saved to your profile.");
         } catch(err){
             setError(err.message || "Request Failed")
         }finally {

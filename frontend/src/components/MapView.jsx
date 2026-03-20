@@ -1,7 +1,9 @@
 import { MapContainer, TileLayer , Marker, Popup, useMap} from "react-leaflet";
+import L from "leaflet";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { apiUrl } from "../utils/api";
+import { getDayColour } from "../utils/dayColours";
 
 function GoToLocation({ location }) {
     const map = useMap();
@@ -15,6 +17,20 @@ function GoToLocation({ location }) {
         { animate: true }
         );
     }, [location, map]);
+
+    return null;
+}
+
+function FitToLocations({ locations }){
+    const map = useMap();
+    useEffect(() => {
+        if(!Array.isArray(locations ) ||  locations.length === 0) return;
+        const bounds = L.latLngBounds(
+            locations.map((loc) => [Number(loc.lat),Number(loc.lon)])
+        );
+
+        map.fitBounds(bounds, {padding:[40,40], maxZoom:13});
+    }, [locations,map]);
 
     return null;
 }
@@ -50,7 +66,7 @@ export default function MapView({
 
     //Check if location coordinates are valid
     const validLocations = locations.filter(
-    loc => !isNaN(loc.lat) && !isNaN(loc.lon)
+    loc => !isNaN(Number(loc.lat)) && !isNaN(Number(loc.lon))
     );
 
     // Single Location context for Location Details page
@@ -60,6 +76,20 @@ export default function MapView({
 
     // Decide which markers are shown
     const markersToShow = mode === "single" && selectedLocation ? [selectedLocation] : validLocations;
+
+    function createDayIcon(colour) {
+        return L.divIcon({
+            className: "tt-day-marker-wrap",
+            html: `
+                <div class="tt-day-marker" style="--marker-color:${colour}">
+                    <span class="tt-day-marker-dot"></span>
+                </div>
+            `,
+            iconSize: [26, 36],
+            iconAnchor: [13, 36],
+            popupAnchor: [0, -34],
+        });
+    }
 
     return (
         <MapContainer
@@ -74,19 +104,25 @@ export default function MapView({
 
         {selectedLocation && <GoToLocation location={selectedLocation} />}
 
-        {showMarkers && markersToShow.map((location) => (
-        <Marker
-            key={location.id}
-            position={[
-                Number(location.lat),
-                Number(location.lon),
-            ]}>
+        {mode ==="multiple" && markersToShow.length > 0 &&(
+            <FitToLocations locations={markersToShow} />
+        )}
 
-            <Popup>
-                {location.name}
-            </Popup>
-            </Marker>
-        ))}
+        {showMarkers && markersToShow.map((location) => {
+            const colour = getDayColour(location.day);
+            return (
+                <Marker
+                    key={location.id}
+                    position={[Number(location.lat), Number(location.lon)]}
+                    icon={createDayIcon(colour)}
+                >
+                    <Popup>
+                        <strong>{location.name}</strong>
+                        {location.day ? <div>Day {location.day}</div> : null}
+                    </Popup>
+                </Marker>
+            );
+        })}
         </MapContainer>
     );
 }

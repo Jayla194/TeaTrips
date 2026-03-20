@@ -1,13 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const locationModel  = require("../models/locationModel");
 const locationController = require("../controllers/locationController");
 
-// --- Route 1 Get all locations ---
-// Endpoint: GET /api/locations
-
+// --- Routes ---
 router.get("/", locationController.getAll);
+router.get("/cities", locationController.getCities);
 router.get("/:id", locationController.getById);
-
 
 module.exports = router;

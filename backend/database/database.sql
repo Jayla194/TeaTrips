@@ -22,35 +22,8 @@ CREATE TABLE IF NOT EXISTS locations (
     image_url VARCHAR(500),
     description_short TEXT
 );
-TRUNCATE TABLE locations;
-SET GLOBAL local_infile = 1;
-SHOW VARIABLES LIKE 'local_infile';
 
-LOAD DATA LOCAL INFILE './data/locations_balanced_v9.csv'
-INTO TABLE locations
-FIELDS TERMINATED BY ','
-ENCLOSED BY '"'
-LINES TERMINATED BY '\n'
-IGNORE 1 ROWS
-(
-  id,
-  name,
-  type,
-  address,
-  city,
-  postcode,
-  lat,
-  lon,
-  website,
-  phone,
-  opening_hours,
-  price_tier,
-  avg_rating,
-  suggested_duration,
-  tags,
-  image_url,
-  description_short
-);
+
 
 -- Create User Table
 CREATE TABLE IF NOT EXISTS users (
@@ -62,8 +35,10 @@ CREATE TABLE IF NOT EXISTS users (
   role VARCHAR(20) NOT NULL DEFAULT 'user'
 );
 
+
+
 -- Create Saved Locations Table
-CREATE TABLE saved_locations (
+CREATE TABLE IF NOT EXISTS saved_locations (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	user_id INT NOT NULL,
     location_id INT NOT NULL,
@@ -82,6 +57,55 @@ CREATE TABLE saved_locations (
     CONSTRAINT unique_user_location
     UNIQUE (user_id,location_id)
 );
+
+-- Create Itinerary Table
+CREATE TABLE IF NOT EXISTS itineraries(
+	itinerary_id INT auto_increment PRIMARY KEY,
+    user_id INT NOT NULL,
+    trip_name VARCHAR(50) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    start_date DATE NULL,
+    end_date DATE NULL,
+    hotel_location_id INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_itinerary_user
+		FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+	CONSTRAINT fk_itinerary_hotel
+		FOREIGN KEY (hotel_location_id) REFERENCES locations(id) ON DELETE SET NULL        
+);
+
+-- CREATE Itinerary Day Table
+CREATE TABLE IF NOT EXISTS itinerary_days(
+	itinerary_day_id INT auto_increment PRIMARY KEY,
+    itinerary_id INT NOT NULL,
+    day_number INT NOT NULL,
+    trip_date DATE NULL,
+    CONSTRAINT fk_day_itinerary
+		FOREIGN KEY (itinerary_id) REFERENCES itineraries(itinerary_id) ON DELETE CASCADE,
+	CONSTRAINT uq_itinerary_day UNIQUE (itinerary_id, day_number)
+);
+
+-- CREATE Itinerary Stops Table
+CREATE TABLE IF NOT EXISTS itinerary_stops (
+	stop_id INT auto_increment PRIMARY KEY,
+    itinerary_day_id INT NOT NULL,
+    location_id INT NOT NULL,
+    stop_position INT NOT NULL,
+    start_time TIME NULL,
+    end_time TIME NULL,
+    notes VARCHAR(500) NULL,
+    CONSTRAINT fk_stop_day
+		FOREIGN KEY (itinerary_day_id) REFERENCES itinerary_days(itinerary_day_id) ON DELETE CASCADE,
+	CONSTRAINT fk_stop_location
+		FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE RESTRICT,
+	CONSTRAINT uq_day_position UNIQUE (itinerary_day_id, stop_position)
+	
+);
+
+
+
+
 -- Import CSV 
 
 -- Make sure `locations.csv` is placed in a `data` folder relative to this file.
@@ -95,6 +119,8 @@ CREATE TABLE saved_locations (
 -- ENCLOSED BY '"'
 -- LINES TERMINATED BY '\n'
 -- IGNORE 1 ROWS;
+
+
 
 -- User Table
 
