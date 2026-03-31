@@ -42,3 +42,8 @@ node_modules
 
 # OS files
 Thumbs.db
+
+# Project docs / testing artifacts
+UserTesting/
+_rubric_docx/
+_rubric_docx.zip
