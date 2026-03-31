@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Container, Row, Col, Card, Form, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Container, Row, Col, Card, Form, Button, OverlayTrigger, Tooltip, InputGroup } from "react-bootstrap";
 import { apiUrl } from "../utils/api";
+import ShowIcon from "../assets/Show.svg";
+import HideIcon from "../assets/Hide.svg";
 
 
 function Register() {
@@ -11,6 +13,8 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -102,7 +106,9 @@ function Register() {
                                         <Form.Control type="text"
                                             placeholder="John"
                                             value={firstName}
-                                            onChange = {(e)=> setFirstName(e.target.value)}/>
+                                            onChange = {(e)=> setFirstName(e.target.value)}
+                                            className="tt-form-input"
+                                            />
                                     </Form.Group>
                                 </Col>
 
@@ -113,7 +119,9 @@ function Register() {
                                             <Form.Control type="text"
                                             placeholder="Smith"
                                             value={lastName}
-                                            onChange = {(e)=> setLastName(e.target.value)}/>
+                                            onChange = {(e)=> setLastName(e.target.value)}
+                                            className="tt-form-input"
+                                            />
                                     </Form.Group>
                                 </Col>
                             
@@ -124,7 +132,9 @@ function Register() {
                                         <Form.Control type="email"
                                             placeholder="JohnSmith@google.com"
                                             value={email}
-                                            onChange={(e)=> setEmail(e.target.value)}/>
+                                            onChange={(e)=> setEmail(e.target.value)}
+                                            className="tt-form-input"
+                                            />
                                     </Form.Group>
                                 </Col>
                             
@@ -135,10 +145,27 @@ function Register() {
                                                 <strong className="text-danger">*</strong>
                                                 <InfoHint text="Must contain at least 8 Characters, 1 Uppercase, 1 Number."/>
                                             </Form.Label>
-                                        <Form.Control type="password"
-                                            placeholder="••••••••"
-                                            value={password}
-                                            onChange={(e)=> setPassword(e.target.value)}/>
+                                        <InputGroup>
+                                            <Form.Control
+                                                className="tt-password-input tt-form-input"
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="••••••••"
+                                                value={password}
+                                                onChange={(e)=> setPassword(e.target.value)}
+                                            />
+                                            <Button
+                                                type="button"
+                                                className="tt-password-toggle-btn"
+                                                aria-label={showPassword ? "Hide password" : "Show password"}
+                                                onClick={() => setShowPassword((prev) => !prev)}
+                                            >
+                                                <img
+                                                    className="tt-password-toggle-icon"
+                                                    src={showPassword ? HideIcon : ShowIcon}
+                                                    alt={showPassword ? "Hide password" : "Show password"}
+                                                />
+                                            </Button>
+                                        </InputGroup>
                                     </Form.Group>
                                 </Col>
                             
@@ -146,10 +173,27 @@ function Register() {
                                     {/* Confirm Password */}
                                     <Form.Group>
                                         <Form.Label className="small fw-bold">Confirm Password <strong className="text-danger">*</strong></Form.Label>
-                                        <Form.Control type="password"
-                                            placeholder="••••••••"
-                                            value={confirmPassword}
-                                            onChange={(e)=> setConfirmPassword(e.target.value)}/>
+                                        <InputGroup>
+                                            <Form.Control
+                                                className="tt-password-input tt-form-input"
+                                                type={showConfirmPassword ? "text" : "password"}
+                                                placeholder="••••••••"
+                                                value={confirmPassword}
+                                                onChange={(e)=> setConfirmPassword(e.target.value)}
+                                            />
+                                            <Button
+                                                type="button"
+                                                className="tt-password-toggle-btn"
+                                                aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                                                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                                            >
+                                                <img
+                                                    className="tt-password-toggle-icon"
+                                                    src={showConfirmPassword ? HideIcon : ShowIcon}
+                                                    alt={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                                                />
+                                            </Button>
+                                        </InputGroup>
                                     </Form.Group>
                                 </Col>
                             </Row>

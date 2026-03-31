@@ -911,6 +911,30 @@ transition: all 0.2s ease;
   box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.15);
   background: rgba(255, 248, 239, 0.95);
 }
+
+.tt-form-card .tt-password-toggle-btn{
+  border: 1px solid var(--tt-border);
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  background: linear-gradient(to bottom, #f7e6c7, #f2d4a7);
+  color: var(--tt-ink);
+  padding: 0 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.tt-form-card .tt-password-toggle-btn:hover,
+.tt-form-card .tt-password-toggle-btn:focus{
+  background: linear-gradient(to bottom, #f4dcb7, #edc998);
+  box-shadow: inset 0 0 0 1px rgba(139, 90, 60, 0.18);
+  transform: translateY(-1px);
+}
+.tt-form-card .tt-password-toggle-btn:focus-visible{
+  outline: 2px solid rgba(139, 90, 60, 0.35);
+  outline-offset: 1px;
+}
+.tt-form-card .tt-password-toggle-icon{
+  width: 24px;
+  height: 24px;
+}
 .tt-form-footer{
   display: grid;
   justify-items: center;
@@ -994,6 +1018,68 @@ transition: all 0.2s ease;
     Itinerary Page
    ================== */
 
+.tt-help-trigger {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(55, 36, 22, 0.4);
+  background: rgba(255, 248, 239, 0.95);
+  color: var(--tt-ink);
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 0 rgba(139, 90, 60, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.tt-help-trigger:hover,
+.tt-help-trigger:focus-visible {
+  background: var(--tt-cream);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(139, 90, 60, 0.2);
+  outline: none;
+}
+
+.tt-help-tooltip .tooltip-inner {
+  background: var(--tt-warm-white);
+  color: var(--tt-ink);
+  border: 2px solid rgba(139, 90, 60, 0.18);
+  border-radius: 14px;
+  padding: 12px 14px;
+  text-align: left;
+  box-shadow: 0 8px 20px rgba(43, 30, 22, 0.18);
+  max-width: 280px;
+  font-size: 0.9rem;
+}
+
+.tt-help-tooltip .tooltip-arrow::before {
+  border-top-color: var(--tt-warm-white);
+  border-right-color: var(--tt-warm-white);
+  border-left-color: var(--tt-warm-white);
+  border-bottom-color: var(--tt-warm-white);
+}
+
+.tt-help-tooltip-title {
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.tt-help-tooltip-item {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.tt-help-tooltip-item:last-child {
+  margin-bottom: 0;
+}
+
+.tt-help-tooltip-label {
+  font-weight: 800;
+}
+
 .tt-section-label {
   font-size: 0.8rem;
   font-weight: 700;
@@ -1057,7 +1143,9 @@ transition: all 0.2s ease;
   margin-bottom: 6px;
   display: block;
 }
-
+.tt-form-input::placeholder{
+  color: rgba(55, 36, 22, 0.38);
+}
 .tt-form-input,
 .tt-form-select {
   border-radius: 10px;
@@ -1113,6 +1201,48 @@ transition: all 0.2s ease;
   box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.15);
   background: rgba(255, 248, 239, 0.95);
   outline: none;
+}
+
+.tt-modal-select {
+  padding-right: 44px;
+  appearance: none;
+}
+
+.tt-select-wrap {
+  position: relative;
+}
+
+.tt-select-wrap::before {
+  content: "";
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  right: 34px;
+  width: 1px;
+  background: rgba(139, 90, 60, 0.28);
+  pointer-events: none;
+}
+
+.tt-select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 14px;
+  height: 10px;
+  transform: translateY(-50%);
+  background-repeat: no-repeat;
+  background-size: 14px 10px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10' width='16' height='10'><path d='M2 2l6 6 6-6' fill='none' stroke='%235b3d27' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  pointer-events: none;
+}
+
+.tt-select-wrap:focus-within::before {
+  background: rgba(139, 90, 60, 0.4);
+}
+
+.tt-select-wrap:focus-within::after {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10' width='16' height='10'><path d='M2 2l6 6 6-6' fill='none' stroke='%23372416' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 }
 
 .tt-date-preview {
@@ -1461,6 +1591,102 @@ transition: all 0.2s ease;
 
   .tt-trip-overlay .tt-modal-body {
     max-height: calc(100dvh - 120px);
+  }
+}
+
+/* ==================
+    Stop Info Modal
+   ================== */
+
+.tt-trp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.tt-trip-overlay-content {
+  position: relative;
+  position: fixed;
+  top: 170px;
+  right: 24px;
+  width: min(300px, 90vw);
+  background: var(--tt-warm-white);
+  border: 2px solid rgba(139, 90, 60, 0.18);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 0 rgba(139, 90, 60, 0.12),
+    0 14px 36px rgba(43, 31, 22, 0.25);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.tt-trip-overlay-content::before {
+  content: "";
+  position: absolute;
+  right: -8px;
+  top: 28px;
+  width: 16px;
+  height: 16px;
+  background: var(--tt-warm-white);
+  border-right: 2px solid rgba(139, 90, 60, 0.18);
+  border-top: 2px solid rgba(139, 90, 60, 0.18);
+  transform: rotate(45deg);
+}
+
+.tt-close-btn {
+  border: 2px solid rgba(139, 90, 60, 0.25);
+  background: var(--tt-cream);
+  color: var(--tt-ink);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 0 rgba(139, 90, 60, 0.2);
+}
+
+.tt-close-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(139, 90, 60, 0.18);
+}
+
+.tt-trip-overlay-content .tt-modal-header {
+  padding: 10px 12px;
+}
+
+.tt-trip-overlay-content h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.tt-trip-overlay-content .tt-modal-body {
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.tt-trip-overlay-content .tt-modal-footer {
+  padding: 0 12px 12px;
+}
+
+.tt-trip-overlay-content .tt-btn {
+  padding: 6px 12px !important;
+  font-size: 0.85rem !important;
+}
+
+@media (max-width: 768px) {
+  .tt-trip-overlay-content {
+    top: auto;
+    right: 16px;
+    left: 16px;
+    bottom: 24px;
+    width: auto;
+  }
+
+  .tt-trip-overlay-content::before {
+    display: none;
   }
 }
 

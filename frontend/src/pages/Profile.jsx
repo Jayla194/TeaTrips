@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect} from "react";
 import LocationCard from "../components/LocationCard";
 import { apiUrl } from "../utils/api";
@@ -138,9 +138,9 @@ export default function Profile(){
                     <div className="col-12">
                         <div className="tt-loc-card p-4">
                             <h5 className="mb-3">Saved Itineraries</h5>
-                            <btn
+                            <button
                                 className="tt-btn tt-btn-primary"
-                                onClick={()=>navigate(`/itinerary`)}>+ Add Itinerary</btn>
+                                onClick={()=>navigate(`/itinerary`)}>+ Add Itinerary</button>
                             <hr />
                             <p className="opacity-75 mb-0">Coming Soon...</p>
                         </div>

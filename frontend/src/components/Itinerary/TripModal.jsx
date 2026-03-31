@@ -121,7 +121,6 @@ export default function TripModal({ show, onClose, onGenerate }) {
                                 noOptionsMessage={() => "No matching cities"}
                                 isClearable
                                 isSearchable
-                                
                             />
                         </Form.Group>
 
@@ -165,31 +164,35 @@ export default function TripModal({ show, onClose, onGenerate }) {
                         <div className="tt-two-col-row mb-2">
                             <Form.Group>
                                 <Form.Label className="tt-form-label">Budget</Form.Label>
-                                <Form.Select
-                                    className="tt-form-select"
-                                    value={formData.budget}
-                                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                                >
-                                    <option value="any">Any</option>
-                                    <option value="low">Low</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="high">High</option>
-                                </Form.Select>
+                                <div className="tt-select-wrap">
+                                    <Form.Select
+                                        className="tt-form-select tt-modal-select"
+                                        value={formData.budget}
+                                        onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                                    >
+                                        <option value="any">Any</option>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </Form.Select>
+                                </div>
                             </Form.Group>
 
                             <Form.Group>
                                 <Form.Label className="tt-form-label">Pace</Form.Label>
-                                <Form.Select
-                                    className="tt-form-select"
-                                    value={formData.stopsPerDay}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, stopsPerDay: Number.parseInt(e.target.value, 10) })
-                                    }
-                                >
-                                    <option value={2}>Chill (2 locations)</option>
-                                    <option value={3}>Average (3 locations)</option>
-                                    <option value={4}>Packed (4 locations)</option>
-                                </Form.Select>
+                                <div className="tt-select-wrap">
+                                    <Form.Select
+                                        className="tt-form-select tt-modal-select"
+                                        value={formData.stopsPerDay}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, stopsPerDay: Number.parseInt(e.target.value, 10) })
+                                        }
+                                    >
+                                        <option value={2}>Chill (2 locations)</option>
+                                        <option value={3}>Average (3 locations)</option>
+                                        <option value={4}>Packed (4 locations)</option>
+                                    </Form.Select>
+                                </div>
                             </Form.Group>
                         </div>
 
@@ -248,4 +251,3 @@ export default function TripModal({ show, onClose, onGenerate }) {
         </div>
     );
 }
-

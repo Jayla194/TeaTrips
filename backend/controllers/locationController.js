@@ -1,7 +1,8 @@
 const locationModel = require("../models/locationModel");
+const { similarLocations } = require("../recommendations/similarLocations");
 
 
-// Get all Locations api/locations
+// Get all locations api/locations
 async function getAll(req,res){
     try {
         const data = await locationModel.getAllLocations();
@@ -35,7 +36,7 @@ async function getById(req,res){
         }
 
 };
-
+// Get locations by city with saved stats api/locations/city/:city
 async function getByCityWithSavedStats(req,res){
     const city = req.params.city;
     try {
@@ -45,11 +46,38 @@ async function getByCityWithSavedStats(req,res){
         res.status(500).json({ error: "database error" });
     }
 }
+// Get popular locations api/locations/popular
+async function getPopularLocations(req,res){
+    try {
+        const locations = await locationModel.getPopularLocations();
+        res.json(locations);
+    } catch (err) {
+        res.status(500).json({ error: "database error" });
+    }
+}
+
+// Get similar locations api/locations/id/similar
+async function getSimilarLocations(req,res){
+    try{
+        const id = req.params.id;
+        const limit = Math.max(1,Math.min(20, parseInt(req.query.limit) || 6));
+        const current = await locationModel.getLocationById(id);
+        if(!current){
+            return res.status(404).json({error: "location not found"});
+        }
+        const allLocations = await locationModel.getAllLocations();
+        const similar = similarLocations(current, allLocations, limit);
+        res.json(similar);
+    }catch (err){
+        res.status(500).json({error:"database error"});
+    }
+}
 
 module.exports = {
     getAll,
     getCities,
     getById,
-    getByCityWithSavedStats
+    getByCityWithSavedStats,
+    getPopularLocations,
+    getSimilarLocations,
 };
-

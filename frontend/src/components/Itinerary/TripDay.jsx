@@ -2,7 +2,7 @@ import { useState } from "react";
 import TripDestinationCard from "./TripDestinationCard";
 import { getDayColour } from "../../utils/dayColours";
 
-export default function TripDay({ day, onRemoveStop, onMoveStop }) {
+export default function TripDay({ day, onRemoveStop, onMoveStop, onOpenStop }) {
     const [collapsed, setCollapsed] = useState(false);
     if (!day) return null;
 
@@ -35,6 +35,7 @@ export default function TripDay({ day, onRemoveStop, onMoveStop }) {
                                 onMoveUp={() => onMoveStop?.(day.day, index, index-1)}
                                 onMoveDown={() => onMoveStop?.(day.day, index, index+1)}
                                 onRemove={() => onRemoveStop?.(day.day, index)}
+                                onOpen={() => onOpenStop?.(stop)}
                             />
                         ))
                     )}

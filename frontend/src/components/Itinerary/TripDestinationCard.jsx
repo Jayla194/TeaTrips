@@ -15,12 +15,13 @@ export default function TripDestinationCard({
     onMoveUp,
     onMoveDown,
     onRemove,
+    onOpen,
 }) {
     const ratingValue = useMemo(() => rating(stop?.avgRating), [stop?.avgRating]);
     if (!stop) return null;
 
     return(
-        <div className="tt-destination-card">
+        <div className="tt-destination-card" onClick={() => onOpen?.(stop)} style={{ cursor: onOpen ? "pointer" : "default" }}>
             <img
                 src={stop.imageUrl || fallback}
                 alt = {stop.name || "Location"}

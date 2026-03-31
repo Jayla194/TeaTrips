@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tea Trips User Testing</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+ 
+  <!-- Read-first banner -->
+  <div class="read-banner" id="readBanner" role="status" aria-live="polite">
+    <span class="read-banner-icon">📖</span>
+    <p class="read-banner-text" style="margin:0;">Read the whole page first &mdash; <span>the FAQ has info you'll need</span></p>
+    <button class="read-banner-dismiss" id="readBannerDismiss" aria-label="Dismiss">✕</button>
+  </div>
+ 
+  <!-- Hero -->
+  <header class="hero">
+    <svg class="steam" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M40 280 Q60 240 40 200 Q20 160 40 120 Q60 80 40 40" stroke="#5c3d25" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M100 290 Q120 245 100 195 Q80 145 100 100 Q120 55 100 15" stroke="#5c3d25" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path d="M155 275 Q170 235 155 195 Q140 155 155 115 Q170 75 155 40" stroke="#5c3d25" stroke-width="2" stroke-linecap="round" fill="none"/>
+    </svg>
+    <div class="container hero-inner">
+      <div class="hero-left">
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          You've been selected 👀
+        </div>
+        <h1>You're invited to something <em>exclusive</em></h1>
+        <p class="hero-subtitle">
+          You are here because you have been <strong>personally selected</strong> for early access to a brand new travel platform. Either that, or I sent you this link and you unfortunately don't have a choice. Either way, you are here for one key purpose: <strong>break my website.</strong> Yes, you heard that right — interact with it like you're genuinely planning a trip, then try to do the thing you're not supposed to. Try booking a trip 100 years from now. Try a completely nonsense search. Go wild.
+        </p>
+        <div class="hero-meta-row">
+          <span class="meta-pill"><span class="meta-pill-icon">🌍</span> Exclusive early access</span>
+          <span class="meta-pill"><span class="meta-pill-icon">⭐</span> Hand-picked testers only</span>
+          <span class="meta-pill"><span class="meta-pill-icon">🔓</span> No real info needed, thankfully</span>
+        </div>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://tea-trips.vercel.app/" target="_blank" rel="noreferrer">
+            Open Tea Trips ↗
+          </a>
+          <a class="btn btn-secondary" href="#feedback">
+            Go to feedback form ↓
+          </a>
+        </div>
+      </div>
+      <div class="hero-logo-wrap">
+        <img class="hero-logo" src="TeaTripsLogo.png" alt="Tea Trips logo" />
+      </div>
+    </div>
+  </header>
+ 
+  <main>
+    <div class="divider"></div>
+ 
+    <!-- What / Why / How long -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">The brief</span>
+          <h2 class="section-title">Before you dive in</h2>
+        </div>
+        <div class="card-grid">
+          <article class="card reveal">
+            <span class="card-icon">🍵</span>
+            <h2>What is Tea Trips?</h2>
+            <p>You know how planning a trip means 10 tabs open — Booking.com, Google Maps, a Notes app, a spreadsheet you abandoned? Tea Trips fixes that. Search for spots, build an itinerary, see it all on a map, share it with friends (coming soon). It's genuinely a good idea. It just needs you to break it first.</p>
+          </article>
+          <article class="card reveal">
+            <span class="card-icon">⏱</span>
+            <h2>How long does it take?</h2>
+            <p>10 minutes minimum, as long as you want maximum. Even just poking around for a bit and leaving one sentence of feedback is more useful than nothing. I will not be checking how long you spent. I will not guilt you. (I will be refreshing the form responses obsessively, but that's my problem.)</p>
+          </article>
+          <article class="card reveal">
+            <span class="card-icon">🧪</span>
+            <h2>What should I do?</h2>
+            <p>Make an account, save some places, build a trip either manually or with the AI generator. Then try to break it. Book a trip in 1823. Search for something nonsensical. Do the thing you'd normally do and see if it handles it. If it doesn't, that's exactly what I need to know.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+ 
+    <div class="divider"></div>
+ 
+    <!-- Steps -->
+    <section class="section steps-section">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">Testing flow</span>
+          <h2 class="section-title">The "official" testing flow</h2>
+          <p style="color: var(--ink-soft); max-width: 520px;">Think of this as a suggested route through the app. You don't have to follow it but if you're staring at the screen wondering what to do, start here.</p>
+        </div>
+        <div class="steps-grid">
+          <article class="step reveal">
+            <h3>Explore a region</h3>
+            <p>Browse some tea spots. Open one that looks interesting. Does it make sense? Does it feel right? Would a normal person understand it?</p>
+          </article>
+          <article class="step reveal">
+            <h3>Build a day trip</h3>
+            <p>Add a couple of stops and check the itinerary view. Does the order seem logical or does it have you driving in circles?</p>
+          </article>
+          <article class="step reveal">
+            <h3>Try to break it</h3>
+            <p>Book a trip in the year 2157. Search for "asdfjkl". Add 40 stops to one day. Be chaotic. I have fixed some of this. I have not fixed all of it. Some of it may be things users would actually want.</p>
+          </article>
+          <article class="step reveal">
+            <h3>Tell me everything</h3>
+            <p>What was confusing, what was missing, what happened that you didn't expect. Good and bad — it all helps.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+ 
+    <div class="divider"></div>
+ 
+    <!-- Feedback + Bug -->
+    <section class="section" id="feedback">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">After testing</span>
+          <h2 class="section-title">Tell me what you found</h2>
+        </div>
+        <div class="split">
+          <article class="panel panel-primary reveal">
+            <div class="panel-header">
+              <h2>Feedback form</h2>
+              <span class="badge badge-required">Required</span>
+            </div>
+            <p>Anonymous, about 2 minutes. Uses Microsoft Forms to meet university ethics requirements. Short and blunt is absolutely perfect — I don't need essays.</p>
+            <ul>
+              <li>Were labels and buttons clear?</li>
+              <li>Did anything feel missing or surprising?</li>
+              <li>Did you get stuck anywhere?</li>
+              <li>Would you actually use this for your own trips?</li>
+            </ul>
+            <a class="btn btn-primary" href="https://forms.gle/your-feedback-form" target="_blank" rel="noreferrer">
+              Open feedback form ↗
+            </a>
+          </article>
+          <article class="panel reveal">
+            <div class="panel-header">
+              <h2>Bug report</h2>
+              <span class="badge badge-optional">Optional</span>
+            </div>
+            <p>Only if you're confident describing a specific bug. Screenshots or a quick screen recording are gold if you have them.</p>
+            <p>Not sure if it's a bug or just confusing? Just use the feedback form, that's what it's for.</p>
+            <a class="btn btn-secondary" href="https://forms.gle/your-bug-form" target="_blank" rel="noreferrer">
+              Report a bug ↗
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+ 
+    <div class="divider"></div>
+ 
+    <!-- FAQ -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">Common questions</span>
+          <h2 class="section-title">FAQ</h2>
+        </div>
+        <div class="faq-list" data-faq>
+ 
+          <article class="faq-item reveal">
+            <button class="faq-toggle" type="button" aria-expanded="false">
+              <span>Locations won't load / I see a red error</span>
+              <span class="faq-chevron" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel" hidden>
+              <p>Because I have zero budget for hosting right now, the server powers off after 24 hours of inactivity. If you hit that error, just message me and I'll have it back up in two seconds, no problem. Genuinely, it's one button.</p>
+            </div>
+          </article>
+ 
+          <article class="faq-item reveal">
+            <button class="faq-toggle" type="button" aria-expanded="false">
+              <span>What device should I use?</span>
+              <span class="faq-chevron" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel" hidden>
+              <p>Anything goes and different devices are actually preferred. If you have a tablet, an extra-wide monitor, or a very small phone, give it a try. One of my goals is a fully responsive experience across all screen sizes. Screenshots of broken layouts are extremely helpful if you spot any.</p>
+            </div>
+          </article>
+ 
+          <article class="faq-item reveal">
+            <button class="faq-toggle" type="button" aria-expanded="false">
+              <span>Can I be honest in my feedback?</span>
+              <span class="faq-chevron" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel" hidden>
+              <p>Please, please be honest. This is a user-centred project and vague praise helps no one. Hate something? Tell me. Something made no sense? Tell me. The colours and fonts rub you the wrong way? Tell me. Even "I don't know why but this felt weird" is useful. The good, the bad, and the ugly, I want it all.</p>
+            </div>
+          </article>
+ 
+          <article class="faq-item reveal">
+            <button class="faq-toggle" type="button" aria-expanded="false">
+              <span>Do I need to use real personal info?</span>
+              <span class="faq-chevron" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-panel" hidden>
+              <p>Absolutely not. Make up a name, use a throwaway email, fill in whatever you like. The point is the experience, not the data. None of it is stored anywhere I'd ever look.</p>
+            </div>
+          </article>
+ 
+        </div>
+      </div>
+    </section>
+ 
+    <div class="divider"></div>
+ 
+    <!-- Contact -->
+    <section class="section">
+      <div class="container">
+        <article class="cta-card reveal">
+          <h2>Thanks for helping me graduate 🎓</h2>
+          <p>No really, this counts toward my degree and I genuinely appreciate you giving up your time for it. If you want to share anything directly rather than through a form, just message me. A call, a screenshot with a red circle on it, anything.</p>
+          <div class="cta-actions">
+            <a class="btn btn-primary" href="/cdn-cgi/l/email-protection#fb82948e89d59e969a9297bb9e839a968b979ed5989496">
+              Email me
+            </a>
+            <a class="btn btn-secondary" href="https://forms.gle/your-feedback-form" target="_blank" rel="noreferrer">
+              Feedback form ↗
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+ 
+    <!-- Launch CTA -->
+    <section class="section" style="padding-top: 0;">
+      <div class="container">
+        <div class="launch-card reveal">
+          <div class="launch-card-inner">
+            <div>
+              <h2>Okay. You're actually selected. Go.</h2>
+              <p class="launch-sub">You've read the brief. Now go break things. Here are some scenarios worth trying. Remember what you try and let me know the outcome in the feedback form.</p>
+              <ul class="launch-checklist">
+                <li>Book a trip with today's date already passed</li>
+                <li>Try a date 100+ years in the future</li>
+                <li>Search for a location that doesn't exist</li>
+                <li>Add the same stop to an itinerary twice</li>
+                <li>Leave required fields blank and submit</li>
+                <li>Resize the window mid-session</li>
+                <li>Try it on your phone if you're on desktop</li>
+                <li>Do something I haven't thought of yet</li>
+              </ul>
+            </div>
+            <div>
+              <a class="btn btn-launch" href="https://tea-trips.vercel.app/" target="_blank" rel="noreferrer">
+                Start testing now ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+ 
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <h2>You're one of the chosen ones.</h2>
+        <p>Well.... one of about 20. But still. Thanks for helping out.<br>Message me any time. I will respond immediately. I have been waiting.</p>
+      </div>
+      <div class="footer-links">
+        <a class="footer-link" href="/cdn-cgi/l/email-protection#2b52445e59054e464a42476b4e534a465b474e05484446">✉ Email me</a>
+        <a class="footer-link" href="https://tea-trips.vercel.app/" target="_blank" rel="noreferrer">🍵 Open Tea Trips</a>
+      </div>
+    </div>
+  </footer>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><
+    <script src="script.js"></script>
+  </body>
+</html>

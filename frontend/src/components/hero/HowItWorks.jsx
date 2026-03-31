@@ -30,8 +30,8 @@ export default function HowItWorks(){
 
                 <div className="tt-how-grid">
                     {steps.map((step, index) => (
-                        <div className="tt-how-card">
-                            <div className="tt-how-number">{index + 1}</div>
+                        <div className="tt-how-card"key={step.title}>
+                            <div className="tt-how-number" >{index + 1}</div>
                             
                             <div className="tt-how-icon-wrap">
                                 <img

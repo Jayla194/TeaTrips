@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import CategoryPills from "../components/CategoryPills";
 import LocationCarousel from "../components/LocationCarousel";
-import { getLondonAttractionsAZ } from "../utils/exploreCarousels";
+import { getLondonAttractionsMostSaved, getHighlyRatedCheapLocations } from "../utils/exploreCarousels";
 import { pillMatches } from "../utils/categoryMapping";
 import LocationCard from "../components/LocationCard";
 import { apiUrl } from "../utils/api";
@@ -37,10 +37,17 @@ export default function Explore(){
     const [activeCategory, setActiveCategory] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [searchParams, setSearchParams] = useSearchParams();
+    const [popularLocations, setPopularLocations] = useState([]);
 
     const [locations,setLocations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error,setError] = useState("");
+
+    // similar locations
+    const [savedLocations, setSavedLocations] = useState([]);
+    const [similarForYou, setSimilarForYou] = useState(null);
+    const [similarLocations, setSimilarLocations] = useState([]);
+    const [similarLoading, setSimilarLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -73,9 +80,93 @@ export default function Explore(){
         return () => controller.abort();
     }, []);
 
+// fetch popular locations for carousel
+    useEffect(() => {
+        let isCancelled = false;
 
-    const londonAttractions = useMemo(
-        () => getLondonAttractionsAZ(locations),[locations]
+        async function loadPopular(){
+            try {
+                const res = await fetch(apiUrl("/api/locations/popular"));
+                if (!res.ok) throw new Error("Failed to load popular locations");
+                const data = await res.json();
+                if (!isCancelled) {
+                    setPopularLocations(Array.isArray(data) ? data : []);
+                }
+            } catch (err) {
+                console.error("Error fetching popular locations:", err);
+            }
+        }
+        loadPopular();
+        return () => { isCancelled = true; };
+
+        },[]);
+
+        // Loading saved Locations
+        useEffect(() => {
+            let isCancelled = false;
+            async function loadSaved() {
+                try {
+                    const res = await fetch(apiUrl("/api/saved"), {
+                        credentials: "include",
+                    });
+                    if (!res.ok) throw new Error("Failed to load saved locations");
+                    const data = await res.json();
+                    if (!isCancelled) {
+                        setSavedLocations(Array.isArray(data) ? data : []);
+                    }
+                }
+                catch (err) {
+                        console.error("Error fetching saved locations:", err);
+                }
+            }
+            loadSaved();
+            return () => { isCancelled = true; };
+        }, []);
+
+
+        // Picking a random location from saved locations to find similar
+        useEffect(() => {
+            if (savedLocations.length === 0) {
+                setSimilarForYou(null);
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * savedLocations.length);
+            setSimilarForYou(savedLocations[randomIndex]);
+        }, [savedLocations]);
+
+        // Fetching similar locations based on the random saved location
+        useEffect(() => {
+            let isCancelled = false;
+            async function loadSimilar() {
+                if (!similarForYou){
+                    setSimilarLocations([]);
+                    return;
+                }
+                try{
+                    setSimilarLoading(true);
+                    const res = await fetch(apiUrl(`/api/locations/${similarForYou.id}/similar?limit=10`));
+                    if (!res.ok) throw new Error("Failed to load similar locations");
+                    const data = await res.json();
+                    if (!isCancelled) {
+                        setSimilarLocations(Array.isArray(data) ? data : []);
+                    }
+                    setSimilarLoading(false);
+                } catch (err) {
+                    console.error("Error fetching similar locations:", err);
+                    setSimilarLoading(false);
+                }
+            }
+            loadSimilar();
+            return () => { isCancelled = true; };
+        }, [similarForYou]);
+        () => getLondonAttractionsMostSaved(locations),[locations];
+
+
+
+
+    // carousel of most popular locations based on saved count
+    const highlyRatedCheapLocations = useMemo(
+        () => getHighlyRatedCheapLocations(popularLocations),[popularLocations]
     )
 
     const handleSelectCategory = (pill) => {
@@ -167,9 +258,27 @@ export default function Explore(){
                 {!searchActive ? (
                     <>
                     {/* Discovery */}
+                    {savedLocations.length > 0 && (
+                        <LocationCarousel
+                            title={`Because you liked ${similarForYou?.name}`}
+                            locations={similarLocations}
+                            loading={similarLoading}
+                            emptyMessage="Save locations to see similar recommendations here!"
+                        />
+                    )}
                     <LocationCarousel
                     title="London Attractions"
-                    locations={londonAttractions}
+                    locations={getLondonAttractionsMostSaved(locations)}
+                    />
+                    <LocationCarousel
+                    title="Popular Locations"
+                    // slice top 10 locations based on saved count for the carousel
+                    locations={popularLocations.slice(0, 10)}
+                    />
+
+                    <LocationCarousel
+                    title="Highly Rated & Cheap"
+                    locations={highlyRatedCheapLocations}
                     />
                     </>
                 ): (

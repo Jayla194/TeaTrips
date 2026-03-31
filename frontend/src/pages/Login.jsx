@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Card, Form, Button, InputGroup } from "react-bootstrap";
 import { apiUrl } from "../utils/api";
+import ShowIcon from "../assets/Show.svg";
+import HideIcon from "../assets/Hide.svg";
 
 
 function Login () {
@@ -9,6 +11,7 @@ function Login () {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -72,7 +75,9 @@ function Login () {
                                         <Form.Control type="email"
                                             placeholder="JohnSmith@google.com"
                                             value={email}
-                                            onChange={(e)=> setEmail(e.target.value)}/>
+                                            onChange={(e)=> setEmail(e.target.value)}
+                                            className="tt-form-input"
+                                            />
                                     </Form.Group>
                                 </Col>
                             
@@ -82,10 +87,27 @@ function Login () {
                                         <Form.Label className="small fw-bold">Password
                                                 <strong className="text-danger">*</strong>
                                             </Form.Label>
-                                        <Form.Control type="password"
-                                            placeholder="••••••••"
-                                            value={password}
-                                            onChange={(e)=> setPassword(e.target.value)}/>
+                                        <InputGroup>
+                                            <Form.Control
+                                                className="tt-password-input tt-form-input"
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="••••••••"
+                                                value={password}
+                                                onChange={(e)=> setPassword(e.target.value)}
+                                            />
+                                            <Button
+                                                type="button"
+                                                className="tt-password-toggle-btn"
+                                                aria-label={showPassword ? "Hide password" : "Show password"}
+                                                onClick={() => setShowPassword((prev) => !prev)}
+                                            >
+                                                <img
+                                                    className="tt-password-toggle-icon"
+                                                    src={showPassword ? HideIcon : ShowIcon}
+                                                    alt={showPassword ? "Hide password" : "Show password"}
+                                                />
+                                            </Button>
+                                        </InputGroup>
                                     </Form.Group>
                                 </Col>
                             </Row>

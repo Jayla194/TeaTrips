@@ -44,6 +44,20 @@ async function getLocationsByCityWithSavedStats(city) {
     return rows;
 }
 
+async function getPopularLocations() {
+    const [rows] = await db.query(
+        `
+        SELECT
+        loc.*,
+        COUNT(saveloc.location_id) AS saved_count
+        FROM locations loc
+        LEFT JOIN saved_locations saveloc ON saveloc.location_id = loc.id
+        GROUP BY loc.id
+        ORDER BY saved_count DESC
+        `
+    );
+    return rows;
+}
 
 module.exports = {
     getAllLocations,
@@ -52,4 +66,5 @@ module.exports = {
     getAllCities,
     getHotelsByCity,
     getLocationsByCityWithSavedStats,
+    getPopularLocations,
 };

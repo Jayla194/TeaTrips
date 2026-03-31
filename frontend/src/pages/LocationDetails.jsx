@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import MapView from "../components/MapView";
 import { apiUrl } from "../utils/api";
+import  LocationCarousel from "../components/LocationCarousel";
 
 
 function rating(avg){
@@ -26,10 +27,14 @@ export default function LocationDetails(){
     const [error,setError] = useState("");
     const [isSaved, setIsSaved] = useState(false);
     const [saving, setSaving] = useState(false);
+    
+    const [similarLocations, setSimilarLocations] = useState([]);
+    const [similarLoading, setSimilarLoading] = useState(true);
 
     const fallback =
         "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=60";
 
+    // Fetch location details
     useEffect(()=> {
         // used to only update the state if the component is still on screen after fetching
         let cancelled = false;
@@ -81,6 +86,30 @@ export default function LocationDetails(){
         return () => {cancelled = true};
     }, [id]);
 
+    // Fetching similar locations
+    useEffect(() => {
+        let cancelled = false;
+        
+        async function loadSimilar(){
+            try {
+                setSimilarLoading(true);
+                const res = await fetch(apiUrl(`/api/locations/${id}/similar?limit=8`));
+                if (!res.ok) throw new Error(`Failed to load similar locations (${res.status})`);
+
+                const data = await res.json();
+                if (!cancelled) setSimilarLocations(data);
+            } catch (e) {
+                if (!cancelled) setError(e.message || "Failed to load similar locations");
+            } finally {
+                if (!cancelled) setSimilarLoading(false);
+            }
+        }
+
+        loadSimilar();
+        return () => {
+            cancelled = true;
+        };
+    }, [id]);
 
     // Toggle Saved
     async function toggleSave(){
@@ -246,14 +275,21 @@ export default function LocationDetails(){
                             </div>
                         </div>
 
-                        {/* Similar Locations Placeholder */}
-                        <div className="tt-loc-card p-3 opacity-75">
-                            <h5 className="mb-1">Similar locations</h5>
-                            <p className="mb-0">
-                            Coming Soon
-                            </p>
-                        </div>
                     </div>
+                    {/* Similar Locations Placeholder */}
+                        <div className="tt-loc-card p-3 opacity-75">
+                            {similarLoading &&(
+                                <p className="text-muted mt-4 mb-0">Loading similar locations...</p>
+                            )}
+                            {!similarLoading && similarLocations.length > 0 && (
+                                <div className="mt-4">
+                                    <LocationCarousel title="Similar Locations" locations={similarLocations} />
+                                </div>
+                            )}
+                            {!similarLoading && similarLocations.length === 0 && (
+                                <p className="text-muted mt-4 mb-0">No similar locations found.</p>
+                            )}
+                        </div>
                 </div>
             </div>
     );

@@ -3,10 +3,12 @@ import TripDetails from "../components/Itinerary/TripDetails";
 import HotelCard from "../components/Itinerary/HotelCard";
 import TripModal from "../components/Itinerary/TripModal";
 import TripDay from "../components/Itinerary/TripDay";
+import ShowInfoModal from "../components/Itinerary/ShowInfoModal";
 
 
-import { Container, Row, Col, Button } from "react-bootstrap";
-import { useState, useMemo } from "react";
+import { Container, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
 import { apiUrl } from "../utils/api";
 import { getDayColour } from "../utils/dayColours";
 
@@ -32,9 +34,37 @@ export default function Itinerary() {
     const [saving, setSaving] = useState(false);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [selectedStop, setSelectedStop] = useState(null);
+    const [showStopModal, setShowStopModal] = useState(false);
 
     const [tripName, setTripName] = useState("Insert Name");
     const [showGenerateModal, setShowGenerateModal] = useState(false);
+    const navigate = useNavigate();
+
+    const builderHelp = (
+        <Tooltip id="tt-itinerary-help" className="tt-help-tooltip">
+            <div className="tt-help-tooltip-title">Design your Perfect Trip</div>
+            <div className="tt-help-tooltip-item">
+                <span className="tt-help-tooltip-label">Manual:</span> Add days yourself, then add or move locations to shape the perfect plan.
+            </div>
+            <div className="tt-help-tooltip-item">
+                <span className="tt-help-tooltip-label">Generated:</span> Use “Generate Trip” to auto-fill days and customise to your liking. You can select from the city you wish to travel to, the number of days you want to spend there, and how many locations you want to visit each day. TeaTrips will then create a personalised itinerary for you based on your preferences and previous travel history.
+            </div>
+        </Tooltip>
+    );
+
+    useEffect(() => {
+        if (itinerary?.days.length) return;
+    const cached = sessionStorage.getItem("cachedItinerary");
+    if (!cached) return;
+    const parsed =  JSON.parse(cached);
+    if (parsed?.itinerary) {
+        setItinerary(parsed.itinerary);
+        setStartDate(parsed.startDate || "");
+        setEndDate(parsed.endDate || "");
+    }}, []);
+
+
 
     function daysBetweenInclusive(startDate, endDate) {
         if (!startDate || !endDate) return 0;
@@ -191,6 +221,23 @@ export default function Itinerary() {
             };
         });
     }
+    function handleOpenStop(stop){
+        setSelectedStop(stop);
+        setShowStopModal(true);
+    }
+
+    function handleViewDetails(stop){
+        cacheItinerary(itinerary);
+        navigate(`/locations/${stop.id}`);
+    }
+
+    function cacheItinerary(itinerary) {
+        sessionStorage.setItem("cachedItinerary", JSON.stringify({
+            itinerary:itinerary,
+            startDate,
+            endDate,
+        }));
+    }
 
     // Loads location markers onto the map
     const itineraryMapLocations = useMemo(() =>{
@@ -216,19 +263,20 @@ export default function Itinerary() {
                     <Col lg={6} className="mb-4 tt-itinerary-left-col">
                         <div className="tt-itinerary-builder">
                             <div className="d-flex align-items-center justify-content-between mb-4">
-                                <h1 className="tt-title mb-0">Itinerary Builder</h1>
+                                <div className="d-flex align-items-center gap-2">
+                                    <h1 className="tt-title mb-0">Itinerary Builder</h1>
+                                </div>
                                 <div className="d-flex gap-2">
                                     <Button
                                         className="tt-btn tt-btn-secondary"
                                         onClick={handleSaveItinerary}
                                         disabled={saving}
                                     >
-                                        {saving ? "Saving..." : "Save Itinerary"}
+                                        {saving ? "Saving..." : "Save"}
                                     </Button>
                                     <Button
                                         className="tt-btn tt-btn-primary"
-                                        onClick={() => setShowGenerateModal(true)}
-                                    >
+                                        onClick={() => setShowGenerateModal(true)}>
                                         Generate Trip
                                     </Button>
                                 </div>
@@ -237,14 +285,14 @@ export default function Itinerary() {
                             {saveError && <p className="text-danger mb-3">{saveError}</p>}
                             {saveMessage && <p className="text-success mb-3">{saveMessage}</p>}
                             {loading && <p className="mb-3">Generating itinerary...</p>}
+
                             <TripDetails
                                 tripName={tripName}
                                 setTripName={setTripName}
                                 startDate={startDate}
                                 setStartDate={setStartDate}
                                 endDate={endDate}
-                                setEndDate={setEndDate}
-                            />
+                                setEndDate={setEndDate}/>
                             {itinerary?.hotel && <HotelCard hotel={itinerary.hotel} />}
                         </div>
 
@@ -268,8 +316,15 @@ export default function Itinerary() {
                                         dayColour={getDayColour(day.day)}
                                         onRemoveStop={handleRemoveStop}
                                         onMoveStop={handleMoveStop}
+                                        onOpenStop={handleOpenStop}
                                     />
                                 ))}
+                                <ShowInfoModal
+                                    show={showStopModal}
+                                    stop={selectedStop}
+                                    onClose={() => setShowStopModal(false)}
+                                    onViewDetails={handleViewDetails}
+                                />
                                 <div className="mt-3">
                                     <Button className="tt-btn tt-btn-primary" onClick={handleAddDay}>
                                         + Add Day
@@ -281,6 +336,13 @@ export default function Itinerary() {
 
                     {/* Right Side Map */}
                     <Col lg={6} className="mb-4 tt-itinerary-map-col">
+                        <div>
+                            <OverlayTrigger placement="bottom" trigger={["hover", "focus"]} overlay={builderHelp}>
+                                <button type="button" className="tt-help-trigger" aria-label="How to build a trip">
+                                    i
+                                </button>
+                            </OverlayTrigger>
+                        </div>
                         <div className="tt-map-container tt-itinerary-map-sticky">
                             <MapView
                                 showMarkers={itineraryMapLocations.length > 0}
