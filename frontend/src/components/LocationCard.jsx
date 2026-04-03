@@ -1,37 +1,51 @@
 import { useMemo } from "react";
 
-
-function rating(avg){
-    if(typeof avg !== "number") return null;
-    const n = Math.max(0,Math.min(5,Math.round(avg)));
-    return "★".repeat(n) + "☆".repeat(5-n);
+function rating(avg) {
+    const num = Number(avg);
+    if (!Number.isFinite(num)) return null;
+    const n = Math.max(0, Math.min(5, Math.round(num)));
+    return "\u2605".repeat(n) + "\u2606".repeat(5 - n);
 }
 
-export default function LocationCard({ location, onClick }){
+export default function LocationCard({ location, onClick }) {
+    const avgRatingNum = useMemo(() => {
+        const num = Number(location?.avg_rating);
+        return Number.isFinite(num) ? num : null;
+    }, [location?.avg_rating]);
+    const rating_val = useMemo(() => (avgRatingNum === null ? null : rating(avgRatingNum)), [avgRatingNum]);
+    const reviewCount =
+        typeof location?.review_count === "number"
+            ? location.review_count
+            : typeof location?.reviews_count === "number"
+            ? location.reviews_count
+            : typeof location?.reviewCount === "number"
+            ? location.reviewCount
+            : null;
 
-    const rating_val = useMemo(()=> rating(location?.avg_rating),[location?.avg_rating]);
-    
-    
     const fallback =
         "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=60";
-    
+
     return (
-        <div className="tt-loc-card h-100"
-        role= {onClick ? "button" : undefined}
-        tabIndex={onClick ? 0 : undefined}
-        onClick={onClick}
-        onKeyDown={(e)=>{
-            if (!onClick) return;
-            if (e.key === "Enter" || e.key === " ") onClick();
-        }}>
+        <div
+            className="tt-loc-card h-100"
+            role={onClick ? "button" : undefined}
+            tabIndex={onClick ? 0 : undefined}
+            onClick={onClick}
+            onKeyDown={(e) => {
+                if (!onClick) return;
+                if (e.key === "Enter" || e.key === " ") onClick();
+            }}
+        >
             <div className="tt-loc-imgwrap">
                 <img
                     className="tt-loc-img"
                     src={location.image_url || fallback}
                     alt={location.name || "Location image"}
                     loading="lazy"
-                    onError={(e) => {e.currentTarget.src=fallback;
-                    }}/>
+                    onError={(e) => {
+                        e.currentTarget.src = fallback;
+                    }}
+                />
             </div>
             <div className="tt-loc-body">
                 <h5 className="tt-loc-title">{location.name}</h5>
@@ -40,13 +54,26 @@ export default function LocationCard({ location, onClick }){
                     <span>{location.city}</span>
                 </div>
                 <div className="tt-loc-bottom">
-                    {rating_val && <span className="tt-stars">{rating_val}</span>}
-                    {typeof location.price_tier === "number" && location.price_tier> 0 ? (
-                        <span className="tt-price">{"£".repeat(Math.min(location.price_tier, 4))}</span>):(<span />)
-                    }
-
+                    <div className="tt-loc-rating">
+                        {rating_val && <span className="tt-stars">{rating_val}</span>}
+                        {avgRatingNum !== null && (
+                            <span className="tt-avg-rating">
+                                {avgRatingNum.toFixed(1)}
+                            </span>
+                        )}
+                        {reviewCount !== null && (
+                            <span className="tt-reviews-count">{reviewCount}</span>
+                        )}
+                    </div>
+                    {typeof location.price_tier === "number" && location.price_tier > 0 ? (
+                        <span className="tt-price">
+                            {"\u00a3".repeat(Math.min(location.price_tier, 4))}
+                        </span>
+                    ) : (
+                        <span />
+                    )}
                 </div>
             </div>
         </div>
-    )
+    );
 }

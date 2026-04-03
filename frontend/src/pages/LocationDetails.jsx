@@ -1,19 +1,24 @@
-import { useNavigate, useParams } from "react-router-dom";
+﻿import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import MapView from "../components/MapView";
 import { apiUrl } from "../utils/api";
 import  LocationCarousel from "../components/LocationCarousel";
+import WarningBanner from "../components/WarningBanner";
+import ReviewModal from "../components/reviews/reviewModal";
+import ReviewCard from "../components/reviews/reviewCard";
+import SaveIcon from "../assets/Save.svg";
 
 
 function rating(avg){
-    if(typeof avg !== "number") return null;
-    const n = Math.max(0,Math.min(5,Math.round(avg)));
-    return "★".repeat(n) + "☆".repeat(5-n);
+    const num = Number(avg);
+    if (!Number.isFinite(num)) return null;
+    const n = Math.max(0,Math.min(5,Math.round(num)));
+    return "\u2605".repeat(n) + "\u2606".repeat(5-n);
 }
 
 function priceRating(tier) {
     if (typeof tier !== "number" || tier <= 0) return null;
-    return "£".repeat(Math.min(4, Math.round(tier)));
+    return "\u00a3".repeat(Math.min(4, Math.round(tier)));
 }
 
 
@@ -30,6 +35,12 @@ export default function LocationDetails(){
     
     const [similarLocations, setSimilarLocations] = useState([]);
     const [similarLoading, setSimilarLoading] = useState(true);
+
+    const [reviews, setReviews] = useState([]);
+    const [reviewOpen, setReviewOpen] = useState(false);
+    const [editingReview, setEditingReview] = useState(null);
+    const [reviewsLoading, setReviewsLoading] = useState(true);
+    const [reviewsError, setReviewsError] = useState("");
 
     const fallback =
         "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=60";
@@ -65,6 +76,7 @@ export default function LocationDetails(){
     // Fetching saved location status
     useEffect(() => {
         let cancelled = false;
+
         async function loadSavedStatus(){
             try {
                 const res = await fetch(apiUrl("/api/saved"),{
@@ -111,6 +123,45 @@ export default function LocationDetails(){
         };
     }, [id]);
 
+    // Fetching Reviews
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadReviews(){
+            try {
+                setReviewsLoading(true);
+                setReviewsError("");
+                const res = await fetch(apiUrl(`/api/reviews/location/${id}?sort=recent`));
+                if (!res.ok) throw new Error(`Failed to load reviews (${res.status})`);
+                const data = await res.json();
+                if (!cancelled) setReviews(data);
+            } catch (e) {
+                if (!cancelled) setReviewsError(e.message || "Failed to load reviews");
+            } finally {
+                if (!cancelled) setReviewsLoading(false);
+            }
+        }
+
+        loadReviews();
+        return () => {
+            cancelled = true;
+        };
+    }, [id]);
+
+    // Handling Create Review Modal
+    async function handleCreateReview(payload) {
+        await fetch(apiUrl(`/api/reviews/location/${location.id}`), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ rating: payload.rating, comment: payload.comment }),
+        });
+        setReviewOpen(false);
+        // refresh reviews after submit
+        const res = await fetch(apiUrl(`/api/reviews/location/${location.id}?sort=recent`));
+        if (res.ok) setReviews(await res.json());
+    }
+
     // Toggle Saved
     async function toggleSave(){
         setSaving(true);
@@ -143,11 +194,84 @@ export default function LocationDetails(){
         }
     }
 
-    const rating_val = useMemo(()=> rating(location?.avg_rating),[location?.avg_rating]);
+    async function handleLikeReview(reviewId) {
+        setError("");
+        const target = reviews.find((review) => review.review_id === reviewId);
+        const liked = Boolean(target?.liked_by_me);
+        const method = liked ? "DELETE" : "POST";
+
+        try {
+            const res = await fetch(apiUrl(`/api/reviews/${reviewId}/like`), {
+                method,
+                credentials: "include",
+            });
+
+            if (res.status === 401) {
+                setError("Log in to like reviews");
+                return;
+            }
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                if (res.status === 403) {
+                    setError(data.error || "You can't like your own review");
+                } else {
+                    setError(data.error || "Failed to update like");
+                }
+                return;
+            }
+
+            const data = await res.json();
+            setReviews((prev) =>
+                prev.map((review) =>
+                    review.review_id === reviewId
+                        ? {
+                              ...review,
+                              liked_by_me: data.liked,
+                              like_count: data.like_count,
+                          }
+                        : review
+                )
+            );
+        } catch (err) {
+            setError(err.message || "Failed to update like");
+        }
+    }
+
+    async function handleDeleteReview(reviewId) {
+        setError("");
+        try {
+            const res = await fetch(apiUrl(`/api/reviews/${reviewId}`), {
+                method: "DELETE",
+                credentials: "include",
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setError(data.error || "Failed to delete review");
+                return;
+            }
+            setReviews((prev) => prev.filter((review) => review.review_id !== reviewId));
+        } catch (err) {
+            setError(err.message || "Failed to delete review");
+        }
+    }
+
+    const avgRatingNum = useMemo(() => {
+        const num = Number(location?.avg_rating);
+        return Number.isFinite(num) ? num : null;
+    }, [location?.avg_rating]);
+    const rating_val = useMemo(() => (avgRatingNum === null ? null : rating(avgRatingNum)), [avgRatingNum]);
     const price = useMemo(()=> priceRating(location?.price_tier),[location?.price_tier]);
 
     if (loading){
-        return <div className="container py-4"> Loading...</div>
+        return (
+            <div className="container py-4">
+                <p className="tt-empty-note text-muted">
+                    <span className="tt-teabag-icon" aria-hidden="true"></span>
+                    Steeping location details...
+                </p>
+            </div>
+        );
     }
 
     if (!location) return null;
@@ -159,20 +283,16 @@ export default function LocationDetails(){
             {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <button className="tt-btn" onClick={()=> navigate(-1)}>
-                    <strong>⇽</strong> Back
+                    <strong>{"\u21a9"}</strong> Back
                 </button>
 
                 {error && (
-                    <div className="alert alert-warning py-2 mb-3" role="alert">
-                        {error}
-                        <button
-                        type="button"
-                        className="btn-close"
-                        aria-label="Close"
-                        onClick={() => setError("")}
-                        ></button>
-                    </div>
-                    )}
+                    <WarningBanner
+                        message={error}
+                        onClose={() => setError("")}
+                        variant="warning"
+                    />
+                )}
 
 
                 {/* Save Locations Button */}
@@ -180,13 +300,26 @@ export default function LocationDetails(){
                 onClick={toggleSave}
                 disabled={saving}
                 title={isSaved ? "Remove": "Save"}>
-                    <strong>{isSaved ? "★" : "✰"}</strong> {saving ? "Saving..." : isSaved ? "Saved" : "Save"}
+                    <img className="tt-save-icon" src={SaveIcon} alt="" aria-hidden="true" />
+                    {saving ? "Saving..." : isSaved ? "Saved" : "Save"}
                 </button>
             </div>
-            <h2 className="mb-1">{location.name}</h2>
+            <div className="d-flex flex-wrap justify-content-between align-items-center mb-1 gap-3">
+                <h2 className="mb-0">{location.name}</h2>
+                <div className="d-flex align-items-center gap-2">
+                    {rating_val && <span className="tt-stars">{rating_val}</span>}
+                    {avgRatingNum !== null && (
+                        <span className="tt-avg-rating">
+                            {avgRatingNum.toFixed(1)}
+                        </span>
+                    )}
+                    <span className="tt-reviews-count">
+                        {reviewsLoading ? "…" : reviews.length}
+                    </span>
+                </div>
+            </div>
 
             <div className="d-flex align-items-center gap-3 mb-4 flex-wrap">
-                {rating && <span className="tt-stars">{rating_val}</span>}
                 {price && <span className="tt-price">{price}</span>}
                 {location.type && (
                     <span className="badge rounded-pill bg-light text-dark border">
@@ -214,7 +347,7 @@ export default function LocationDetails(){
                         {/* About Section description short placeholder*/}
                         {location.description_short && (
                             <div className="tt-loc-card p-3">
-                                <h5 className="mb-2">About</h5>
+                                <h5 className="mb-2 tt-section-title">About</h5>
                                 <p className="mb-0">{location.description_short}</p>
                             </div>
                         )}
@@ -224,7 +357,7 @@ export default function LocationDetails(){
                 <div className="col-12 col-lg-6">
                     {/* Details Section */}
                     <div className="tt-loc-card p-3 mb-4">
-                        <h5 className="mb-3">Details</h5>
+                        <h5 className="mb-3 tt-section-title">Details</h5>
 
                         {fullAddress && (
                             <div className="mb-2">
@@ -268,7 +401,7 @@ export default function LocationDetails(){
                         </div>
 
                         <div className="tt-loc-card p-3 mb-4">
-                            <h5 className="mb-3">Map</h5>
+                            <h5 className="mb-3 tt-section-title">Map</h5>
                             <div className="rounded-3 overflow-hidden"
                             style={{ height: 320}}>
                                 <MapView mode="single" selectedId={id}/>
@@ -276,10 +409,15 @@ export default function LocationDetails(){
                         </div>
 
                     </div>
+
+
                     {/* Similar Locations Placeholder */}
-                        <div className="tt-loc-card p-3 opacity-75">
+                        <div className="tt-loc-card p-3">
                             {similarLoading &&(
-                                <p className="text-muted mt-4 mb-0">Loading similar locations...</p>
+                                <p className="tt-empty-note text-muted mt-4 mb-0">
+                                    <span className="tt-teabag-icon" aria-hidden="true"></span>
+                                    Loading similar locations...
+                                </p>
                             )}
                             {!similarLoading && similarLocations.length > 0 && (
                                 <div className="mt-4">
@@ -287,9 +425,71 @@ export default function LocationDetails(){
                                 </div>
                             )}
                             {!similarLoading && similarLocations.length === 0 && (
-                                <p className="text-muted mt-4 mb-0">No similar locations found.</p>
+                                <p className="tt-empty-note text-muted mt-4 mb-0">
+                                    <span className="tt-teabag-icon" aria-hidden="true"></span>
+                                    No similar locations found.
+                                </p>
                             )}
                         </div>
+
+
+                        {/* Reviews Section */}
+                        <div className="tt-reviews-section">
+                        <div className="tt-reviews-header">
+                            <div className="tt-reviews-titlewrap">
+                                <div className="tt-reviews-title-row">
+                                    <h3 className="tt-section-title">Reviews</h3>
+                                    <span className="tt-reviews-count">
+                                        {reviewsLoading ? "…" : reviews.length}
+                                    </span>
+                                </div>
+                                <p className="tt-reviews-subtitle">Share your thoughts or read what others said.</p>
+                            </div>
+                            <button className="tt-btn" onClick={() => setReviewOpen(true)}>
+                                Write a review
+                            </button>
+                        </div>
+
+                        <ReviewModal
+                            isOpen={reviewOpen}
+                            mode="create"
+                            onClose={() => setReviewOpen(false)}
+                            onSubmit={handleCreateReview}
+                            locationName={location.name}
+                        />
+
+                        {reviewsLoading && (
+                            <p className="tt-empty-note text-muted mt-4">Loading reviews...</p>
+                        )}
+
+                        {reviewsError && (
+                            <WarningBanner
+                            message={reviewsError}
+                            onClose={() => setReviewsError("")}
+                            variant="warning"
+                            />
+                        )}
+
+                        {!reviewsLoading && reviews.length === 0 && (
+                            <p className="tt-empty-note text-muted mt-4">
+                            No reviews yet. Be the first to review!
+                            </p>
+                        )}
+
+                        <div className="tt-reviews-list mt-4">
+                            {reviews.map((review) => (
+                            <ReviewCard
+                                key={review.review_id}
+                                review={review}
+                                displayName={review.first_name}
+                                isOwner={review.is_owner}
+                                onLike={handleLikeReview}
+                                onDelete={handleDeleteReview}
+                            />
+                            ))}
+                        </div>
+                    </div>
+
                 </div>
             </div>
     );

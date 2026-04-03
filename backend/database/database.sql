@@ -103,10 +103,43 @@ CREATE TABLE IF NOT EXISTS itinerary_stops (
 	
 );
 
+-- Create Reviews Table
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    location_id INT NOT NULL,
+      rating DECIMAL(2,1) NOT NULL,
+    comment TEXT,
+    like_count INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_review_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_review_location
+        FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE CASCADE,
+    CONSTRAINT uq_review_user_location UNIQUE (user_id, location_id),
+    is_visible BOOLEAN DEFAULT TRUE,
+    deleted_at TIMESTAMP NULL,
+    CONSTRAINT deleted_by
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Create Review Likes Table
+CREATE TABLE IF NOT EXISTS review_likes (
+    review_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (review_id, user_id),
+    CONSTRAINT fk_review_likes_review
+        FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE,
+    CONSTRAINT fk_review_likes_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
 
 
 
--- Import CSV 
+
+
+-- Import CSV
 
 -- Make sure `locations.csv` is placed in a `data` folder relative to this file.
 -- Uncomment to run:

@@ -12,6 +12,7 @@ const authRoutes = require("./routes/authRoutes");
 const locationRoutes = require("./routes/locationRoutes");
 const itineraryRoutes = require("./routes/itineraryRoutes")
 const savedRoutes = require("./routes/savedRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -26,6 +27,7 @@ app.use("/api/auth",authRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/itinerary", itineraryRoutes);
 app.use("/api/saved",savedRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 app.get("/api/ping", (req, res) => {
     res.json({ message: "Backend is running" });

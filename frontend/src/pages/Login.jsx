@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card, Form, Button, InputGroup } from "react-bootstrap";
 import { apiUrl } from "../utils/api";
+import WarningBanner from "../components/WarningBanner";
 import ShowIcon from "../assets/Show.svg";
 import HideIcon from "../assets/Hide.svg";
 
@@ -8,6 +10,7 @@ import HideIcon from "../assets/Hide.svg";
 function Login () {
     const backgroundImg = "https://images.unsplash.com/photo-1681407979872-0a4cbde28391?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -15,6 +18,30 @@ function Login () {
 
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function checkLoggedIn() {
+            try {
+                const res = await fetch(apiUrl("/api/auth/user"), {
+                    credentials: "include",
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!cancelled && data?.user) {
+                    navigate("/explore", { replace: true });
+                }
+            } catch {
+                // ignore
+            }
+        }
+
+        checkLoggedIn();
+        return () => {
+            cancelled = true;
+        };
+    }, [navigate]);
 
     // Login Function
     const login = async (e) => {
@@ -60,9 +87,11 @@ function Login () {
                         <p className="tt-form-sub">Log In to save locations and itineraries.</p>
                         
                         {error && (
-                            <div className="alert alert-danger py-2" role="alert">
-                                {error}
-                            </div>
+                            <WarningBanner
+                                message={error}
+                                onClose={() => setError("")}
+                                variant="warning"
+                            />
                         )}
 
 

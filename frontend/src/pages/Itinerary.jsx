@@ -4,6 +4,8 @@ import HotelCard from "../components/Itinerary/HotelCard";
 import TripModal from "../components/Itinerary/TripModal";
 import TripDay from "../components/Itinerary/TripDay";
 import ShowInfoModal from "../components/Itinerary/ShowInfoModal";
+import WarningBanner from "../components/WarningBanner";
+import SaveIcon from "../assets/Save.svg";
 
 
 import { Container, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
@@ -86,8 +88,10 @@ export default function Itinerary() {
         }
 
         try {
+            setItinerary(createBlankItinerary());
             setLoading(true);
             setError(null);
+            await new Promise((resolve) => setTimeout(resolve, 3500));
 
             const res = await fetch(apiUrl("/api/itinerary/generate"), {
                 method: "POST",
@@ -272,6 +276,7 @@ export default function Itinerary() {
                                         onClick={handleSaveItinerary}
                                         disabled={saving}
                                     >
+                                        <img className="tt-save-icon" src={SaveIcon} alt="" aria-hidden="true" />
                                         {saving ? "Saving..." : "Save"}
                                     </Button>
                                     <Button
@@ -281,10 +286,21 @@ export default function Itinerary() {
                                     </Button>
                                 </div>
                             </div>
-                            {error && <p className="text-danger mb-3">{error}</p>}
-                            {saveError && <p className="text-danger mb-3">{saveError}</p>}
+                            {error && (
+                                <WarningBanner
+                                    message={error}
+                                    onClose={() => setError(null)}
+                                    variant="warning"
+                                />
+                            )}
+                            {saveError && (
+                                <WarningBanner
+                                    message={saveError}
+                                    onClose={() => setSaveError(null)}
+                                    variant="warning"
+                                />
+                            )}
                             {saveMessage && <p className="text-success mb-3">{saveMessage}</p>}
-                            {loading && <p className="mb-3">Generating itinerary...</p>}
 
                             <TripDetails
                                 tripName={tripName}
@@ -293,13 +309,34 @@ export default function Itinerary() {
                                 setStartDate={setStartDate}
                                 endDate={endDate}
                                 setEndDate={setEndDate}/>
+                            {loading && (
+                                <div className="tt-tea-progress mt-3">
+                                <div className="tt-tea-progress-top">
+                                        <div className="tt-tea-steam-wrap" aria-hidden="true">
+                                            <div className="tt-tea-steam-bars">
+                                                <span></span>
+                                                <span></span>
+                                                <span></span>
+                                            </div>
+                                            <span className="tt-tea-cup-icon"></span>
+                                        </div>
+                                </div>
+                                    <div className="tt-tea-progress-text">
+                                        Brewing your results...
+                                    </div>
+                                    <div className="tt-tea-progress-track" aria-hidden="true">
+                                        <div className="tt-tea-progress-fill"></div>
+                                    </div>
+                                </div>
+                            )}
                             {itinerary?.hotel && <HotelCard hotel={itinerary.hotel} />}
                         </div>
 
                         {itinerary.days.length === 0 ? (
                             <div className="tt-day-card">
                                 <div className="tt-day-body">
-                                    <p className="mb-3 text-muted">
+                                    <p className="tt-empty-note mb-3 text-muted">
+                                        <span className="tt-teabag-icon" aria-hidden="true"></span>
                                         Your itinerary is empty. Add a day manually or generate a trip.
                                     </p>
                                     <Button className="tt-btn tt-btn-primary" onClick={handleAddDay}>

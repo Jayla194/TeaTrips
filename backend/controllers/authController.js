@@ -1,6 +1,5 @@
 // handles registration and login/logout logic
 // Interacts with the database and creates a cookie
-
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {

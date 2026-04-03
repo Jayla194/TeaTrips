@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import CategoryPills from "../components/CategoryPills";
 import LocationCarousel from "../components/LocationCarousel";
+import WarningBanner from "../components/WarningBanner";
 import { getLondonAttractionsMostSaved, getHighlyRatedCheapLocations } from "../utils/exploreCarousels";
 import { pillMatches } from "../utils/categoryMapping";
 import LocationCard from "../components/LocationCard";
@@ -250,8 +251,19 @@ export default function Explore(){
                 </div>
             </header>
 
-            {loading && <p className="text-center text-muted">Loading Locations...</p>}
-            {error && <p className="text-center text-danger">{error}</p>}
+            {loading && (
+                <p className="tt-empty-note text-center text-muted justify-content-center">
+                    <span className="tt-teabag-icon" aria-hidden="true"></span>
+                    Steeping locations...
+                </p>
+            )}
+            {error && (
+                <WarningBanner
+                    message={error}
+                    onClose={() => setError("")}
+                    variant="warning"
+                />
+            )}
 
             {!loading && ! error && (
                 <>
@@ -266,16 +278,19 @@ export default function Explore(){
                             emptyMessage="Save locations to see similar recommendations here!"
                         />
                     )}
+                    <div className="tt-carousel-divider"></div>
                     <LocationCarousel
                     title="London Attractions"
                     locations={getLondonAttractionsMostSaved(locations)}
                     />
+                    <div className="tt-carousel-divider"></div>
                     <LocationCarousel
                     title="Popular Locations"
                     // slice top 10 locations based on saved count for the carousel
                     locations={popularLocations.slice(0, 10)}
                     />
 
+                    <div className="tt-carousel-divider"></div>
                     <LocationCarousel
                     title="Highly Rated & Cheap"
                     locations={highlyRatedCheapLocations}
@@ -287,6 +302,12 @@ export default function Explore(){
                     <p className="text-muted mb-2">
                         Showing <strong>{filteredLocations.length}</strong> result(s)
                     </p>
+                    {filteredLocations.length === 0 && (
+                        <p className="tt-empty-note text-muted mb-3">
+                            <span className="tt-teabag-icon" aria-hidden="true"></span>
+                            No places found. Try a different search.
+                        </p>
+                    )}
 
                     <div className="row g-3">
                         {filteredLocations.map((loc)=>(

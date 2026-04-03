@@ -17,10 +17,13 @@ export default function Home(){
             logoSrc={logo}
             logoAlt="Tea Trips Logo"
             />
+            <div className="tt-home-divider"></div>
             <HowItWorks />
             
+            <div className="tt-home-divider"></div>
             <RegionTiles regions={["London","Birmingham","Oxford"]} />
 
+            <div className="tt-home-divider"></div>
             <ClosingSection logoSrc={logo} logoAlt="Tea Trips Logo"/>
         </div>
     );
