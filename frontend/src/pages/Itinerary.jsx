@@ -4,8 +4,9 @@ import HotelCard from "../components/Itinerary/HotelCard";
 import TripModal from "../components/Itinerary/TripModal";
 import TripDay from "../components/Itinerary/TripDay";
 import ShowInfoModal from "../components/Itinerary/ShowInfoModal";
+import AddLocationModal from "../components/Itinerary/AddLocationModal";
 import WarningBanner from "../components/WarningBanner";
-import SaveIcon from "../assets/Save.svg";
+import { SaveIcon } from "../components/icons";
 
 
 import { Container, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
@@ -38,6 +39,16 @@ export default function Itinerary() {
     const [endDate, setEndDate] = useState("");
     const [selectedStop, setSelectedStop] = useState(null);
     const [showStopModal, setShowStopModal] = useState(false);
+    const [stopAnchor, setStopAnchor] = useState(null);
+    const [showAddLocation, setShowAddLocation] = useState(false);
+    const [addDayNumber, setAddDayNumber] = useState(null);
+    const [addingHotel, setAddingHotel] = useState(false);
+    const [allLocations, setAllLocations] = useState([]);
+    const [locationsLoading, setLocationsLoading] = useState(false);
+    const [locationsError, setLocationsError] = useState("");
+    const [locationQuery, setLocationQuery] = useState("");
+    const [suggestedLocations, setSuggestedLocations] = useState([]);
+    const [suggestedLoading, setSuggestedLoading] = useState(false);
 
     const [tripName, setTripName] = useState("Insert Name");
     const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -65,6 +76,135 @@ export default function Itinerary() {
         setStartDate(parsed.startDate || "");
         setEndDate(parsed.endDate || "");
     }}, []);
+
+    useEffect(() => {
+        if (!showAddLocation) return;
+        if (allLocations.length > 0) return;
+
+        const controller = new AbortController();
+        let cancelled = false;
+
+        async function loadLocations() {
+            try {
+                setLocationsLoading(true);
+                setLocationsError("");
+                const res = await fetch(apiUrl("/api/locations"), { signal: controller.signal });
+                if (!res.ok) throw new Error("Failed to load locations");
+                const data = await res.json();
+                if (!cancelled) {
+                    setAllLocations(Array.isArray(data) ? data : []);
+                }
+            } catch (err) {
+                if (!cancelled && err.name !== "AbortError") {
+                    setLocationsError(err.message || "Failed to load locations");
+                }
+            } finally {
+                if (!cancelled) setLocationsLoading(false);
+            }
+        }
+
+        loadLocations();
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [showAddLocation, allLocations.length]);
+
+    useEffect(() => {
+        if (!showAddLocation) return;
+        setLocationQuery("");
+    }, [showAddLocation, itinerary?.meta?.city]);
+
+    const selectedDayStops = useMemo(() => {
+        if (!addDayNumber || !Array.isArray(itinerary?.days)) return [];
+        const day = itinerary.days.find((d) => d.day === addDayNumber);
+        return Array.isArray(day?.stops) ? day.stops : [];
+    }, [addDayNumber, itinerary?.days]);
+
+    const suggestionSeedId = useMemo(() => {
+        if (addingHotel) return null;
+        if (Array.isArray(selectedDayStops) && selectedDayStops.length > 0) {
+            return selectedDayStops[0]?.id ?? null;
+        }
+        return null;
+    }, [addingHotel, selectedDayStops]);
+
+    const suggestionCity = useMemo(() => {
+        const city = String(itinerary?.meta?.city || itinerary?.hotel?.city || "").trim();
+        return city;
+    }, [itinerary?.meta?.city, itinerary?.hotel?.city]);
+
+    const isHotelLocation = (loc) => {
+        const type = String(loc?.type || "").trim().toLowerCase();
+        const tags = String(loc?.tags || "").trim().toLowerCase();
+        return type === "hotel" || tags.includes("hotel");
+    };
+
+    const citySuggestions = useMemo(() => {
+        if (!suggestionCity || !Array.isArray(allLocations)) return [];
+        return allLocations
+            .filter(
+                (loc) =>
+                    String(loc?.city || "").trim().toLowerCase() === suggestionCity.toLowerCase() &&
+                    !isHotelLocation(loc)
+            )
+            .sort((a, b) => Number(b?.avg_rating || 0) - Number(a?.avg_rating || 0))
+            .slice(0, 6);
+    }, [allLocations, suggestionCity]);
+
+    const hotelSuggestions = useMemo(() => {
+        if (!suggestionCity || !Array.isArray(allLocations)) return [];
+        return allLocations
+            .filter(
+                (loc) =>
+                    String(loc?.city || "").trim().toLowerCase() === suggestionCity.toLowerCase() &&
+                    isHotelLocation(loc)
+            )
+            .sort((a, b) => Number(b?.avg_rating || 0) - Number(a?.avg_rating || 0))
+            .slice(0, 6);
+    }, [allLocations, suggestionCity]);
+
+    useEffect(() => {
+        if (!showAddLocation) return;
+        if (!suggestionSeedId) {
+            setSuggestedLocations(citySuggestions);
+            setSuggestedLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+        async function loadSuggestions() {
+            try {
+                setSuggestedLoading(true);
+                const res = await fetch(
+                    apiUrl(`/api/locations/${suggestionSeedId}/similar?limit=6`)
+                );
+                if (!res.ok) throw new Error("Failed to load suggestions");
+                const data = await res.json();
+                if (!cancelled) {
+                    const list = Array.isArray(data) ? data : [];
+                    const noHotels = list.filter((loc) => !isHotelLocation(loc));
+                    const cityFiltered = suggestionCity
+                        ? noHotels.filter(
+                              (loc) =>
+                                  String(loc?.city || "").trim().toLowerCase() ===
+                                  suggestionCity.toLowerCase()
+                          )
+                        : noHotels;
+                    setSuggestedLocations(cityFiltered.length > 0 ? cityFiltered : noHotels);
+                }
+            } catch (err) {
+                if (!cancelled) setSuggestedLocations([]);
+            } finally {
+                if (!cancelled) setSuggestedLoading(false);
+            }
+        }
+
+        loadSuggestions();
+        return () => {
+            cancelled = true;
+        };
+    }, [showAddLocation, suggestionSeedId, suggestionCity, citySuggestions]);
 
 
 
@@ -101,6 +241,7 @@ export default function Itinerary() {
                     city: formData.city,
                     days,
                     stopsPerDay: formData.stopsPerDay,
+                    includeHotels: formData.includeHotels,
                 }),
             });
 
@@ -225,14 +366,110 @@ export default function Itinerary() {
             };
         });
     }
+
+    function handleOpenAddLocation(dayNumber) {
+        setAddDayNumber(dayNumber);
+        setAddingHotel(false);
+        setShowAddLocation(true);
+    }
+
+    function handleCloseAddLocation() {
+        setShowAddLocation(false);
+        setAddDayNumber(null);
+        setAddingHotel(false);
+    }
+
+    function handleOpenAddHotel() {
+        setAddDayNumber(null);
+        setAddingHotel(true);
+        setShowAddLocation(true);
+    }
+
+    function handleAddLocation(dayNumber, location) {
+        if (!location || !dayNumber) return;
+
+        const stop = {
+            id: location.id,
+            name: location.name,
+            type: location.type,
+            lat: location.lat,
+            lon: location.lon,
+            avgRating: location.avg_rating,
+            imageUrl: location.image_url,
+        };
+
+        setItinerary((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                days: prev.days.map((day) => {
+                    if (day.day !== dayNumber) return day;
+                    const existingStops = Array.isArray(day.stops) ? day.stops : [];
+                    if (existingStops.some((s) => s?.id === stop.id)) return day;
+                    return { ...day, stops: [...existingStops, stop] };
+                }),
+            };
+        });
+    }
+
+    function handleRemoveLocation(dayNumber, location) {
+        if (!location || !dayNumber) return;
+        const idToRemove = location.id;
+        if (!idToRemove) return;
+
+        setItinerary((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                days: prev.days.map((day) => {
+                    if (day.day !== dayNumber) return day;
+                    const existingStops = Array.isArray(day.stops) ? day.stops : [];
+                    const nextStops = existingStops.filter((stop) => stop?.id !== idToRemove);
+                    return { ...day, stops: nextStops };
+                }),
+            };
+        });
+    }
+
+    function handleAddHotel(location) {
+        if (!location) return;
+        setItinerary((prev) => ({
+            ...prev,
+            hotel: {
+                id: location.id,
+                name: location.name,
+                type: location.type,
+                lat: location.lat,
+                lon: location.lon,
+                avg_rating: location.avg_rating,
+                image_url: location.image_url,
+                address: location.address,
+                city: location.city,
+            },
+        }));
+        handleCloseAddLocation();
+    }
+
+    function handleRemoveHotel() {
+        setItinerary((prev) => ({ ...prev, hotel: null }));
+    }
     function handleOpenStop(stop){
         setSelectedStop(stop);
+        setStopAnchor(null);
+        setShowStopModal(true);
+    }
+
+    function handleOpenStopFromMarker(stop, screenPoint){
+        const preferLeft = screenPoint ? screenPoint.x > window.innerWidth * 0.6 : false;
+        setSelectedStop(stop);
+        setStopAnchor(screenPoint ? { ...screenPoint, preferLeft } : null);
         setShowStopModal(true);
     }
 
     function handleViewDetails(stop){
         cacheItinerary(itinerary);
-        navigate(`/locations/${stop.id}`);
+        const locationId = stop?.locationId ?? stop?.id;
+        navigate(`/locations/${locationId}`);
     }
 
     function cacheItinerary(itinerary) {
@@ -247,18 +484,74 @@ export default function Itinerary() {
     const itineraryMapLocations = useMemo(() =>{
         if (!Array.isArray(itinerary?.days)) return [];
 
-        return itinerary.days.flatMap((day)=>{
+        const dayStops = itinerary.days.flatMap((day)=>{
             if(!Array.isArray(day?.stops)) return[];
 
             return day.stops.map((stop,stopIndex) => ({
                 id:`${day.day}-${stopIndex}-${stop?.id??"stop"}`,
+                locationId: stop?.id,
                 name: stop?.name || `Day ${day.day} stop`,
                 lat: stop?.lat,
                 lon: stop.lon,
                 day: day.day, // Used for colour coding markers for each day
             }));
-        })
+        });
+
+        const hotel = itinerary?.hotel;
+        const hasHotelCoords =
+            hotel &&
+            Number.isFinite(Number(hotel.lat)) &&
+            Number.isFinite(Number(hotel.lon));
+
+        if (!hasHotelCoords) return dayStops;
+
+        return [
+            ...dayStops,
+            {
+                id: hotel.id,
+                markerKey: `hotel-${hotel.id}`,
+                locationId: hotel.id,
+                name: hotel.name || "Hotel",
+                lat: hotel.lat,
+                lon: hotel.lon,
+                markerColor: "#5b3d27",
+                isHotel: true,
+            },
+        ];
     }, [itinerary]);
+
+    const cityLabel = String(itinerary?.meta?.city || "").trim();
+    const filteredLocations = useMemo(() => {
+        if (!Array.isArray(allLocations)) return [];
+        const term = locationQuery.trim().toLowerCase();
+
+        const filtered = allLocations.filter((loc) => {
+            if (!addingHotel && isHotelLocation(loc)) return false;
+            if (!term) return true;
+            const name = String(loc?.name || "").toLowerCase();
+            const locCity = String(loc?.city || "").toLowerCase();
+            return name.includes(term) || locCity.includes(term);
+        });
+
+        return filtered.slice(0, 30);
+    }, [allLocations, locationQuery, addingHotel]);
+
+    const filteredHotelLocations = useMemo(() => {
+        if (!Array.isArray(allLocations)) return [];
+        const term = locationQuery.trim().toLowerCase();
+        const cityFilter = cityLabel ? cityLabel.toLowerCase() : "";
+
+        const hotels = allLocations.filter((loc) => {
+            if (!isHotelLocation(loc)) return false;
+            if (cityFilter && String(loc?.city || "").trim().toLowerCase() !== cityFilter) return false;
+            if (!term) return true;
+            const name = String(loc?.name || "").toLowerCase();
+            const locCity = String(loc?.city || "").toLowerCase();
+            return name.includes(term) || locCity.includes(term);
+        });
+
+        return hotels.slice(0, 30);
+    }, [allLocations, locationQuery, cityLabel]);
 
     return (
         <div className="tt-itinerary-page">
@@ -276,7 +569,7 @@ export default function Itinerary() {
                                         onClick={handleSaveItinerary}
                                         disabled={saving}
                                     >
-                                        <img className="tt-save-icon" src={SaveIcon} alt="" aria-hidden="true" />
+                                        <SaveIcon className="tt-save-icon" />
                                         {saving ? "Saving..." : "Save"}
                                     </Button>
                                     <Button
@@ -329,7 +622,26 @@ export default function Itinerary() {
                                     </div>
                                 </div>
                             )}
-                            {itinerary?.hotel && <HotelCard hotel={itinerary.hotel} />}
+                            {itinerary?.hotel && (
+                                <HotelCard
+                                    hotel={itinerary.hotel}
+                                    onViewDetails={handleOpenStop}
+                                    onRemove={handleRemoveHotel}
+                                />
+                            )}
+                            {!itinerary?.hotel && (
+                                <div className="mb-4">
+                                    <h4 className="tt-section-label">Suggested Hotel</h4>
+                                    <div className="tt-hotel-card">
+                                        <p className="mb-3 text-muted">
+                                            No hotel added yet. Pick one from the hotel list.
+                                        </p>
+                                        <Button className="tt-btn tt-btn-primary" onClick={handleOpenAddHotel}>
+                                            + Add Hotel
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {itinerary.days.length === 0 ? (
@@ -353,12 +665,14 @@ export default function Itinerary() {
                                         dayColour={getDayColour(day.day)}
                                         onRemoveStop={handleRemoveStop}
                                         onMoveStop={handleMoveStop}
+                                        onAddStop={handleOpenAddLocation}
                                         onOpenStop={handleOpenStop}
                                     />
                                 ))}
                                 <ShowInfoModal
                                     show={showStopModal}
                                     stop={selectedStop}
+                                    anchor={stopAnchor}
                                     onClose={() => setShowStopModal(false)}
                                     onViewDetails={handleViewDetails}
                                 />
@@ -385,6 +699,7 @@ export default function Itinerary() {
                                 showMarkers={itineraryMapLocations.length > 0}
                                 mode="multiple"
                                 locationsOverride={itineraryMapLocations}
+                                onMarkerClick={handleOpenStopFromMarker}
                             />
                         </div>
                     </Col>
@@ -396,6 +711,29 @@ export default function Itinerary() {
                 show={showGenerateModal}
                 onClose={() => setShowGenerateModal(false)}
                 onGenerate={generateItinerary}
+            />
+
+            <AddLocationModal
+                show={showAddLocation}
+                dayNumber={addDayNumber}
+                title={addingHotel ? "Add Hotel" : undefined}
+                suggestedLocations={addingHotel ? hotelSuggestions : suggestedLocations}
+                suggestedLoading={addingHotel ? locationsLoading : suggestedLoading}
+                locations={addingHotel ? filteredHotelLocations : filteredLocations}
+                loading={locationsLoading}
+                error={locationsError}
+                onClearError={() => setLocationsError("")}
+                query={locationQuery}
+                onQueryChange={setLocationQuery}
+                cityLabel={cityLabel}
+                dayStops={addingHotel ? (itinerary?.hotel ? [itinerary.hotel] : []) : selectedDayStops}
+                onAddLocation={(loc) =>
+                    addingHotel ? handleAddHotel(loc) : handleAddLocation(addDayNumber, loc)
+                }
+                onRemoveLocation={(loc) =>
+                    addingHotel ? handleRemoveHotel() : handleRemoveLocation(addDayNumber, loc)
+                }
+                onClose={handleCloseAddLocation}
             />
         </div>
     );

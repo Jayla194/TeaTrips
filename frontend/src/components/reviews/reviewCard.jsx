@@ -1,4 +1,4 @@
-import DeleteIcon from "../../assets/Delete.svg";
+import { DeleteIcon } from "../icons";
 
 export default function ReviewCard({ review, onLike, onEdit, onDelete, isOwner, displayName }) {
     const {
@@ -68,7 +68,7 @@ export default function ReviewCard({ review, onLike, onEdit, onDelete, isOwner, 
                                             aria-label="Delete review"
                                             title="Delete review"
                                         >
-                                            <img src={DeleteIcon} alt="" aria-hidden="true" />
+                                            <DeleteIcon className="tt-review-delete-icon" />
                                         </button>
                                     )}
                                 </>

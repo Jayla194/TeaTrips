@@ -24,7 +24,6 @@ async function getAllCities(){
 
 async function getHotelsByCity(city){
     const [rows] = await db.query("SELECT * FROM locations WHERE city = ? AND type = ?",[city,"hotel"]);
-    console.log("City:", city, "Hotels found:", rows.length);
     return rows;
 }
 

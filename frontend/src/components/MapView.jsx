@@ -1,6 +1,6 @@
 import { MapContainer, TileLayer , Marker, Popup, useMap} from "react-leaflet";
 import L from "leaflet";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { apiUrl } from "../utils/api";
 import { getDayColour } from "../utils/dayColours";
@@ -23,8 +23,14 @@ function GoToLocation({ location }) {
 
 function FitToLocations({ locations }){
     const map = useMap();
+    const lastKeyRef = useRef("");
     useEffect(() => {
         if(!Array.isArray(locations ) ||  locations.length === 0) return;
+        const key = locations
+            .map((loc) => `${loc.id}-${loc.lat}-${loc.lon}`)
+            .join("|");
+        if (key === lastKeyRef.current) return;
+        lastKeyRef.current = key;
         const bounds = L.latLngBounds(
             locations.map((loc) => [Number(loc.lat),Number(loc.lon)])
         );
@@ -41,7 +47,8 @@ export default function MapView({
     mode="multiple",
     selectedId = null,
     locationsOverride = null,
-    showMarkers = true
+    showMarkers = true,
+    onMarkerClick = null
 }){
 
     const params = useParams();
@@ -65,8 +72,12 @@ export default function MapView({
     }, [locationsOverride]);
 
     //Check if location coordinates are valid
-    const validLocations = locations.filter(
-    loc => !isNaN(Number(loc.lat)) && !isNaN(Number(loc.lon))
+    const validLocations = useMemo(
+        () =>
+            locations.filter(
+                (loc) => !isNaN(Number(loc.lat)) && !isNaN(Number(loc.lon))
+            ),
+        [locations]
     );
 
     // Single Location context for Location Details page
@@ -75,7 +86,10 @@ export default function MapView({
     : null;
 
     // Decide which markers are shown
-    const markersToShow = mode === "single" && selectedLocation ? [selectedLocation] : validLocations;
+    const markersToShow = useMemo(
+        () => (mode === "single" && selectedLocation ? [selectedLocation] : validLocations),
+        [mode, selectedLocation, validLocations]
+    );
 
     function createDayIcon(colour) {
         return L.divIcon({
@@ -109,17 +123,37 @@ export default function MapView({
         )}
 
         {showMarkers && markersToShow.map((location) => {
-            const colour = getDayColour(location.day);
+            const colour = location.markerColor || getDayColour(location.day);
+            const markerKey = location.markerKey ?? location.id;
             return (
                 <Marker
-                    key={location.id}
+                    key={markerKey}
                     position={[Number(location.lat), Number(location.lon)]}
                     icon={createDayIcon(colour)}
+                    eventHandlers={
+                        onMarkerClick
+                            ? {
+                                click: (event) => {
+                                    const map = event?.target?._map;
+                                    if (!map) return onMarkerClick(location, null);
+                                    const point = map.latLngToContainerPoint(event.latlng);
+                                    const rect = map.getContainer().getBoundingClientRect();
+                                    const screenPoint = {
+                                        x: rect.left + point.x,
+                                        y: rect.top + point.y,
+                                    };
+                                    onMarkerClick(location, screenPoint);
+                                },
+                            }
+                            : undefined
+                    }
                 >
-                    <Popup>
-                        <strong>{location.name}</strong>
-                        {location.day ? <div>Day {location.day}</div> : null}
-                    </Popup>
+                    {!onMarkerClick && (
+                        <Popup>
+                            <strong>{location.name}</strong>
+                            {location.day ? <div>Day {location.day}</div> : null}
+                        </Popup>
+                    )}
                 </Marker>
             );
         })}

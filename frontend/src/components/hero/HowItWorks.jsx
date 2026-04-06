@@ -1,19 +1,17 @@
-import ExploreIcon from '../../assets/Explore.svg';
-import SaveIcon from '../../assets/Save.svg';
-import AddIcon from '../../assets/Add.svg';
+import { ExploreIcon, SaveIcon, AddIcon } from "../icons";
 
 export default function HowItWorks(){
     const steps = [
         {
-            iconUrl:ExploreIcon,
+            Icon: ExploreIcon,
             title:"Browse & Discover",
             description:"Explore 350+ UK locations by city, category or budget."
         },{
-            iconUrl:SaveIcon,
+            Icon: SaveIcon,
             title:"Save Your Favourites",
             description:"Build your travel list as you browse through destinations."
         },{
-            iconUrl:AddIcon,
+            Icon: AddIcon,
             title:"Generate Itineraries",
             description:"Get a personalised day-by-day plan in seconds"
         }
@@ -34,11 +32,7 @@ export default function HowItWorks(){
                             <div className="tt-how-number" >{index + 1}</div>
                             
                             <div className="tt-how-icon-wrap">
-                                <img
-                                    src={step.iconUrl}
-                                    alt={step.title}
-                                    className="tt-how-icon"
-                                />
+                                <step.Icon className="tt-how-icon" title={step.title} />
                             </div>
                             
                             <h3 className="tt-how-card-title">{step.title}</h3>

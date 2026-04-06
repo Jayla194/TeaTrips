@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card, Form, Button, InputGroup } from "react-bootstrap";
 import { apiUrl } from "../utils/api";
 import WarningBanner from "../components/WarningBanner";
-import ShowIcon from "../assets/Show.svg";
-import HideIcon from "../assets/Hide.svg";
+import { ShowIcon, HideIcon } from "../components/icons";
 
 
 function Login () {
@@ -130,11 +129,11 @@ function Login () {
                                                 aria-label={showPassword ? "Hide password" : "Show password"}
                                                 onClick={() => setShowPassword((prev) => !prev)}
                                             >
-                                                <img
-                                                    className="tt-password-toggle-icon"
-                                                    src={showPassword ? HideIcon : ShowIcon}
-                                                    alt={showPassword ? "Hide password" : "Show password"}
-                                                />
+                                                {showPassword ? (
+                                                    <HideIcon className="tt-password-toggle-icon" title="Hide password" />
+                                                ) : (
+                                                    <ShowIcon className="tt-password-toggle-icon" title="Show password" />
+                                                )}
                                             </Button>
                                         </InputGroup>
                                     </Form.Group>

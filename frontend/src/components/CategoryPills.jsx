@@ -4,7 +4,9 @@ export default function CategoryPills({ options, active, onSelect, icons = {} })
             {options.map((opt) => {
                 const isActive = opt === active;
                 const Icon = icons[opt];
+                const isIconSrc = typeof Icon === "string";
 
+                const slug = String(opt).toLowerCase().replace(/[^a-z0-9]+/g, "-");
                 return(
                     <button
                     key = {opt}
@@ -12,8 +14,8 @@ export default function CategoryPills({ options, active, onSelect, icons = {} })
                     className={`tt-pill-btn ${isActive ? "active":""}`}
                     onClick={()=>onSelect(opt)}>
                         {Icon && (
-                            <span className="tt-pill-icon">
-                                <img src={Icon} alt="" />
+                            <span className={`tt-pill-icon tt-pill-icon-${slug}`}>
+                                {isIconSrc ? <img src={Icon} alt="" /> : <Icon />}
                             </span>
                         )}
                         <span>{opt}</span>

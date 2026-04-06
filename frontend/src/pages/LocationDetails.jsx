@@ -6,7 +6,7 @@ import  LocationCarousel from "../components/LocationCarousel";
 import WarningBanner from "../components/WarningBanner";
 import ReviewModal from "../components/reviews/reviewModal";
 import ReviewCard from "../components/reviews/reviewCard";
-import SaveIcon from "../assets/Save.svg";
+import { SaveIcon } from "../components/icons";
 
 
 function rating(avg){
@@ -300,7 +300,7 @@ export default function LocationDetails(){
                 onClick={toggleSave}
                 disabled={saving}
                 title={isSaved ? "Remove": "Save"}>
-                    <img className="tt-save-icon" src={SaveIcon} alt="" aria-hidden="true" />
+                    <SaveIcon className="tt-save-icon" />
                     {saving ? "Saving..." : isSaved ? "Saved" : "Save"}
                 </button>
             </div>
@@ -377,7 +377,7 @@ export default function LocationDetails(){
                         {location.website && (
                             <div className="mb-2">
                             <div className="tt-loc-info">Website</div>
-                            <a href={location.website} target="_blank" rel="noreferrer">
+                            <a className="tt-link" href={location.website} target="_blank" rel="noreferrer">
                                 {location.website}
                             </a>
                             </div>

@@ -1,4 +1,4 @@
-import searchIcon from "../assets/Search.svg"
+import { SearchIcon } from "./icons";
 
 export default function SearchBar ({ value, onChange, placeholder, onSearch, onClear }){
     
@@ -36,7 +36,7 @@ export default function SearchBar ({ value, onChange, placeholder, onSearch, onC
                     onClick={() => onSearch && onSearch()}
                     title="Search"
                     >
-                    <img src={searchIcon} alt=""/>
+                    <SearchIcon className="tt-icon" title="Search" />
                 </button>
             </div>
         </div>

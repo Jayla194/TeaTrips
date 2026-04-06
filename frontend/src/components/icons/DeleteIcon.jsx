@@ -1,0 +1,30 @@
+export default function DeleteIcon({ className, title }) {
+    const svg = `<svg width="45" height="51" viewBox="0 0 45 51" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="path-1-inside-1_433_44" fill="currentColor">
+<path d="M4 14H19V51H7C5.34315 51 4 49.6569 4 48V14Z"/>
+</mask>
+<path d="M4 14H19V51H7C5.34315 51 4 49.6569 4 48V14Z" stroke="currentColor" stroke-width="10" mask="url(#path-1-inside-1_433_44)"/>
+<path d="M27.5 16.5V48.5H17.5V16.5H27.5Z" stroke="currentColor" stroke-width="5"/>
+<mask id="path-3-inside-2_433_44" fill="currentColor">
+<path d="M25 14H40V48C40 49.6569 38.6569 51 37 51H25V14Z"/>
+</mask>
+<path d="M25 14H40V48C40 49.6569 38.6569 51 37 51H25V14Z" stroke="currentColor" stroke-width="10" mask="url(#path-3-inside-2_433_44)"/>
+<mask id="path-4-inside-3_433_44" fill="currentColor">
+<rect y="6" width="45" height="12" rx="3"/>
+</mask>
+<rect y="6" width="45" height="12" rx="3" stroke="currentColor" stroke-width="10" mask="url(#path-4-inside-3_433_44)"/>
+<mask id="path-5-inside-4_433_44" fill="currentColor">
+<rect x="17" width="10" height="10" rx="1"/>
+</mask>
+<rect x="17" width="10" height="10" rx="1" stroke="currentColor" stroke-width="8" mask="url(#path-5-inside-4_433_44)"/>
+</svg>
+`;
+    return (
+        <span
+            className={className}
+            role={title ? "img" : "presentation"}
+            aria-label={title || undefined}
+            dangerouslySetInnerHTML={{ __html: svg }}
+        />
+    );
+}

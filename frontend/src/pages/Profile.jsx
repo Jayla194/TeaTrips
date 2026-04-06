@@ -5,29 +5,61 @@ import { apiUrl } from "../utils/api";
 import WarningBanner from "../components/WarningBanner";
 import ReviewCard from "../components/reviews/reviewCard";
 import ReviewModal from "../components/reviews/reviewModal";
-import OverviewIcon from "../assets/Overview.svg";
-import SaveIcon from "../assets/Save.svg";
-import AddIcon from "../assets/Add.svg";
-import ExploreIcon from "../assets/Explore.svg";
+import {
+    OverviewIcon,
+    SaveIcon,
+    AddIcon,
+    ExploreIcon,
+    LightMode,
+    DarkMode,
+} from "../components/icons";
 
 export default function Profile(){
     
     const [user,setUser] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
     const [savedLocations, setSavedLocations] = useState([]);
     const [visible, setVisible] = useState(6);
+
     const [itineraries, setItineraries] = useState([]);
     const [itineraryLoading, setItineraryLoading] = useState(false);
     const [itineraryError, setItineraryError] = useState("");
+
     const [reviews, setReviews] = useState([]);
     const [reviewsLoading, setReviewsLoading] = useState(false);
     const [reviewsError, setReviewsError] = useState("");
     const [reviewOpen, setReviewOpen] = useState(false);
     const [editingReview, setEditingReview] = useState(null);
+    // Controls which profile section is visible in the main panel
+    const [activeSection, setActiveSection] = useState("overview");
+    const [darkMode, setDarkMode] = useState(() => {
+        try {
+            return localStorage.getItem("tt-dark-mode") === "true";
+        } catch {
+            return false;
+        }
+    });
+    const [prefsOpen, setPrefsOpen] = useState(false);
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const root = document.documentElement;
+        if (darkMode) {
+            root.classList.add("tt-dark");
+        } else {
+            root.classList.remove("tt-dark");
+        }
+        try {
+            localStorage.setItem("tt-dark-mode", String(darkMode));
+        } catch {
+            // ignore
+        }
+    }, [darkMode]);
+
+    // Loads user info and displays profile if logged in
     useEffect(()=> {
         async function loadUser(){
             try{
@@ -49,6 +81,7 @@ export default function Profile(){
         loadUser();
     }, []);
 
+    // Loads user's saved locations
     useEffect (()=>{
         async function loadSaved(){
             try{
@@ -72,6 +105,7 @@ export default function Profile(){
         } loadSaved();
     },[]);
 
+    // Loads user's reviews
     useEffect(() => {
         async function loadItineraries() {
             try {
@@ -100,6 +134,7 @@ export default function Profile(){
         loadItineraries();
     }, []);
 
+    // Loads user's reviews
     useEffect(() => {
         async function loadReviews() {
             try {
@@ -155,21 +190,26 @@ export default function Profile(){
     const visibleLocations = savedLocations.slice(0,visible);
     const itineraryCards = itineraries.slice(0, 6);
 
+    // Calculates day count for itinerary
     function getDayCount(itinerary) {
         if (!itinerary?.start_date || !itinerary?.end_date) return null;
         const start = new Date(itinerary.start_date);
         const end = new Date(itinerary.end_date);
+        // Check for invalid dates
         if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
         const diff = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        // Only return positive counts, otherwise null
         return diff > 0 ? diff : null;
     }
 
     function handleEditReview(review) {
+        // Open the modal with the selected review pre-filled
         setEditingReview(review);
         setReviewOpen(true);
     }
 
     async function handleUpdateReview(payload) {
+        // Persist edits, then refresh the user's reviews
         if (!editingReview) return;
         try {
             const res = await fetch(apiUrl(`/api/reviews/${editingReview.review_id}`), {
@@ -196,7 +236,7 @@ export default function Profile(){
             setReviewsError(err.message || "Failed to update review");
         }
     }
-
+    // Sets review to invisible, effectively deletes it without removing it in the database
     async function handleDeleteReview(reviewId) {
         try {
             const res = await fetch(apiUrl(`/api/reviews/${reviewId}`), {
@@ -255,24 +295,40 @@ export default function Profile(){
 
                     <div className="tt-profile-divider" />
 
-                    <div className="tt-profile-nav">
-                        <div className="tt-profile-nav-title">My Profile</div>
-                        <button type="button" className="tt-profile-nav-item is-active">
-                            <img src={OverviewIcon} alt="" aria-hidden="true" />
+                        <div className="tt-profile-nav">
+                            <div className="tt-profile-nav-title">My Profile</div>
+                            <button
+                                type="button"
+                                className={`tt-profile-nav-item ${activeSection === "overview" ? "is-active" : ""}`}
+                                onClick={() => setActiveSection("overview")}
+                            >
+                            <OverviewIcon className="tt-profile-nav-icon" />
                             Overview
                         </button>
-                        <button type="button" className="tt-profile-nav-item">
-                            <img src={SaveIcon} alt="" aria-hidden="true" />
+                        <button
+                            type="button"
+                            className={`tt-profile-nav-item ${activeSection === "saved" ? "is-active" : ""}`}
+                            onClick={() => setActiveSection("saved")}
+                        >
+                            <SaveIcon className="tt-profile-nav-icon" />
                             Saved locations
                             <span className="tt-profile-nav-count">{savedLocations.length}</span>
                         </button>
-                        <button type="button" className="tt-profile-nav-item">
-                            <img src={AddIcon} alt="" aria-hidden="true" />
+                        <button
+                            type="button"
+                            className={`tt-profile-nav-item ${activeSection === "itineraries" ? "is-active" : ""}`}
+                            onClick={() => setActiveSection("itineraries")}
+                        >
+                            <AddIcon className="tt-profile-nav-icon" />
                             Itineraries
                             <span className="tt-profile-nav-count">{itineraries.length}</span>
                         </button>
-                        <button type="button" className="tt-profile-nav-item">
-                            <img src={ExploreIcon} alt="" aria-hidden="true" />
+                        <button
+                            type="button"
+                            className={`tt-profile-nav-item ${activeSection === "reviews" ? "is-active" : ""}`}
+                            onClick={() => setActiveSection("reviews")}
+                        >
+                            <ExploreIcon className="tt-profile-nav-icon" />
                             My reviews
                             <span className="tt-profile-nav-count">{reviews.length}</span>
                         </button>
@@ -283,13 +339,34 @@ export default function Profile(){
                     <div className="tt-profile-nav">
                         <div className="tt-profile-nav-title">Account</div>
                         <button type="button" className="tt-profile-nav-item">
-                            <img src={SaveIcon} alt="" aria-hidden="true" />
+                            <SaveIcon className="tt-profile-nav-icon" />
                             Edit profile
                         </button>
-                        <button type="button" className="tt-profile-nav-item">
-                            <img src={AddIcon} alt="" aria-hidden="true" />
+                        <button
+                            type="button"
+                            className="tt-profile-nav-item"
+                            onClick={() => setPrefsOpen((prev) => !prev)}
+                        >
+                            <AddIcon className="tt-profile-nav-icon" />
                             Preferences
+                            <span className={`tt-profile-pref-caret ${prefsOpen ? "open" : ""}`}>▾</span>
                         </button>
+                        {prefsOpen && (
+                            <div className="tt-profile-pref-panel">
+                                <button
+                                    type="button"
+                                    className="tt-profile-pref-option"
+                                    onClick={() => setDarkMode((prev) => !prev)}
+                                >
+                                    {darkMode ? (
+                                        <LightMode className="tt-profile-pref-icon" />
+                                    ) : (
+                                        <DarkMode className="tt-profile-pref-icon" />
+                                    )}
+                                    <span>{darkMode ? "Light mode" : "Dark mode"}</span>
+                                </button>
+                            </div>
+                        )}
                         <button type="button" className="tt-profile-danger-btn">
                             Delete account
                         </button>
@@ -302,6 +379,7 @@ export default function Profile(){
                 <div className="row g-4">
 
                     {/* Saved Locations */}
+                    {(activeSection === "overview" || activeSection === "saved") && (
                     <div className="col-12">
                         <div className="tt-loc-card p-4">
                             <h5 className="mb-3 d-flex align-items-center gap-2">
@@ -324,15 +402,17 @@ export default function Profile(){
                                 ))}
 
                                 {visible < savedLocations.length && (
-                                    <a className="mt-3 tt-navlink" style={{color:"#372416"}} onClick={()=> setVisible(prev => prev + 6)}>
+                                    <a className="mt-3 tt-navlink" style={{color:"#372416", textDecoration:"none"}} onClick={()=> setVisible(prev => prev + 6)}>
                                         Load More
                                     </a>
                                 )}
                             </div>
                         </div>
                     </div>
+                    )}
 
                     {/* Saved Itineraries */}
+                    {(activeSection === "overview" || activeSection === "itineraries") && (
                     <div className="col-12">
                         <div className="tt-loc-card p-4">
                             <h5 className="mb-3 d-flex align-items-center gap-2">
@@ -384,8 +464,10 @@ export default function Profile(){
                             )}
                         </div>
                     </div>
+                    )}
 
                     {/* Your Reviews */}
+                    {(activeSection === "overview" || activeSection === "reviews") && (
                     <div className="col-12">
                         <div className="tt-loc-card p-4">
                             <h5 className="mb-3 d-flex align-items-center gap-2">
@@ -441,6 +523,7 @@ export default function Profile(){
                             )}
                         </div>
                     </div>
+                    )}
 
                 </div>
             </div>

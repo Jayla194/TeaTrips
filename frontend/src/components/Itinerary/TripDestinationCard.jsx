@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { DeleteIcon } from "../icons";
 
 function rating(avg){
     if (typeof avg !== "number") return null;
@@ -21,7 +22,11 @@ export default function TripDestinationCard({
     if (!stop) return null;
 
     return(
-        <div className="tt-destination-card" onClick={() => onOpen?.(stop)} style={{ cursor: onOpen ? "pointer" : "default" }}>
+        <div
+            className="tt-destination-card"
+            onClick={() => onOpen?.(stop)}
+            style={{ cursor: onOpen ? "pointer" : "default" }}
+        >
             <img
                 src={stop.imageUrl || fallback}
                 alt = {stop.name || "Location"}
@@ -32,8 +37,8 @@ export default function TripDestinationCard({
             />
             
             <div className="tt-destination-content">
-                <div className="d-flex justify-content-between align-items-start gap-2">
-                    <div>
+                <div className="tt-destination-header">
+                    <div className="tt-destination-title-wrap">
                         <h4 className="tt-destination-name mb-1">{stop.name || "Location"}</h4>
                         <div className="tt-destination-meta">
                             {stop.type && <span className="tt-destination-type">{stop.type}</span>}
@@ -42,13 +47,37 @@ export default function TripDestinationCard({
                     </div>
 
                     <div className="tt-destination-actions">
-                        <button className="tt-mini-btn" onClick={onMoveUp} disabled={index === 0}>
+                        <button
+                            className="tt-mini-btn"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onMoveUp?.();
+                            }}
+                            disabled={index === 0}
+                            aria-label="Move up"
+                        >
                             ^
                         </button>
-                        <button className="tt-mini-btn tt-mini-btn-danger" onClick={onRemove}>
-                            X
+                        <button
+                            className="tt-mini-btn tt-mini-btn-icon tt-mini-btn-danger"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRemove?.();
+                            }}
+                            aria-label="Remove location"
+                            title="Remove"
+                        >
+                            <DeleteIcon className="tt-mini-icon" />
                         </button>
-                        <button className="tt-mini-btn" onClick={onMoveDown} disabled={index === totalStops - 1}>
+                        <button
+                            className="tt-mini-btn"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onMoveDown?.();
+                            }}
+                            disabled={index === totalStops - 1}
+                            aria-label="Move down"
+                        >
                             v
                         </button>
                     </div>

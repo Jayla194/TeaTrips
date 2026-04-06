@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Container, Navbar, Nav } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/TeaTripsLogo.png";
+import logoLight from "../../assets/TeaTripsLogo_light.png";
 import { apiUrl } from "../../utils/api";
 
 export default function TopNav(){
@@ -51,7 +52,11 @@ export default function TopNav(){
                     <img
                     src={logo}
                     alt="Tea Trips logo"
-                    className="tt-nav-logo"/>
+                    className="tt-nav-logo tt-nav-logo-default"/>
+                    <img
+                    src={logoLight}
+                    alt="Tea Trips logo"
+                    className="tt-nav-logo tt-nav-logo-light"/>
                     <span>Tea Trips</span>
                 </Navbar.Brand>
 

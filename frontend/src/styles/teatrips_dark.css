@@ -1,0 +1,1298 @@
+/* ============================================================
+   TeaTrips — Dark Espresso Mode
+   Apply by toggling class "tt-dark" on the <html> element
+   ============================================================ */
+
+:root.tt-dark {
+  /* Core palette — stepped lightness so each surface layer is readable */
+  --tt-bg:           #1c1309;   /* page background  */
+  --tt-nav:          rgba(82, 56, 38, 0.96);
+  --tt-ink:          #f0e2cf;
+  --tt-cream:        #2a1d12;   /* headers/accented surfaces */
+  --tt-card:         #2e2016;   /* cards sit on top of bg  */
+  --tt-border:       rgba(240, 226, 207, 0.13);
+  --tt-warm-white:   #261a10;   /* inputs / inner surfaces  */
+
+  /* Shadows */
+  --tt-shadow-light:  rgba(0, 0, 0, 0.30);
+  --tt-shadow-medium: rgba(0, 0, 0, 0.45);
+  --tt-shadow-heavy:  rgba(0, 0, 0, 0.60);
+
+  /* Accent colours */
+  --tt-accent:        #d29a41;
+  --tt-accent-muted:  rgba(210, 154, 65, 0.25);
+}
+
+
+/* ==================
+    BASE
+   ================== */
+:root.tt-dark body {
+  background: var(--tt-bg);
+  color: var(--tt-ink);
+}
+
+/* Subtle noise / grain overlay — replaces the light-mode white dots */
+:root.tt-dark body::before {
+  background-image:
+    radial-gradient(circle at 12% 8%,  rgba(255,200,120,0.04) 0 2px, transparent 3px),
+    radial-gradient(circle at 85% 12%, rgba(255,200,120,0.03) 0 2px, transparent 3px),
+    radial-gradient(circle at 18% 72%, rgba(255,200,120,0.03) 0 2px, transparent 3px);
+  opacity: 0.6;
+}
+
+:root.tt-dark a {
+  color: var(--tt-ink);
+  text-decoration-color: rgba(240, 226, 207, 0.3);
+}
+
+:root.tt-dark a:hover {
+  color: #d4b48a;
+  text-decoration-color: rgba(240, 226, 207, 0.6);
+}
+
+:root.tt-dark .tt-link {
+  color: var(--tt-ink);
+  text-decoration-color: rgba(240, 226, 207, 0.3);
+}
+
+:root.tt-dark .tt-link:hover {
+  color: #d4b48a;
+  text-decoration-color: rgba(240, 226, 207, 0.6);
+}
+
+
+/* ==================
+    NAVBAR
+   ================== */
+:root.tt-dark .tt-navbar {
+  background: linear-gradient(to bottom, #5a3b26, rgba(66, 44, 30, 0.98));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+:root.tt-dark .tt-brand {
+  color: var(--tt-ink) !important;
+}
+
+:root.tt-dark .tt-nav-logo-default {
+  display: none;
+}
+
+:root.tt-dark .tt-nav-logo-light {
+  display: inline-block;
+}
+
+:root.tt-dark .tt-navlink,
+:root.tt-dark .tt-navlink.active {
+  color: var(--tt-ink) !important;
+}
+
+:root.tt-dark .tt-navlink::after {
+  background: rgba(240, 226, 207, 0.6);
+}
+
+:root.tt-dark .tt-navlink::after {
+  background: rgba(240, 226, 207, 0.5);
+}
+
+:root.tt-dark .tt-nav-divider {
+  background: rgba(240, 226, 207, 0.15);
+}
+
+:root.tt-dark .tt-avatar {
+  background: #3e2a1a;
+  color: var(--tt-ink);
+  border-color: var(--tt-border);
+}
+
+
+/* ==================
+    BUTTONS
+   ================== */
+:root.tt-dark .tt-btn {
+  background-color: #3a2818 !important;
+  color: var(--tt-ink) !important;
+  border-color: rgba(240, 226, 207, 0.2) !important;
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.45),
+    0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+:root.tt-dark .tt-btn:hover {
+  box-shadow:
+    0 5px 0 rgba(0, 0, 0, 0.65),
+    0 10px 22px rgba(0, 0, 0, 0.5);
+}
+
+:root.tt-dark .tt-btn:active {
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+:root.tt-dark .tt-btn-primary {
+  background: #372618 !important;
+  color: var(--tt-ink) !important;
+}
+
+:root.tt-dark .tt-btn-secondary {
+  background: #d9b185 !important;
+  color: #2a1a0f !important;
+  border-color: rgba(217, 177, 133, 0.5) !important;
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.5),
+    0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+:root.tt-dark .tt-btn-secondary .tt-save-icon {
+  color: #2a1a0f;
+  filter: none;
+}
+
+:root.tt-dark .tt-btn-secondary .tt-save-icon svg {
+  color: #2a1a0f;
+  filter: none;
+}
+
+:root.tt-dark .tt-btn-secondary:hover {
+  background: #e4c69b !important;
+  color: #2a1a0f !important;
+  box-shadow:
+    0 5px 0 rgba(0, 0, 0, 0.55),
+    0 10px 22px rgba(0, 0, 0, 0.45);
+}
+
+:root.tt-dark .tt-pill {
+  border-color: rgba(240, 226, 207, 0.2) !important;
+}
+
+:root.tt-dark .tt-pill-btn {
+  background: #2e2016;
+  border-color: var(--tt-border);
+  color: var(--tt-ink);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+:root.tt-dark .tt-pill-btn.active {
+  background: #4a3020;
+  border-color: rgba(240, 226, 207, 0.35);
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.4),
+    0 6px 16px rgba(0, 0, 0, 0.32);
+}
+
+:root.tt-dark .tt-login-btn,
+:root.tt-dark .tt-login-btn.btn,
+:root.tt-dark .tt-login-btn.btn-primary {
+  background: #3a2818 !important;
+  color: var(--tt-ink) !important;
+  border-color: rgba(240, 226, 207, 0.2) !important;
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.4),
+    0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+:root.tt-dark .tt-login-btn:hover {
+  background: var(--tt-ink) !important;
+  color: #1a1109 !important;
+  border-color: var(--tt-ink) !important;
+}
+
+:root.tt-dark .tt-login-btn:disabled,
+:root.tt-dark .tt-login-btn[disabled] {
+  background: #3a2818 !important;
+  color: var(--tt-ink) !important;
+  border-color: rgba(240, 226, 207, 0.2) !important;
+}
+
+
+/* ==================
+    MINI BUTTONS
+   ================== */
+:root.tt-dark .tt-mini-btn {
+  background: #3a2818;
+  color: var(--tt-ink);
+  border-color: rgba(240, 226, 207, 0.2);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4), 0 3px 6px rgba(0, 0, 0, 0.28);
+}
+
+:root.tt-dark .tt-mini-btn:hover:not(:disabled) {
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45), 0 5px 10px rgba(0, 0, 0, 0.35);
+}
+
+:root.tt-dark .tt-mini-btn-danger {
+  background: #6a3e2a;
+  border-color: #472410;
+  color: #f0e2cf;
+  box-shadow: 0 2px 0 #472410, 0 3px 6px rgba(0, 0, 0, 0.38);
+}
+
+:root.tt-dark .tt-close-btn {
+  background: var(--tt-cream);
+  color: var(--tt-ink);
+  border-color: rgba(240, 226, 207, 0.2);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+:root.tt-dark .tt-close-btn:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+
+/* ==================
+    HERO SECTION
+   ================== */
+:root.tt-dark .tt-hero::after {
+  background:
+    radial-gradient(circle at 50% 45%, rgba(74, 48, 28, 0.35), rgba(18, 11, 7, 0.55)),
+    linear-gradient(to bottom, rgba(74, 48, 28, 0.35), rgba(18, 11, 7, 0.28));
+}
+
+:root.tt-dark .tt-hero-panel {
+  background: rgba(58, 39, 24, 0.45);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:root.tt-dark .tt-warning-banner {
+  background: linear-gradient(180deg, #2e1e10, #241510);
+  color: var(--tt-ink);
+  border-color: rgba(240, 226, 207, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+:root.tt-dark .tt-warning-banner .btn-close {
+  filter: invert(1) brightness(0.85);
+}
+
+
+/* ==================
+    CARDS (general)
+   ================== */
+:root.tt-dark .tt-card,
+:root.tt-dark .tt-how-card,
+:root.tt-dark .tt-review-card,
+:root.tt-dark .tt-saved-section,
+:root.tt-dark .tt-form-card {
+  background: var(--tt-card);
+  border-color: var(--tt-border);
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-how-card {
+  background: #2a1e12;
+  border-color: rgba(240, 226, 207, 0.11);
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4), 0 10px 24px rgba(0,0,0,0.3);
+}
+
+:root.tt-dark .tt-how-card:hover {
+  border-color: rgba(240, 226, 207, 0.22);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.45), 0 16px 36px rgba(0,0,0,0.35);
+}
+
+:root.tt-dark .tt-how-number {
+  background: var(--tt-ink);
+  color: #1a1109;
+}
+
+:root.tt-dark .tt-how-icon-wrap {
+  background: #382814;
+  border-color: rgba(240, 226, 207, 0.12);
+}
+
+:root.tt-dark .tt-how-card:hover .tt-how-icon-wrap {
+  background: #42301a;
+  border-color: rgba(240, 226, 207, 0.2);
+}
+
+:root.tt-dark .tt-how-icon {
+  /* Invert to warm cream in dark mode */
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(600%) hue-rotate(340deg) brightness(98%);
+}
+
+:root.tt-dark .tt-how-card-desc {
+  color: rgba(240, 226, 207, 0.65);
+}
+
+
+/* ==================
+    HOW IT WORKS / REGION SECTIONS
+   ================== */
+:root.tt-dark .tt-how-section {
+  background: var(--tt-bg);
+}
+
+:root.tt-dark .tt-subtitle {
+  color: rgba(240, 226, 207, 0.6);
+}
+
+:root.tt-dark .tt-region-wrap {
+  background: rgba(20, 13, 8, 0.92);
+  border-top-color: rgba(240, 226, 207, 0.08);
+}
+
+:root.tt-dark .tt-region-card {
+  background: linear-gradient(135deg, #231610 0%, #1c1108 100%);
+  border-color: rgba(240, 226, 207, 0.14);
+  box-shadow:
+    0 3px 0 rgba(0,0,0,0.55),
+    0 8px 16px rgba(0,0,0,0.45);
+}
+
+:root.tt-dark .tt-region-card:hover {
+  box-shadow:
+    0 5px 0 rgba(0,0,0,0.6),
+    0 12px 28px rgba(0,0,0,0.5);
+}
+
+:root.tt-dark .tt-closing-section {
+  background: linear-gradient(135deg, #2a1c0e 0%, #231608 50%, #1e1206 100%);
+}
+
+:root.tt-dark .tt-closing-section::before,
+:root.tt-dark .tt-closing-section::after {
+  background: rgba(240, 226, 207, 0.05);
+}
+
+
+/* ==================
+    DIVIDERS
+   ================== */
+:root.tt-dark .tt-section-title::after {
+  background: linear-gradient(90deg, rgba(240,226,207,0.4), rgba(240,226,207,0));
+}
+
+:root.tt-dark .tt-carousel-divider {
+  background: linear-gradient(90deg, rgba(240,226,207,0.07), rgba(240,226,207,0.18), rgba(240,226,207,0.07));
+}
+
+:root.tt-dark .tt-home-divider {
+  background: linear-gradient(90deg, rgba(240,226,207,0), rgba(240,226,207,0.2), rgba(240,226,207,0));
+}
+
+
+/* ==================
+    FOOTER
+   ================== */
+:root.tt-dark .tt-footer {
+  background: linear-gradient(to bottom, #2e2016, #241a0e);
+  border-top-color: rgba(240, 226, 207, 0.1);
+  color: rgba(240, 226, 207, 0.8);
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.35);
+}
+
+:root.tt-dark .tt-footer-brand,
+:root.tt-dark .tt-footer-links a {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-footer-links a::after {
+  background: var(--tt-ink);
+}
+
+:root.tt-dark .tt-footer::after {
+  opacity: 0.12;
+}
+
+
+/* ==================
+    SEARCH BAR
+   ================== */
+:root.tt-dark .tt-search {
+  background: var(--tt-warm-white);
+  border-color: var(--tt-border);
+  box-shadow:
+    0 2px 0 rgba(0,0,0,0.35),
+    0 8px 20px rgba(0,0,0,0.3);
+}
+
+:root.tt-dark .tt-search:focus-within {
+  border-color: rgba(184, 122, 68, 0.5);
+  box-shadow:
+    0 2px 0 rgba(0,0,0,0.35),
+    0 0 0 4px rgba(184, 122, 68, 0.15),
+    0 12px 28px rgba(0,0,0,0.35);
+}
+
+:root.tt-dark .tt-search-input {
+  color: var(--tt-ink) !important;
+}
+
+:root.tt-dark .tt-search-input::placeholder {
+  color: rgba(240, 226, 207, 0.35);
+}
+
+:root.tt-dark .tt-search-clear {
+  background: var(--tt-warm-white);
+  color: var(--tt-ink);
+}
+
+
+/* ==================
+    LOCATION CARD
+   ================== */
+:root.tt-dark .tt-loc-card {
+  background: var(--tt-card);
+  border-color: rgba(240, 226, 207, 0.11);
+  box-shadow:
+    0 2px 0 rgba(0,0,0,0.35),
+    0 8px 20px rgba(0,0,0,0.3);
+}
+
+:root.tt-dark .tt-loc-card::before {
+  background: radial-gradient(circle at 20% 10%, rgba(255,220,160,0.08), transparent 45%);
+}
+
+:root.tt-dark .tt-loc-card:hover {
+  border-color: rgba(240, 226, 207, 0.2);
+  box-shadow:
+    0 4px 0 rgba(0,0,0,0.4),
+    0 16px 36px rgba(0,0,0,0.38);
+}
+
+:root.tt-dark .tt-loc-imgwrap {
+  background: #38271a;
+}
+
+:root.tt-dark .tt-loc-bottom {
+  border-top-color: rgba(240, 226, 207, 0.1);
+}
+
+
+/* ==================
+    FORM INPUTS & SELECTS
+   ================== */
+:root.tt-dark .tt-form-input,
+:root.tt-dark .tt-form-select,
+:root.tt-dark .tt-date-input {
+  background: var(--tt-warm-white) !important;
+  color: var(--tt-ink) !important;
+  border-color: rgba(240, 226, 207, 0.16) !important;
+}
+
+:root.tt-dark .tt-form-input::placeholder {
+  color: rgba(240, 226, 207, 0.3);
+}
+
+:root.tt-dark .tt-form-input:focus,
+:root.tt-dark .tt-form-select:focus {
+  border-color: rgba(184, 122, 68, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(184, 122, 68, 0.12) !important;
+  background: #30221a !important;
+}
+
+:root.tt-dark .tt-form-label {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .form-label {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .text-muted {
+  color: rgba(240, 226, 207, 0.6) !important;
+}
+
+:root.tt-dark .tt-form-card {
+  background: var(--tt-card);
+  border-color: rgba(240, 226, 207, 0.12);
+}
+
+:root.tt-dark .tt-form-card .form-control {
+  background: var(--tt-warm-white);
+  border-color: rgba(240, 226, 207, 0.16);
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-form-card .form-control:focus {
+  border-color: rgba(184, 122, 68, 0.45);
+  box-shadow: 0 0 0 3px rgba(184, 122, 68, 0.1);
+  background: #30221a;
+}
+
+:root.tt-dark .tt-form-card .tt-password-toggle-btn {
+  background: linear-gradient(to bottom, #38281a, #302010);
+  color: var(--tt-ink);
+  border-color: rgba(240, 226, 207, 0.14);
+}
+
+:root.tt-dark .tt-form-card .tt-password-toggle-btn:hover,
+:root.tt-dark .tt-form-card .tt-password-toggle-btn:focus {
+  background: linear-gradient(to bottom, #42301e, #38261a);
+}
+
+:root.tt-dark .tt-inline-option {
+  border-color: rgba(240, 226, 207, 0.15);
+  background: rgba(240, 226, 207, 0.04);
+}
+
+/* Select wrap arrow — light version for dark bg */
+:root.tt-dark .tt-select-wrap::before {
+  background: rgba(240, 226, 207, 0.18);
+}
+
+:root.tt-dark .tt-select-wrap::after {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10' width='16' height='10'><path d='M2 2l6 6 6-6' fill='none' stroke='%23f0e2cf' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+:root.tt-dark .tt-select-wrap:focus-within::after {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10' width='16' height='10'><path d='M2 2l6 6 6-6' fill='none' stroke='%23d4b48a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+
+
+/* ==================
+    REACT SELECT (city picker)
+   ================== */
+:root.tt-dark .tt-city-select__control {
+  background: var(--tt-warm-white) !important;
+  border-color: rgba(240, 226, 207, 0.16) !important;
+  color: var(--tt-ink) !important;
+  box-shadow: none !important;
+}
+
+:root.tt-dark .tt-city-select__control:hover {
+  border-color: rgba(240, 226, 207, 0.28) !important;
+}
+
+:root.tt-dark .tt-city-select__control--is-focused {
+  border-color: rgba(184, 122, 68, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(184, 122, 68, 0.12) !important;
+}
+
+:root.tt-dark .tt-city-select__input-container,
+:root.tt-dark .tt-city-select__single-value {
+  color: var(--tt-ink) !important;
+}
+
+:root.tt-dark .tt-city-select__placeholder {
+  color: rgba(240, 226, 207, 0.35) !important;
+}
+
+:root.tt-dark .tt-city-select__menu {
+  background: var(--tt-warm-white) !important;
+  border-color: rgba(240, 226, 207, 0.14) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45) !important;
+}
+
+:root.tt-dark .tt-city-select__option {
+  background: var(--tt-warm-white) !important;
+  color: var(--tt-ink) !important;
+}
+
+:root.tt-dark .tt-city-select__option--is-focused {
+  background: #38281a !important;
+}
+
+:root.tt-dark .tt-city-select__option--is-selected {
+  background: #482e1e !important;
+}
+
+:root.tt-dark .tt-city-select__indicator-separator {
+  background-color: rgba(240, 226, 207, 0.15) !important;
+}
+
+:root.tt-dark .tt-city-select__dropdown-indicator,
+:root.tt-dark .tt-city-select__clear-indicator {
+  color: rgba(240, 226, 207, 0.5) !important;
+}
+
+:root.tt-dark .tt-city-select__dropdown-indicator:hover,
+:root.tt-dark .tt-city-select__clear-indicator:hover {
+  color: var(--tt-ink) !important;
+}
+
+
+/* ==================
+    DATEPICKER
+   ================== */
+:root.tt-dark .tt-datepicker {
+  background: var(--tt-warm-white);
+  border-color: rgba(240, 226, 207, 0.14);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+
+:root.tt-dark .tt-datepicker .react-datepicker__header {
+  background: linear-gradient(to bottom, #382818, #302010);
+  border-bottom-color: rgba(240, 226, 207, 0.1);
+}
+
+:root.tt-dark .tt-datepicker .react-datepicker__current-month {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-datepicker .react-datepicker__day-name,
+:root.tt-dark .tt-datepicker .react-datepicker__day {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-datepicker .react-datepicker__day--selected,
+:root.tt-dark .tt-datepicker .react-datepicker__day--keyboard-selected {
+  background: #b87a44;
+  color: #1c1309;
+}
+
+:root.tt-dark .tt-datepicker .react-datepicker__day:hover {
+  background: rgba(184, 122, 68, 0.2);
+}
+
+:root.tt-dark .tt-date-preview {
+  background: rgba(240, 226, 207, 0.05);
+  border-color: rgba(240, 226, 207, 0.14);
+}
+
+:root.tt-dark .tt-date-preview-inline {
+  color: rgba(240, 226, 207, 0.65);
+}
+
+
+/* ==================
+    TRIP DETAILS CARD
+   ================== */
+:root.tt-dark .tt-trip-details-card {
+  background: var(--tt-card);
+  border-color: rgba(240, 226, 207, 0.12);
+  box-shadow: 0 3px 0 rgba(0,0,0,0.5), 0 8px 18px rgba(0,0,0,0.4);
+}
+
+:root.tt-dark .tt-trip-details-card:hover {
+  box-shadow: 0 6px 0 rgba(0,0,0,0.55), 0 16px 36px rgba(0,0,0,0.5);
+}
+
+:root.tt-dark .tt-trip-details-header-btn {
+  background: linear-gradient(to right, #3a2718, rgba(210, 154, 65, 0.15));
+  border-bottom-color: rgba(240, 226, 207, 0.1);
+}
+
+:root.tt-dark .tt-trip-details-title {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-trip-details-chevron {
+  color: rgba(240, 226, 207, 0.7);
+}
+
+:root.tt-dark .tt-section-label {
+  color: rgba(240, 226, 207, 0.5);
+}
+
+
+/* ==================
+    RADIO / CHECKBOX INPUTS
+   ================== */
+:root.tt-dark .tt-radio-label {
+  border-color: rgba(240, 226, 207, 0.12);
+  background: rgba(240, 226, 207, 0.04);
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-radio-label:hover {
+  border-color: rgba(240, 226, 207, 0.22);
+  background: rgba(240, 226, 207, 0.08);
+}
+
+:root.tt-dark .tt-interest-checkbox {
+  background: rgba(240, 226, 207, 0.04);
+  border-color: rgba(240, 226, 207, 0.12);
+}
+
+:root.tt-dark .tt-interest-checkbox:hover {
+  border-color: rgba(240, 226, 207, 0.22);
+  background: rgba(240, 226, 207, 0.08);
+}
+
+:root.tt-dark .tt-interest-checkbox span {
+  color: var(--tt-ink);
+}
+
+
+/* ==================
+    DAY CARDS
+   ================== */
+:root.tt-dark .tt-day-card {
+  background: var(--tt-card);
+  border-color: rgba(240, 226, 207, 0.12);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.28);
+}
+
+:root.tt-dark .tt-day-card:hover {
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4), 0 12px 28px rgba(0,0,0,0.35);
+}
+
+:root.tt-dark .tt-day-header-btn {
+  background: linear-gradient(to right, #3e2b1a, rgba(210, 154, 65, 0.18));
+  border-bottom-color: rgba(240, 226, 207, 0.1);
+}
+
+:root.tt-dark .tt-day-title {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-day-count {
+  background: rgba(240, 226, 207, 0.08);
+  border-color: rgba(240, 226, 207, 0.2);
+  color: rgba(240, 226, 207, 0.75);
+}
+
+:root.tt-dark .tt-day-chevron {
+  color: rgba(240, 226, 207, 0.65);
+}
+
+
+/* ==================
+    DESTINATION CARD
+   ================== */
+:root.tt-dark .tt-destination-card {
+  background: var(--tt-warm-white);
+  border-color: rgba(240, 226, 207, 0.12);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.32), 0 5px 12px rgba(0,0,0,0.26);
+}
+
+:root.tt-dark .tt-destination-card:hover {
+  box-shadow: 0 3px 0 rgba(0,0,0,0.38), 0 10px 20px rgba(0,0,0,0.32);
+}
+
+:root.tt-dark .tt-destination-img {
+  border-color: rgba(240, 226, 207, 0.12);
+}
+
+:root.tt-dark .tt-destination-name {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-destination-type {
+  background: rgba(184, 122, 68, 0.15);
+  border-color: rgba(184, 122, 68, 0.3);
+  color: #d4b48a;
+}
+
+
+/* ==================
+    HOTEL CARD
+   ================== */
+:root.tt-dark .tt-hotel-card {
+  background: linear-gradient(to bottom, #362614, rgba(42, 30, 14, 0.97));
+  border-color: rgba(240, 226, 207, 0.12);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.3);
+}
+
+:root.tt-dark .tt-hotel-card:hover {
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4), 0 12px 28px rgba(0,0,0,0.35);
+}
+
+:root.tt-dark .tt-hotel-name {
+  color: var(--tt-ink);
+}
+
+
+/* ==================
+    ITINERARY CARD
+   ================== */
+:root.tt-dark .tt-itinerary-card {
+  background: linear-gradient(180deg, #342416, #2e2016);
+  border-color: var(--tt-border);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+:root.tt-dark .tt-itinerary-title {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-itinerary-sub {
+  color: rgba(240, 226, 207, 0.55);
+}
+
+
+/* ==================
+    MAP CONTAINER
+   ================== */
+:root.tt-dark .tt-map-container {
+  background: linear-gradient(to bottom, #362614, rgba(42, 30, 14, 0.95));
+  border: 1px solid var(--tt-border);
+}
+
+:root.tt-dark .tt-map-btn {
+  color: var(--tt-ink);
+  border-color: var(--tt-border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+
+:root.tt-dark .tt-map-btn:hover {
+  color: var(--tt-ink);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.42);
+}
+
+
+/* ==================
+    ADD LOCATION MODAL LIST
+   ================== */
+:root.tt-dark .tt-add-loc-item {
+  background: rgba(240, 226, 207, 0.05);
+  border-color: rgba(240, 226, 207, 0.13);
+}
+
+:root.tt-dark .tt-add-loc-title {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-add-loc-meta {
+  color: rgba(240, 226, 207, 0.5);
+}
+
+:root.tt-dark .tt-add-loc-suggest-title {
+  color: rgba(240, 226, 207, 0.5);
+}
+
+
+/* ==================
+    MODALS
+   ================== */
+:root.tt-dark .tt-itinerary-modal .modal-content {
+  background: var(--tt-card);
+  border-color: var(--tt-border);
+}
+
+:root.tt-dark .tt-modal {
+  background: var(--tt-card);
+  border-color: rgba(240, 226, 207, 0.13);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+:root.tt-dark .tt-modal-header {
+  background: linear-gradient(to right, #3e2b1a, rgba(210, 154, 65, 0.18));
+  border-bottom-color: rgba(240, 226, 207, 0.1);
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-modal-title {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-modal-brand {
+  color: rgba(240, 226, 207, 0.4);
+}
+
+:root.tt-dark .tt-modal-body {
+  background: var(--tt-card);
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-modal-subtitle,
+:root.tt-dark .tt-review-modal-subtitle {
+  color: rgba(240, 226, 207, 0.55);
+}
+
+:root.tt-dark .tt-modal .tt-field-textarea {
+  background: var(--tt-warm-white);
+  border-color: rgba(240, 226, 207, 0.16);
+  color: var(--tt-ink);
+  scrollbar-color: rgba(184,122,68,0.5) rgba(38, 28, 16, 0.9);
+}
+
+:root.tt-dark .tt-modal .tt-field-textarea::-webkit-scrollbar-track {
+  background: rgba(38, 28, 16, 0.9);
+}
+
+:root.tt-dark .tt-modal .tt-field-textarea::-webkit-scrollbar-thumb {
+  background: rgba(184, 122, 68, 0.5);
+  border-color: rgba(38, 28, 16, 0.9);
+}
+
+:root.tt-dark .tt-modal .tt-field-textarea:focus {
+  border-color: rgba(184, 122, 68, 0.5);
+  box-shadow: 0 0 0 3px rgba(184, 122, 68, 0.12);
+}
+
+:root.tt-dark .tt-modal-backdrop {
+  background: rgba(12, 8, 4, 0.65);
+}
+
+
+/* ==================
+    TRIP OVERLAY (full screen modal)
+   ================== */
+:root.tt-dark .tt-trip-overlay {
+  background: rgba(12, 8, 4, 0.5);
+}
+
+:root.tt-dark .tt-trip-overlay-card,
+:root.tt-dark .tt-trip-overlay-content {
+  background: var(--tt-card);
+  border-color: rgba(240, 226, 207, 0.13);
+}
+
+:root.tt-dark .tt-trip-overlay-content {
+  box-shadow:
+    0 4px 0 rgba(0,0,0,0.45),
+    0 14px 36px rgba(0,0,0,0.5);
+}
+
+:root.tt-dark .tt-trip-overlay-content::before {
+  background: var(--tt-card);
+  border-color: rgba(240, 226, 207, 0.13);
+}
+
+
+/* ==================
+    HELP TOOLTIP
+   ================== */
+:root.tt-dark .tt-help-trigger {
+  background: #3b2918;
+  border-color: rgba(240, 226, 207, 0.25);
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-icon {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-icon-accent {
+  color: var(--tt-accent);
+}
+
+:root.tt-dark .tt-help-trigger:hover,
+:root.tt-dark .tt-help-trigger:focus-visible {
+  background: #42301e;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+:root.tt-dark .tt-help-tooltip .tooltip-inner {
+  background: #382818;
+  color: var(--tt-ink);
+  border-color: rgba(240, 226, 207, 0.15);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.45);
+}
+
+:root.tt-dark .tt-help-tooltip .tooltip-arrow::before {
+  border-top-color: #382818;
+  border-right-color: #382818;
+  border-left-color: #382818;
+  border-bottom-color: #382818;
+}
+
+
+/* ==================
+    PROFILE PAGE
+   ================== */
+:root.tt-dark .tt-profile-card {
+  background: linear-gradient(to bottom, #362614, rgba(42, 30, 14, 0.97));
+  border-color: rgba(240, 226, 207, 0.11);
+}
+
+:root.tt-dark .tt-profile-card:hover {
+  border-color: rgba(240, 226, 207, 0.2);
+  box-shadow:
+    0 4px 0 rgba(0,0,0,0.4),
+    0 16px 36px rgba(0,0,0,0.38);
+}
+
+:root.tt-dark .tt-profile-name {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-profile-email {
+  color: rgba(240, 226, 207, 0.55);
+}
+
+:root.tt-dark .tt-profile-divider {
+  background: rgba(240, 226, 207, 0.12);
+}
+
+:root.tt-dark .tt-profile-stat-number {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-profile-stat-label {
+  color: rgba(240, 226, 207, 0.5);
+}
+
+:root.tt-dark .tt-profile-nav-title {
+  color: rgba(240, 226, 207, 0.45);
+}
+
+:root.tt-dark .tt-profile-nav-item {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-profile-nav-item:hover {
+  background: rgba(240, 226, 207, 0.06);
+}
+
+:root.tt-dark .tt-profile-nav-item.is-active {
+  background: rgba(240, 226, 207, 0.1);
+}
+
+:root.tt-dark .tt-profile-nav-icon {
+  color: rgba(240, 226, 207, 0.55);
+}
+
+:root.tt-dark .tt-profile-nav-count {
+  background: rgba(240, 226, 207, 0.1);
+}
+
+:root.tt-dark .tt-profile-toggle-btn {
+  background: rgba(240, 226, 207, 0.05);
+  border-color: rgba(240, 226, 207, 0.14);
+  color: var(--tt-ink);
+  box-shadow: 0 3px 0 rgba(0,0,0,0.45);
+}
+
+:root.tt-dark .tt-profile-toggle-btn:hover {
+  box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+}
+
+:root.tt-dark .tt-profile-pref-panel {
+  background: rgba(240, 226, 207, 0.06);
+  border-color: rgba(240, 226, 207, 0.18);
+}
+
+:root.tt-dark .tt-profile-pref-option:hover {
+  background: rgba(240, 226, 207, 0.1);
+}
+
+:root.tt-dark .tt-profile-danger-btn {
+  background: #3a1e1e;
+  color: #f0c8c8;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+:root.tt-dark .tt-profile-danger-btn:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.55);
+}
+
+
+/* ==================
+    SAVED SECTION
+   ================== */
+:root.tt-dark .tt-saved-section {
+  background: #181009;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+:root.tt-dark .tt-saved-title {
+  color: var(--tt-ink);
+}
+
+
+/* ==================
+    REVIEWS
+   ================== */
+:root.tt-dark .tt-review-card {
+  background: #1a1109;
+  border-color: rgba(240, 226, 207, 0.09);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.38);
+}
+
+:root.tt-dark .tt-review-author {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-review-date {
+  color: rgba(240, 226, 207, 0.5);
+}
+
+:root.tt-dark .tt-review-score {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-review-side {
+  border-left-color: rgba(240, 226, 207, 0.1);
+}
+
+:root.tt-dark .tt-review-divider {
+  background: linear-gradient(90deg, rgba(240,226,207,0.1), rgba(240,226,207,0.04));
+}
+
+:root.tt-dark .tt-review-action-btn {
+  background: rgba(240, 226, 207, 0.05);
+  border-color: rgba(240, 226, 207, 0.14);
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-review-action-btn:hover {
+  background: rgba(240, 226, 207, 0.1);
+  border-color: rgba(240, 226, 207, 0.24);
+}
+
+:root.tt-dark .tt-review-delete-btn:hover {
+  background: rgba(240, 226, 207, 0.07);
+  border-color: rgba(240, 226, 207, 0.15);
+}
+
+:root.tt-dark .tt-review-location {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-like-btn,
+:root.tt-dark .tt-like-static {
+  color: rgba(240, 226, 207, 0.55);
+}
+
+:root.tt-dark .tt-like-btn.is-liked,
+:root.tt-dark .tt-like-static.is-liked {
+  color: #c87a5c;
+}
+
+:root.tt-dark .tt-like-btn:hover {
+  color: rgba(240, 226, 207, 0.8);
+}
+
+:root.tt-dark .tt-reviews-subtitle {
+  color: rgba(240, 226, 207, 0.55);
+}
+
+:root.tt-dark .tt-reviews-count {
+  background: rgba(240, 226, 207, 0.08);
+  color: var(--tt-ink);
+}
+
+/* Review modal */
+:root.tt-dark .tt-review-modal {
+  background: var(--tt-card);
+  border-color: rgba(240, 226, 207, 0.11);
+}
+
+:root.tt-dark .tt-review-modal-header {
+  background: linear-gradient(135deg, rgba(58, 40, 22, 0.95), rgba(48, 32, 14, 0.7));
+  border-bottom-color: rgba(240, 226, 207, 0.1);
+}
+
+
+/* ==================
+    FIELDS (shared form fields)
+   ================== */
+:root.tt-dark .tt-field-label {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-field-input,
+:root.tt-dark .tt-field-textarea {
+  background: var(--tt-warm-white);
+  border-color: rgba(240, 226, 207, 0.16);
+  color: var(--tt-ink);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+}
+
+:root.tt-dark .tt-field-input:focus,
+:root.tt-dark .tt-field-textarea:focus {
+  border-color: rgba(184, 122, 68, 0.5);
+  box-shadow: 0 0 0 3px rgba(184, 122, 68, 0.12);
+}
+
+:root.tt-dark .tt-field-hint {
+  color: rgba(240, 226, 207, 0.45);
+}
+
+
+/* ==================
+    STARS
+   ================== */
+:root.tt-dark .tt-stars-base {
+  color: #4a3a2c;
+}
+
+:root.tt-dark .tt-modal .tt-stars-base {
+  color: #564430;
+}
+
+:root.tt-dark .tt-stars-fill {
+  color: #c27c3f;
+}
+
+:root.tt-dark .tt-star-value {
+  color: var(--tt-ink);
+}
+
+
+/* ==================
+    TEA LOADER & PROGRESS
+   ================== */
+:root.tt-dark .tt-tea-loading {
+  background: rgba(240, 226, 207, 0.05);
+  border-color: rgba(240, 226, 207, 0.18);
+}
+
+:root.tt-dark .tt-tea-cup {
+  border-color: rgba(240, 226, 207, 0.55);
+  background: #3e2c1a;
+}
+
+:root.tt-dark .tt-tea-cup::after {
+  border-color: rgba(240, 226, 207, 0.55);
+}
+
+:root.tt-dark .tt-tea-steam {
+  background: rgba(240, 226, 207, 0.3);
+}
+
+:root.tt-dark .tt-tea-loading-text {
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-tea-progress {
+  background: linear-gradient(180deg, #2e2016, #261a0e);
+  border-color: rgba(240, 226, 207, 0.16);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.35);
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-tea-steam-bars span {
+  background: rgba(240, 226, 207, 0.35);
+}
+
+:root.tt-dark .tt-tea-cup-icon {
+  border-color: rgba(240, 226, 207, 0.5);
+  background: #3e2c1a;
+}
+
+:root.tt-dark .tt-tea-cup-icon::after {
+  border-color: rgba(240, 226, 207, 0.5);
+}
+
+:root.tt-dark .tt-tea-progress-track {
+  background: rgba(240, 226, 207, 0.12);
+}
+
+:root.tt-dark .tt-tea-progress-fill {
+  background: linear-gradient(90deg, #b87a44, #d4a06a);
+}
+
+
+/* ==================
+    CAROUSEL SCROLLBAR
+   ================== */
+:root.tt-dark .tt-carousel {
+  scrollbar-color: rgba(184, 122, 68, 0.4) rgba(240, 226, 207, 0.05);
+}
+
+:root.tt-dark .tt-carousel::-webkit-scrollbar-track {
+  background: rgba(240, 226, 207, 0.04);
+}
+
+:root.tt-dark .tt-carousel::-webkit-scrollbar-thumb {
+  background: rgba(184, 122, 68, 0.4);
+}
+
+:root.tt-dark .tt-carousel::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 122, 68, 0.65);
+}
+
+
+/* ==================
+    TEABAG ICON (SVG inline)
+   ================== */
+/* The SVG uses hardcoded fill colour — in dark mode we invert it slightly */
+:root.tt-dark .tt-teabag-icon {
+  filter: brightness(0) invert(1);
+  opacity: 0.5;
+}
+
+/* Footer teabag watermark */
+:root.tt-dark .tt-footer::after {
+  filter: brightness(0) invert(1);
+  opacity: 0.06;
+}
+
+/* Itinerary card teabag watermark */
+:root.tt-dark .tt-itinerary-card::after {
+  filter: brightness(0) invert(1);
+  opacity: 0.12;
+}
