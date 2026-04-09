@@ -41,6 +41,7 @@ export default function LocationDetails(){
     const [editingReview, setEditingReview] = useState(null);
     const [reviewsLoading, setReviewsLoading] = useState(true);
     const [reviewsError, setReviewsError] = useState("");
+    const [descriptionLoading, setDescriptionLoading] = useState(true);
 
     const fallback =
         "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=60";
@@ -68,6 +69,43 @@ export default function LocationDetails(){
         }
 
         load();
+        return () => {
+            cancelled = true;
+        };
+    }, [id]);
+
+    // Fetch generated description separately so the backend can generate it when needed
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadDescription() {
+            try {
+                setDescriptionLoading(true);
+                const res = await fetch(apiUrl(`/api/locations/${id}/description`));
+                if (!res.ok) {
+                    throw new Error(`Failed to load description (${res.status})`);
+                }
+
+                const data = await res.json();
+                if (cancelled) return;
+
+                setLocation((prev) => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        description_long: data.description
+                    };
+                });
+            } catch (err) {
+                if (!cancelled) {
+                    setError(err.message || "Failed to load description");
+                }
+            } finally {
+                if (!cancelled) setDescriptionLoading(false);
+            }
+        }
+
+        loadDescription();
         return () => {
             cancelled = true;
         };
@@ -262,6 +300,15 @@ export default function LocationDetails(){
     }, [location?.avg_rating]);
     const rating_val = useMemo(() => (avgRatingNum === null ? null : rating(avgRatingNum)), [avgRatingNum]);
     const price = useMemo(()=> priceRating(location?.price_tier),[location?.price_tier]);
+    // Use the generated description if we have one, otherwise show the short summary.
+    const aboutText = location?.description_long || location?.description_short || "";
+    const aboutParagraphs = useMemo(() => {
+        // Split on blank lines so two-paragraph output stays separate on the page.
+        return aboutText
+            .split(/\n\s*\n/)
+            .map((paragraph) => paragraph.trim())
+            .filter(Boolean);
+    }, [aboutText]);
 
     if (loading){
         return (
@@ -344,11 +391,29 @@ export default function LocationDetails(){
                             </div>
                         </div>
 
-                        {/* About Section description short placeholder*/}
-                        {location.description_short && (
-                            <div className="tt-loc-card p-3">
-                                <h5 className="mb-2 tt-section-title">About</h5>
-                                <p className="mb-0">{location.description_short}</p>
+                        {/* About Section uses generated description or short as fallback */}
+                        {descriptionLoading && (
+                            // Tiny loading state while the description endpoint finishes.
+                            <div className="tt-loc-card tt-about-card p-4 mb-3">
+                                <h5 className="mb-3 tt-section-title">About</h5>
+                                <p className="mb-0 tt-empty-note text-muted">Loading description...</p>
+                            </div>
+                        )}
+
+                        {!descriptionLoading && aboutParagraphs.length > 0 && (
+                            // Render each paragraph separately so it looks like a proper written section.
+                            <div className="tt-loc-card tt-about-card p-4">
+                                <h5 className="mb-3 tt-section-title">About</h5>
+                                <div className="tt-about-copy">
+                                    {aboutParagraphs.map((paragraph, index) => (
+                                        <p
+                                            key={`${location.id}-about-${index}`}
+                                            className={index === aboutParagraphs.length - 1 ? "mb-0" : "mb-3"}
+                                        >
+                                            {paragraph}
+                                        </p>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>

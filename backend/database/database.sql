@@ -20,9 +20,11 @@ CREATE TABLE IF NOT EXISTS locations (
     suggested_duration INT,
     tags VARCHAR(255),
     image_url VARCHAR(500),
-    description_short TEXT
+    description_short TEXT,
+    description_long TEXT,
+    description_last_generated DATETIME,
+    review_count_at_generation INT
 );
-
 
 
 -- Create User Table

@@ -58,6 +58,18 @@ async function getPopularLocations() {
     return rows;
 }
 
+async function updateLocationDescription(id, payload) {
+    const sql = `
+        UPDATE locations
+        SET description_long = ?,
+        review_count_at_generation = ?,
+        description_last_generated = ?
+        WHERE id = ?
+    `;
+    await db.query(sql, [payload.description, payload.review_count_at_generation, payload.description_last_generated, id]);
+}
+
+
 module.exports = {
     getAllLocations,
     getLocationById,
@@ -66,4 +78,5 @@ module.exports = {
     getHotelsByCity,
     getLocationsByCityWithSavedStats,
     getPopularLocations,
+    updateLocationDescription,
 };

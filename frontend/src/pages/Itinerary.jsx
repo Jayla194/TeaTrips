@@ -10,7 +10,7 @@ import { SaveIcon } from "../components/icons";
 
 
 import { Container, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { apiUrl } from "../utils/api";
 import { getDayColour } from "../utils/dayColours";
@@ -26,6 +26,37 @@ function createBlankItinerary() {
         hotel: null,
         warnings: [],
     };
+}
+
+function normalizeDateInput(value) {
+    if (!value) return "";
+    if (value instanceof Date) {
+        return Number.isNaN(value.getTime()) ? "" : value.toISOString().slice(0, 10);
+    }
+
+    const raw = String(value).trim();
+    if (!raw) return "";
+
+    const parsed = raw.includes("T") ? new Date(raw) : new Date(`${raw}T00:00:00`);
+    return Number.isNaN(parsed.getTime()) ? "" : parsed.toISOString().slice(0, 10);
+}
+
+function inferCityFromItinerary(data) {
+    const metaCity = String(data?.meta?.city || "").trim();
+    if (metaCity) return metaCity;
+
+    const hotelCity = String(data?.hotel?.city || "").trim();
+    if (hotelCity) return hotelCity;
+
+    if (Array.isArray(data?.days)) {
+        for (const day of data.days) {
+            if (!Array.isArray(day?.stops)) continue;
+            const stopWithCity = day.stops.find((stop) => String(stop?.city || "").trim());
+            if (stopWithCity) return String(stopWithCity.city).trim();
+        }
+    }
+
+    return "";
 }
 
 export default function Itinerary() {
@@ -52,7 +83,10 @@ export default function Itinerary() {
 
     const [tripName, setTripName] = useState("Insert Name");
     const [showGenerateModal, setShowGenerateModal] = useState(false);
+    const [activeItineraryId, setActiveItineraryId] = useState(null);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const editParam = searchParams.get("edit");
 
     const builderHelp = (
         <Tooltip id="tt-itinerary-help" className="tt-help-tooltip">
@@ -73,9 +107,62 @@ export default function Itinerary() {
     const parsed =  JSON.parse(cached);
     if (parsed?.itinerary) {
         setItinerary(parsed.itinerary);
-        setStartDate(parsed.startDate || "");
-        setEndDate(parsed.endDate || "");
+        setStartDate(normalizeDateInput(parsed.startDate));
+        setEndDate(normalizeDateInput(parsed.endDate));
     }}, []);
+
+    useEffect(() => {
+        if (!editParam) return;
+
+        const itineraryId = Number(editParam);
+        if (!Number.isInteger(itineraryId)) {
+            setError("Invalid itinerary selected for editing.");
+            return;
+        }
+
+        let cancelled = false;
+        async function loadItineraryForEdit() {
+            try {
+                setLoading(true);
+                setError(null);
+                const res = await fetch(apiUrl(`/api/itinerary/${itineraryId}`), {
+                    credentials: "include",
+                });
+
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        throw new Error("Please log in to edit itineraries.");
+                    }
+                    if (res.status === 404) {
+                        throw new Error("Itinerary not found.");
+                    }
+                    throw new Error("Failed to load itinerary.");
+                }
+
+                const data = await res.json();
+                if (cancelled) return;
+
+                setItinerary(data.itinerary || createBlankItinerary());
+                setTripName(data.tripName || "Insert Name");
+                setStartDate(normalizeDateInput(data.startDate));
+                setEndDate(normalizeDateInput(data.endDate));
+                const loadedId = Number(data.itineraryId);
+                setActiveItineraryId(Number.isInteger(loadedId) ? loadedId : itineraryId);
+            } catch (err) {
+                if (!cancelled) {
+                    setError(err.message || "Failed to load itinerary.");
+                    setActiveItineraryId(null);
+                }
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        }
+
+        loadItineraryForEdit();
+        return () => {
+            cancelled = true;
+        };
+    }, [editParam]);
 
     useEffect(() => {
         if (!showAddLocation) return;
@@ -262,13 +349,13 @@ export default function Itinerary() {
     }
 
     async function handleSaveItinerary() {
-        const city = itinerary?.meta?.city || "";
+        const city = inferCityFromItinerary(itinerary);
         if (!tripName || !tripName.trim()) {
             setSaveError("Please enter a trip name before saving.");
             return;
         }
         if (!city) {
-            setSaveError("Please generate a trip before saving.");
+            setSaveError("Please choose a city before saving.");
             return;
         }
         if (!Array.isArray(itinerary?.days) || itinerary.days.length === 0) {
@@ -298,22 +385,45 @@ export default function Itinerary() {
                 })),
             };
 
-            const res = await fetch(apiUrl("/api/itinerary/save"), {
-                method: "POST",
+            const isEditing = Number.isInteger(activeItineraryId);
+            const method = isEditing ? "PUT" : "POST";
+            const url = isEditing
+                ? apiUrl(`/api/itinerary/${activeItineraryId}`)
+                : apiUrl("/api/itinerary/save");
+
+            const res = await fetch(url, {
+                method,
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
 
-            if (!res.ok) {
-                if (res.status === 401) {
+            let finalRes = res;
+            if (isEditing && (res.status === 404 || res.status === 405)) {
+                // Fallback for older backend instances that only expose POST /save.
+                finalRes = await fetch(apiUrl("/api/itinerary/save"), {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+            }
+
+            if (!finalRes.ok) {
+                if (finalRes.status === 401) {
                     throw new Error("Please log in to save itineraries.");
                 }
-                const body = await res.json().catch(() => null);
+                const body = await finalRes.json().catch(() => null);
                 throw new Error(body?.message || "Failed to save itinerary.");
             }
 
-            setSaveMessage("Itinerary saved to your profile.");
+            const body = await finalRes.json().catch(() => ({}));
+            const savedId = Number(body?.itinerary_id);
+            if (Number.isInteger(savedId)) {
+                setActiveItineraryId(savedId);
+            }
+
+            setSaveMessage(isEditing ? "Itinerary updated." : "Itinerary saved to your profile.");
         } catch (err) {
             setSaveError(err.message || "Failed to save itinerary.");
         } finally {
@@ -574,6 +684,7 @@ export default function Itinerary() {
                                     </Button>
                                     <Button
                                         className="tt-btn tt-btn-primary"
+                                        disabled={loading}
                                         onClick={() => setShowGenerateModal(true)}>
                                         Generate Trip
                                     </Button>
@@ -591,9 +702,17 @@ export default function Itinerary() {
                                     message={saveError}
                                     onClose={() => setSaveError(null)}
                                     variant="warning"
+                                    inline
                                 />
                             )}
-                            {saveMessage && <p className="text-success mb-3">{saveMessage}</p>}
+                            {saveMessage && (
+                                <WarningBanner
+                                    message={saveMessage}
+                                    onClose={() => setSaveMessage(null)}
+                                    variant="success"
+                                    inline
+                                />
+                            )}
 
                             <TripDetails
                                 tripName={tripName}

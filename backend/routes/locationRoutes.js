@@ -7,6 +7,7 @@ router.get("/", locationController.getAll);
 router.get("/cities", locationController.getCities);
 router.get("/popular", locationController.getPopularLocations);
 router.get("/:id/similar", locationController.getSimilarLocations);
+router.get("/:id/description", locationController.getDescription);
 router.get("/:id", locationController.getById);
 
 

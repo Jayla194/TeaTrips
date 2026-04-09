@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { apiUrl } from "../../utils/api";
 
+function getPreviewText(text) {
+  const cleaned = String(text || "").trim();
+  if (!cleaned) return "No description available.";
+
+  const sentences = cleaned.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+  const preview = sentences.slice(0, 2).join(" ").trim();
+  return preview ? `${preview}...` : "No description available.";
+}
+
 export default function ShowInfoModal({
   show,
   stop,
@@ -63,7 +72,7 @@ export default function ShowInfoModal({
           </button>
         </div>
         <div className="tt-modal-body">
-          <p>{full?.description_short || "No description available."}</p>
+          <p>{getPreviewText(full?.description_long || full?.description_short)}</p>
           <p>{full?.address}</p>
         </div>
         <div className="tt-modal-footer">

@@ -5,8 +5,22 @@ import DatePicker from "react-datepicker";
 export default function TripDetails({tripName,setTripName,startDate,setStartDate,endDate,setEndDate}){
     const [collapsed, setCollapsed] = useState(false);
 
-    const parseDate = (value) => (value ? new Date(`${value}T00:00:00`) : null);
-    const formatDate = (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : "");
+    const parseDate = (value) => {
+        if (!value) return null;
+        if (value instanceof Date) {
+            return Number.isNaN(value.getTime()) ? null : value;
+        }
+
+        const raw = String(value).trim();
+        if (!raw) return null;
+
+        const parsed = raw.includes("T") ? new Date(raw) : new Date(`${raw}T00:00:00`);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    };
+    const formatDate = (value) => {
+        if (!(value instanceof Date)) return "";
+        return Number.isNaN(value.getTime()) ? "" : value.toISOString().slice(0, 10);
+    };
     
     // Calculate Number of days
     const calculateDays = () => {

@@ -5,6 +5,7 @@ import { apiUrl } from "../utils/api";
 import WarningBanner from "../components/WarningBanner";
 import ReviewCard from "../components/reviews/reviewCard";
 import ReviewModal from "../components/reviews/reviewModal";
+import changePasswordModal from "../components/changePasswordModal";
 import {
     OverviewIcon,
     SaveIcon,
@@ -12,6 +13,7 @@ import {
     ExploreIcon,
     LightMode,
     DarkMode,
+    LockIcon,
 } from "../components/icons";
 
 export default function Profile(){
@@ -32,8 +34,10 @@ export default function Profile(){
     const [reviewsError, setReviewsError] = useState("");
     const [reviewOpen, setReviewOpen] = useState(false);
     const [editingReview, setEditingReview] = useState(null);
+
     // Controls which profile section is visible in the main panel
     const [activeSection, setActiveSection] = useState("overview");
+    const [changePassOpen, setChangePassOpen] = useState(false);
     const [darkMode, setDarkMode] = useState(() => {
         try {
             return localStorage.getItem("tt-dark-mode") === "true";
@@ -162,6 +166,8 @@ export default function Profile(){
         }
         loadReviews();
     }, []);
+
+
 
     // Loading page while user and saved locations are fetched
     if(loading){
@@ -338,19 +344,17 @@ export default function Profile(){
 
                     <div className="tt-profile-nav">
                         <div className="tt-profile-nav-title">Account</div>
-                        <button type="button" className="tt-profile-nav-item">
-                            <SaveIcon className="tt-profile-nav-icon" />
-                            Edit profile
-                        </button>
+                        {/*Drop down edit profile button with change pass and delete, separate to preferences*/}
                         <button
                             type="button"
                             className="tt-profile-nav-item"
                             onClick={() => setPrefsOpen((prev) => !prev)}
                         >
-                            <AddIcon className="tt-profile-nav-icon" />
-                            Preferences
+                            <OverviewIcon className="tt-profile-nav-icon" />
+                            Profile and Preferences
                             <span className={`tt-profile-pref-caret ${prefsOpen ? "open" : ""}`}>▾</span>
-                        </button>
+
+                            </button>
                         {prefsOpen && (
                             <div className="tt-profile-pref-panel">
                                 <button
@@ -364,6 +368,10 @@ export default function Profile(){
                                         <DarkMode className="tt-profile-pref-icon" />
                                     )}
                                     <span>{darkMode ? "Light mode" : "Dark mode"}</span>
+                                </button>
+                                <button className="tt-profile-pref-option" onClick={() => setChangePassOpen(true)}>
+                                    <LockIcon className="tt-profile-pref-icon" />
+                                    Change password
                                 </button>
                             </div>
                         )}
@@ -446,16 +454,27 @@ export default function Profile(){
                                 <div className="tt-itinerary-grid">
                                     {itineraryCards.map((itinerary) => {
                                         const dayCount = getDayCount(itinerary);
-                                        const title = itinerary.city || itinerary.trip_name || "Untitled trip";
-                                        const subtitle = dayCount ? `${dayCount} day itinerary` : "Itinerary";
+                                        const title = itinerary.trip_name || "Untitled trip";
+                                        const subtitleParts = [
+                                            itinerary.city ? String(itinerary.city) : "",
+                                            dayCount ? `${dayCount} day itinerary` : "Itinerary",
+                                        ].filter(Boolean);
+                                        const subtitle = subtitleParts.join(" • ");
                                         return (
                                             <div
                                                 key={itinerary.itinerary_id}
                                                 className="tt-itinerary-card"
                                             >
-                                                <div>
+                                                <div className="tt-itinerary-main">
                                                     <div className="tt-itinerary-title">{title}</div>
                                                     <div className="tt-itinerary-sub">{subtitle}</div>
+                                                    <button
+                                                        type="button"
+                                                        className="tt-btn tt-btn-secondary mt-3"
+                                                        onClick={() => navigate(`/itinerary?edit=${itinerary.itinerary_id}`)}
+                                                    >
+                                                        Edit itinerary
+                                                    </button>
                                                 </div>
                                             </div>
                                         );

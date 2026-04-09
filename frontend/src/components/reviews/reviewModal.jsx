@@ -60,7 +60,7 @@ export default function ReviewModal({
 }) {
     const [rating, setRating] = useState(0.5);
     const [comment, setComment] = useState("");
-
+    
     useEffect(() => {
         if (mode == "edit" && initialReview) {
             setRating(initialReview.rating || 0.5);

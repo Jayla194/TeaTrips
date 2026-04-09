@@ -116,6 +116,28 @@ function getReviewsByUser(userId) {
     return pool.query(sql, [userId, userId]).then(([rows]) => rows);
 }
 
+async function getReviewCountByLocation(locationId) {
+    const sql = `
+        SELECT COUNT(*) AS review_count
+        FROM reviews
+        WHERE location_id = ? AND is_visible = TRUE
+    `;
+    const [rows] = await pool.query(sql, [locationId]);
+    return rows[0].review_count;
+}
+
+async function getTopReviewsByLocation(locationId, limit = 3) {
+    const sql = `
+    SELECT comment
+    from reviews
+    WHERE location_id = ? AND is_visible = TRUE
+    ORDER BY like_count DESC, created_at DESC
+    LIMIT ?
+    `;
+    const [rows] = await pool.query(sql, [locationId, limit]);
+    return rows.map((r)=>({ text: r.comment || ""}));
+}
+
 module.exports = {
     getByLocation: getReviewsByLocation,
     createReview,
@@ -124,5 +146,7 @@ module.exports = {
     deleteReview,
     addLike,
     removeLike,
-    getByUser: getReviewsByUser
+    getByUser: getReviewsByUser,
+    getReviewCountByLocation,
+    getTopReviewsByLocation,
 };

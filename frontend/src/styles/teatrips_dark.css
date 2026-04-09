@@ -136,9 +136,9 @@
 }
 
 :root.tt-dark .tt-btn-secondary {
-  background: #d9b185 !important;
+ background: linear-gradient(180deg, #d9b185, rgb(158, 118, 75)) !important;
   color: #2a1a0f !important;
-  border-color: rgba(217, 177, 133, 0.5) !important;
+  border:none !important;
   box-shadow:
     0 3px 0 rgba(0, 0, 0, 0.5),
     0 6px 14px rgba(0, 0, 0, 0.4);
@@ -155,7 +155,7 @@
 }
 
 :root.tt-dark .tt-btn-secondary:hover {
-  background: #e4c69b !important;
+  background: #d9b185 !important;
   color: #2a1a0f !important;
   box-shadow:
     0 5px 0 rgba(0, 0, 0, 0.55),
@@ -253,15 +253,20 @@
   border-color: rgba(255, 255, 255, 0.1);
 }
 
+
 :root.tt-dark .tt-warning-banner {
-  background: linear-gradient(180deg, #2e1e10, #241510);
-  color: var(--tt-ink);
-  border-color: rgba(240, 226, 207, 0.15);
+  background: linear-gradient(180deg, #d9b185, rgb(158, 118, 75));
+  color: var(--tt-warm-white);
+  border-color: rgba(240, 226, 207, 0.28);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 
 :root.tt-dark .tt-warning-banner .btn-close {
   filter: invert(1) brightness(0.85);
+}
+
+:root.tt-dark .tt-warning-banner .btn-close {
+  filter: invert(1) brightness(0.9);
 }
 
 
@@ -455,6 +460,10 @@
 
 :root.tt-dark .tt-loc-bottom {
   border-top-color: rgba(240, 226, 207, 0.1);
+}
+
+:root.tt-dark .tt-about-copy {
+  color: var(--tt-ink);
 }
 
 

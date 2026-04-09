@@ -13,3 +13,4 @@ export { default as OverviewIcon } from "./OverviewIcon";
 export { default as SaveIcon } from "./SaveIcon";
 export { default as SearchIcon } from "./SearchIcon";
 export { default as ShowIcon } from "./ShowIcon";
+export {default as LockIcon} from "./LockIcon";

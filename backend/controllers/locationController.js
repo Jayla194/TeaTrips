@@ -1,5 +1,6 @@
 const locationModel = require("../models/locationModel");
 const { similarLocations } = require("../recommendations/similarLocations");
+const { getOrGenerateDescription } = require("../utils/aiDescription");
 
 
 // Get all locations api/locations
@@ -40,7 +41,7 @@ async function getById(req,res){
 async function getByCityWithSavedStats(req,res){
     const city = req.params.city;
     try {
-        const locations = await locationModel.getLocationsByCityWithStats(city);
+        const locations = await locationModel.getLocationsByCityWithSavedStats(city);
         res.json(locations);
     } catch (err) {
         res.status(500).json({ error: "database error" });
@@ -73,6 +74,22 @@ async function getSimilarLocations(req,res){
     }
 }
 
+async function getDescription(req, res) {
+    try {
+        const locationId = req.params.id;
+        const description = await getOrGenerateDescription(locationId);
+
+        if (!description) {
+            return res.status(404).json({ error: "location not found" });
+        }
+
+        res.json({ id: locationId, description });
+    } catch (err) {
+        console.error("getDescription error:", err);
+        res.status(500).json({ error: "database error" });
+    }
+}
+
 module.exports = {
     getAll,
     getCities,
@@ -80,4 +97,5 @@ module.exports = {
     getByCityWithSavedStats,
     getPopularLocations,
     getSimilarLocations,
+    getDescription,
 };
