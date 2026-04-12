@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Form, Button, OverlayTrigger, Tooltip, InputGroup } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { apiUrl } from "../utils/api";
 import WarningBanner from "../components/WarningBanner";
 import { ShowIcon, HideIcon } from "../components/icons";
@@ -36,7 +36,7 @@ function Register() {
                     navigate("/explore", { replace: true });
                 }
             } catch {
-                // ignore
+                
             }
         }
 
@@ -47,15 +47,22 @@ function Register() {
     }, [navigate]);
 
     // ToolTip Placeholder
-    const InfoHint = ({ text }) =>{
+    const InfoHint = ({ text }) => {
         return (
             <OverlayTrigger
             placement="right"
-            overlay = {<Tooltip>{text}</Tooltip>}>
-                <span style={{ cursor: "help", marginLeft: 8, opacity: 0.8 }}>ⓘ</span>
+            overlay={<Tooltip id="password-tooltip">{text}</Tooltip>}
+            >
+            <button
+                type="button"
+                className="tt-info-btn"
+                aria-label="Password requirements"
+            >
+                ⓘ
+            </button>
             </OverlayTrigger>
-        )
-    }
+        );
+        };
     
     // Registration Function
     const registration = async (e) => {
@@ -118,11 +125,14 @@ function Register() {
                         <p className="tt-form-sub">Create an account ot save locations and itineraries.</p>
                         
                         {error && (
+                        <div id="form-error">
                             <WarningBanner
-                                message={error}
-                                onClose={() => setError("")}
-                                variant="warning"
+                            message={error}
+                            onClose={() => setError("")}
+                            variant="warning"
+                            role="alert"
                             />
+                        </div>
                         )}
 
 
@@ -130,46 +140,52 @@ function Register() {
                             <Row className="g-3">
                                 {/* First Name */}
                                 <Col md={6}>
-                                    <Form.Group>
+                                    <Form.Group controlId="firstName">
                                         <Form.Label className="small fw-bold"> First Name <strong className="text-danger">*</strong></Form.Label>
                                         <Form.Control type="text"
+                                            autoComplete="given-name"
                                             placeholder="John"
                                             value={firstName}
                                             onChange = {(e)=> setFirstName(e.target.value)}
                                             className="tt-form-input"
+                                            aria-describedby={error ? "form-error" : undefined}
                                             />
                                     </Form.Group>
                                 </Col>
 
                                 {/* Last Name */}
                                 <Col md={6}>
-                                    <Form.Group>
+                                    <Form.Group controlId="lastName">
                                         <Form.Label className="small fw-bold">Last Name <strong className="text-danger">*</strong></Form.Label>
                                             <Form.Control type="text"
+                                            autoComplete="family-name"
                                             placeholder="Smith"
                                             value={lastName}
                                             onChange = {(e)=> setLastName(e.target.value)}
                                             className="tt-form-input"
+                                            aria-describedby={error ? "form-error" : undefined}
                                             />
                                     </Form.Group>
                                 </Col>
                             
                                 <Col xs={12}>
                                     {/* Email */}
-                                    <Form.Group>
+                                    <Form.Group controlId="email">
                                         <Form.Label className="small fw-bold">Email <strong className="text-danger">*</strong></Form.Label>
                                         <Form.Control type="email"
+                                            autoComplete="email"
                                             placeholder="JohnSmith@google.com"
                                             value={email}
                                             onChange={(e)=> setEmail(e.target.value)}
                                             className="tt-form-input"
+                                            aria-describedby={error ? "form-error" : undefined}
                                             />
                                     </Form.Group>
                                 </Col>
                             
                                 <Col xs={12}>
                                     {/* Password */}
-                                    <Form.Group>
+                                    <Form.Group controlId="password">
                                         <Form.Label className="small fw-bold">Password
                                                 <strong className="text-danger">*</strong>
                                                 <InfoHint text="Must contain at least 8 Characters, 1 Uppercase, 1 Number."/>
@@ -177,10 +193,12 @@ function Register() {
                                         <InputGroup>
                                             <Form.Control
                                                 className="tt-password-input tt-form-input"
+                                                autoComplete="new-password"
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="••••••••"
                                                 value={password}
                                                 onChange={(e)=> setPassword(e.target.value)}
+                                                aria-describedby={error ? "form-error" : undefined}
                                             />
                                             <Button
                                                 type="button"
@@ -216,11 +234,12 @@ function Register() {
                                                 aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
                                                 onClick={() => setShowConfirmPassword((prev) => !prev)}
                                             >
-                                                <img
-                                                    className="tt-password-toggle-icon"
-                                                    src={showConfirmPassword ? HideIcon : ShowIcon}
-                                                    alt={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
-                                                />
+                                                {showPassword ? (
+                                                    <HideIcon className="tt-password-toggle-icon" title="Hide password" />
+                                                ) : (
+                                                    <ShowIcon className="tt-password-toggle-icon" title="Show password" />
+                                                )}
+
                                             </Button>
                                         </InputGroup>
                                     </Form.Group>
@@ -237,8 +256,9 @@ function Register() {
                                 <div className="text-center mt-3">
                                     <small className="text-muted">
                                         Already registered?{" "}
-                                        <a href="/login" >
-                                        Log in Here</a>
+                                        <Link to="/login">
+                                            Log in Here
+                                        </Link>
                                     </small>
                                 </div>
                             </div>

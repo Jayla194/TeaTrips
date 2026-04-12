@@ -5,9 +5,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import ReactDOM from "react-dom/client";
 import App from './App.jsx'
 import "leaflet/dist/leaflet.css";
-
-
 import React from "react";
+
+// Check if the user has a preference for dark mode and apply it
 const prefersDark = (() => {
   try {
     return localStorage.getItem("tt-dark-mode") === "true";
@@ -15,6 +15,7 @@ const prefersDark = (() => {
     return false;
   }
 })();
+
 if (prefersDark) {
   document.documentElement.classList.add("tt-dark");
 }

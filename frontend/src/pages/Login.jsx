@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Container, Row, Col, Card, Form, Button, InputGroup } from "react-bootstrap";
 import { apiUrl } from "../utils/api";
 import WarningBanner from "../components/WarningBanner";
@@ -86,42 +86,49 @@ function Login () {
                         <p className="tt-form-sub">Log In to save locations and itineraries.</p>
                         
                         {error && (
-                            <WarningBanner
+                            <div id="form-error">
+                                <WarningBanner
                                 message={error}
                                 onClose={() => setError("")}
                                 variant="warning"
-                            />
-                        )}
+                                role="alert"
+                                />
+                            </div>
+                            )}
 
 
                         <Form onSubmit={login}>
                             <Row>
                                 <Col xs={12}>
                                     {/* Email */}
-                                    <Form.Group>
+                                    <Form.Group controlId="email">
                                         <Form.Label className="small fw-bold">Email <strong className="text-danger">*</strong></Form.Label>
                                         <Form.Control type="email"
+                                            autoComplete="email"
                                             placeholder="JohnSmith@google.com"
                                             value={email}
                                             onChange={(e)=> setEmail(e.target.value)}
                                             className="tt-form-input"
+                                            aria-describedby={error ? "form-error" : undefined}
                                             />
                                     </Form.Group>
                                 </Col>
                             
                                 <Col xs={12}>
                                     {/* Password */}
-                                    <Form.Group>
+                                    <Form.Group controlId="password">
                                         <Form.Label className="small fw-bold">Password
                                                 <strong className="text-danger">*</strong>
                                             </Form.Label>
                                         <InputGroup>
                                             <Form.Control
+                                                autoComplete="current-password"
                                                 className="tt-password-input tt-form-input"
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="••••••••"
                                                 value={password}
                                                 onChange={(e)=> setPassword(e.target.value)}
+                                                aria-describedby={error ? "form-error" : undefined}
                                             />
                                             <Button
                                                 type="button"
@@ -150,8 +157,9 @@ function Login () {
                                 <div className="text-center mt-3">
                                     <small className="text-muted">
                                         Don't have an account?{" "}
-                                        <a href="/register" >
-                                        Register Here</a>
+                                        <Link to="/register">
+                                            Register Here
+                                        </Link>
                                     </small>
                                 </div>
                             </div>

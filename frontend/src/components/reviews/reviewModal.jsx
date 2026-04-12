@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 function StarRating({ value, onChange }) {
     const percentage = `${Math.max(0, Math.min(100, (value / 5) * 100))}%`;
@@ -60,6 +60,8 @@ export default function ReviewModal({
 }) {
     const [rating, setRating] = useState(0.5);
     const [comment, setComment] = useState("");
+    const modalRef = useRef(null);
+    const previouslyFocusedElement = useRef(null);
     
     useEffect(() => {
         if (mode == "edit" && initialReview) {
@@ -70,6 +72,35 @@ export default function ReviewModal({
             setComment("");
         }
     }, [mode, initialReview, isOpen]);
+
+    // Focus management and scroll lock
+    useEffect(() => {
+        if (isOpen) {
+            previouslyFocusedElement.current = document.activeElement;
+            modalRef.current?.focus();
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+            previouslyFocusedElement.current?.focus();
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+        }, [isOpen]);
+
+    // Close on Escape key
+    useEffect(() => {
+    function handleKey(e) {
+        if (e.key === "Escape") {
+        onClose();
+    }}
+    if (isOpen) {
+        document.addEventListener("keydown", handleKey);
+    }
+    return () => {
+        document.removeEventListener("keydown", handleKey);
+    };
+    }, [isOpen, onClose]);
 
     if (!isOpen) return null;
 
@@ -84,11 +115,16 @@ export default function ReviewModal({
     }
 
     return (
-        <div className="tt-modal-backdrop">
+        <div className="tt-modal-backdrop"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            onClick={onClose}
+            >
             <div className="tt-modal">
                 <div className="tt-modal-header">
                     <div className="tt-modal-header-left">
-                        <h2 className="tt-modal-title">{heading}</h2>
+                        <h2 id="modal-title" className="tt-modal-title">{heading}</h2>
                         <p className="tt-modal-subtitle">{subheading}</p>
                     </div>
                     <button className="tt-btn tt-btn-ghost" onClick={onClose} aria-label="Close">

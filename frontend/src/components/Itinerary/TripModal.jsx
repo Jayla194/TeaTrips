@@ -1,5 +1,5 @@
 import { Button, Form, Card } from "react-bootstrap";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Select from "react-select";
 import { itineraryPreferences } from "../../utils/categoryMapping";
 import { apiUrl } from "../../utils/api";
@@ -29,6 +29,9 @@ export default function TripModal({ show, onClose, onGenerate }) {
 
     const maxInterests = itineraryPreferences.maxSelectableInterests;
     const interestOptions = itineraryPreferences.interests;
+
+    const modalRef = useRef(null);
+    const previouslyFocusedElement = useRef(null);
 
     const today = useMemo(() => {
         const now = new Date();
@@ -79,6 +82,35 @@ export default function TripModal({ show, onClose, onGenerate }) {
         };
     }, [show]);
 
+    // Focus management and scroll lock
+    useEffect(() => {
+        if (isOpen) {
+            previouslyFocusedElement.current = document.activeElement;
+            modalRef.current?.focus();
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+            previouslyFocusedElement.current?.focus();
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+        }, [isOpen]);
+
+    // Close on Escape key
+    useEffect(() => {
+    function handleKey(e) {
+        if (e.key === "Escape") {
+        onClose();
+    }}
+    if (isOpen) {
+        document.addEventListener("keydown", handleKey);
+    }
+    return () => {
+        document.removeEventListener("keydown", handleKey);
+    };
+    }, [isOpen, onClose]);
+
     const handleInterestToggle = (interest) => {
         setFormData((prev) => {
             const exists = prev.interests.includes(interest);
@@ -125,12 +157,16 @@ export default function TripModal({ show, onClose, onGenerate }) {
     if (!show) return null;
 
     return (
-        <div className="tt-trip-overlay" onClick={onClose}>
+        <div className="tt-trip-overlay" onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            >
             <div className="tt-trip-overlay-panel" onClick={(e) => e.stopPropagation()}>
                 <Card className="tt-trip-details-card tt-trip-overlay-card">
                     <div className="tt-modal-header">
                         <div className="tt-modal-header-left">
-                            <h3 className="tt-modal-title mb-0">Generate Your Perfect Trip</h3>
+                            <h3 id="modal-title" className="tt-modal-title mb-0">Generate Your Perfect Trip</h3>
                         </div>
                         <Button
                             variant="tt-btn tt-btn"

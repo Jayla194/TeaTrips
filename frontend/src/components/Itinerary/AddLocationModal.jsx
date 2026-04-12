@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import WarningBanner from "../WarningBanner";
 import { DeleteIcon } from "../icons";
 
@@ -20,6 +20,7 @@ export default function AddLocationModal({
     onRemoveLocation,
     onClose,
 }) {
+
     const addedIds = useMemo(() => {
         if (!Array.isArray(dayStops)) return new Set();
         return new Set(dayStops.map((stop) => stop?.id));
@@ -37,15 +38,52 @@ export default function AddLocationModal({
         });
     }, [suggestedLocations, query]);
 
+    // Focus management and scroll lock
+    const modalRef = useRef(null);
+    const previouslyFocusedElement = useRef(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            previouslyFocusedElement.current = document.activeElement;
+            modalRef.current?.focus();
+            document.body.style.overflow = "hidden";
+        } else {
+                document.body.style.overflow = "";
+                previouslyFocusedElement.current?.focus();
+            }
+            return () => {
+                document.body.style.overflow = "";
+            };
+            }, [isOpen]);
+    
+        // Close on Escape key
+        useEffect(() => {
+        function handleKey(e) {
+            if (e.key === "Escape") {
+            onClose();
+        }}
+        if (isOpen) {
+            document.addEventListener("keydown", handleKey);
+        }
+        return () => {
+            document.removeEventListener("keydown", handleKey);
+        };
+        }, [isOpen, onClose]);
+
     if (!show) return null;
 
     return (
-        <div className="tt-trip-overlay" onClick={onClose}>
+        <div className="tt-trip-overlay"
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            >
             <div className="tt-trip-overlay-panel" onClick={(e) => e.stopPropagation()}>
                 <div className="tt-trip-details-card tt-trip-overlay-card">
                     <div className="tt-modal-header">
                         <div className="tt-modal-header-left">
-                            <h3 className="tt-modal-title mb-0">
+                            <h3 id="modal-title" className="tt-modal-title mb-0">
                                 {title || (dayNumber ? `Add Location to Day ${dayNumber}` : "Add Location")}
                             </h3>
                         </div>

@@ -21,19 +21,21 @@ export default function RegionTiles({ regions }){
         <section className="tt-region-wrap">
             <Container>
                 <div className="tt-header">
-                    <h2 className="tt-title">Start with a Popular Region</h2>
+                    <h2 className="tt-title">Where do you want to explore?</h2>
+                    <p className="tt-subtitle">Choose a region to start building your trip</p>
                 </div>
 
                 <Row className="g-3 justify-content-center">
                     {regions.map((region)=>(
                         <Col key={region} xs={10} sm={6} md={4} lg={3}>
-                            <div
+                            <button
+                                type="button"
                                 className="tt-region-card"
-                                role="button"
                                 onClick={() => handleClick(region)}
+                                aria-label={`Explore destinations in ${region}`}
                                 >
-                                    {region}
-                            </div>
+                                {region}
+                            </button>
                         </Col>
                     ))}
                 </Row>

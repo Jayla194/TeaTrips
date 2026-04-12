@@ -12,6 +12,7 @@ export default function SearchBar ({ value, onChange, placeholder, onSearch, onC
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
+                aria-label="Search locations"
                 onKeyDown={(e) => {
                     if (e.key === "Enter" && onSearch) onSearch();
                 }}/>
@@ -24,6 +25,7 @@ export default function SearchBar ({ value, onChange, placeholder, onSearch, onC
                     onClick={onClear}
                     disabled={!hasText}
                     title="Clear"
+                    aria-label="Clear"
                 >
                     ✕
                 </button>
@@ -35,6 +37,7 @@ export default function SearchBar ({ value, onChange, placeholder, onSearch, onC
                     className="input-group-text tt-search-icon"
                     onClick={() => onSearch && onSearch()}
                     title="Search"
+                    aria-label="Search"
                     >
                     <SearchIcon className="tt-icon" title="Search" />
                 </button>

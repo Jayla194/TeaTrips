@@ -168,6 +168,16 @@ box-shadow:
     0 2px 8px rgba(43, 30, 22, 0.3);
 }
 
+.tt-info-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 6px;
+  opacity: 0.8;
+  font-size: larger;
+  font-weight: 600;
+}
+
 
 /* ==================
     NAVBAR
@@ -184,6 +194,21 @@ background: linear-gradient(
 box-shadow: 0 4px 16px var(--tt-shadow-light);
 }
 
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 10px 14px;
+  z-index: 9999;
+  text-decoration: none;
+  border-radius: 0 0 6px 0;
+}
+
+.skip-link:focus {
+  top: 0;
+}
 
 /* ==================
     BRAND
@@ -870,26 +895,34 @@ font-style: italic;
     padding: 100px 0;
     }
 
-.tt-region-card{
-background: linear-gradient(135deg, #f7e0bd 0%, #f0d4a8 100%);
-border-radius: 16px;
-padding: 18px 16px;
-text-align: center;
-font-weight: 700;
-font-size: 1.05rem;
-border: 2px solid rgba(139, 90, 60, 0.2);
-box-shadow:
-  0 3px 0 rgba(139, 90, 60, 0.2),
-  0 8px 16px rgba(139, 90, 60, 0.15);
-cursor: pointer;
-transition: all 0.2s ease;
-}
+.tt-region-card {
+  all: unset;
+  display: block;
+  width: 80%;
+  background: linear-gradient(135deg, #f7e0bd 0%, #f0d4a8 100%);
+  border-radius: 16px;
+  padding: 15px 13px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  border: 2px solid rgba(139, 90, 60, 0.2);
+  box-shadow:
+    0 3px 0 rgba(139, 90, 60, 0.2),
+    0 8px 16px rgba(139, 90, 60, 0.15);
 
-.tt-region-card:hover{
-transform: translateY(-3px);
-box-shadow:
-  0 5px 0 rgba(139, 90, 60, 0.25),
-  0 12px 28px rgba(139, 90, 60, 0.25);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tt-region-card:focus {
+  outline: 3px solid #5b3a29;
+  outline-offset: 3px;
+}
+.tt-region-card:hover,
+.tt-region-card:focus {
+  transform: translateY(-3px);
+  box-shadow:
+    0 5px 0 rgba(139, 90, 60, 0.25),
+    0 12px 28px rgba(139, 90, 60, 0.25);
 }
 /* ==================
     CLOSING SECTION
@@ -2159,6 +2192,54 @@ transition: all 0.2s ease;
 
 
 /* ==================
+    MODAL BASE
+   ================== */
+
+.tt-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 24px 16px;
+}
+
+.tt-modal {
+  background: #fff;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 90%;
+  outline: none;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.tt-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.tt-modal-body {
+  padding: 20px;
+}
+
+.tt-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* ==================
     Itinerary Modal
    ================== */
 
@@ -2183,19 +2264,6 @@ transition: all 0.2s ease;
   font-weight: 800;
   color: var(--tt-ink);
 }
-.tt-modal-body {
-  padding: 18px 28px 22px;
-}
-
-.tt-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  border-bottom: 1px solid rgba(139, 90, 60, 0.18);
-  background: linear-gradient(to right, #f1d7b0, rgba(239, 202, 157, 0.92));
-  border-radius: 16px 16px 0 0;
-}
 
 .tt-modal-header-left {
   display: flex;
@@ -2212,15 +2280,8 @@ transition: all 0.2s ease;
 }
 
 .tt-modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding-top: 16px;
+  padding-top: 0;
   padding-bottom: 16px;
-  position: sticky;
-  bottom: 0;
-  background: transparent;
-  backdrop-filter: none;
 }
 
 .tt-modal .tt-modal-footer {
@@ -2884,30 +2945,13 @@ transition: all 0.2s ease;
 /*** ==================
     Review Modal and Cards
    ================== */
-
-.tt-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: rgba(24, 18, 12, 0.45);
-  backdrop-filter: blur(4px);
-  display: grid;
-  place-items: center;
-  padding: 24px 16px;
+.tt-review-modal {
+  width: min(720px, 92vw);
+  max-width: none;
+  margin-inline: 0;
 }
 
-.tt-modal {
-    width: min(720px, 92vw);
-    margin-inline: 0;
-    background: var(--tt-warm-white);
-    border-radius: 20px;
-    box-shadow: 0 4px 10px rgba(43, 31, 22, 0.16);
-    border: 1px solid rgba(58, 39, 26, 0.9);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .tt-modal::before{
+.tt-review-modal::before {
     content: "";
     position: absolute;
     width: 220px;
@@ -2921,7 +2965,7 @@ transition: all 0.2s ease;
     z-index: 0;
   }
 
-.tt-modal > *{
+.tt-review-modal > * {
     position: relative;
     z-index: 1;
   }
@@ -2931,10 +2975,6 @@ transition: all 0.2s ease;
   border-radius: 14px;
   border-color: rgba(58, 39, 26, 0.55);
   box-shadow: 0 3px 8px rgba(43, 31, 22, 0.14);
-}
-
-.tt-confirm-modal::before {
-  display: none;
 }
 
 .tt-confirm-modal .tt-modal-header {
@@ -3483,4 +3523,6 @@ transition: all 0.2s ease;
   font-weight: 800;
   font-size: 0.9rem;
 }
+
+
 
