@@ -121,7 +121,7 @@ export default function ReviewModal({
             aria-labelledby="modal-title"
             onClick={onClose}
             >
-            <div className="tt-modal">
+            <div className="tt-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="tt-modal-header">
                     <div className="tt-modal-header-left">
                         <h2 id="modal-title" className="tt-modal-title">{heading}</h2>
