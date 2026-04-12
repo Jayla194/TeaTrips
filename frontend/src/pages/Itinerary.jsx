@@ -6,6 +6,7 @@ import TripDay from "../components/Itinerary/TripDay";
 import ShowInfoModal from "../components/Itinerary/ShowInfoModal";
 import AddLocationModal from "../components/Itinerary/AddLocationModal";
 import WarningBanner from "../components/WarningBanner";
+import ConfirmModal from "../components/ConfirmModal";
 import { SaveIcon } from "../components/icons";
 
 
@@ -28,17 +29,24 @@ function createBlankItinerary() {
     };
 }
 
+function formatLocalDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
 function normalizeDateInput(value) {
     if (!value) return "";
     if (value instanceof Date) {
-        return Number.isNaN(value.getTime()) ? "" : value.toISOString().slice(0, 10);
+        return Number.isNaN(value.getTime()) ? "" : formatLocalDate(value);
     }
 
     const raw = String(value).trim();
     if (!raw) return "";
 
     const parsed = raw.includes("T") ? new Date(raw) : new Date(`${raw}T00:00:00`);
-    return Number.isNaN(parsed.getTime()) ? "" : parsed.toISOString().slice(0, 10);
+    return Number.isNaN(parsed.getTime()) ? "" : formatLocalDate(parsed);
 }
 
 function inferCityFromItinerary(data) {
@@ -57,6 +65,49 @@ function inferCityFromItinerary(data) {
     }
 
     return "";
+}
+
+function validateBookingWindow(startDate, endDate, options = {}) {
+    const { allowPastDates = false } = options;
+
+    if (!startDate || !endDate) {
+        return { ok: false, message: "Please choose both a start and end date." };
+    }
+
+    const start = new Date(`${startDate}T00:00:00`);
+    const end = new Date(`${endDate}T00:00:00`);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+        return { ok: false, message: "Please choose valid dates." };
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const maxDate = new Date(today);
+    maxDate.setFullYear(maxDate.getFullYear() + 2);
+
+    if (!allowPastDates && start < today) {
+        return { ok: false, message: "Start date cannot be in the past." };
+    }
+    if (end < start) {
+        return { ok: false, message: "End date cannot be before start date." };
+    }
+    if (start > maxDate || end > maxDate) {
+        return { ok: false, message: "Trips can only be booked up to 2 years in advance." };
+    }
+
+    return { ok: true };
+}
+
+function hasTripAlreadyHappened(startDate, endDate) {
+    const reference = endDate || startDate;
+    if (!reference) return false;
+    const date = new Date(`${reference}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
 }
 
 export default function Itinerary() {
@@ -80,10 +131,13 @@ export default function Itinerary() {
     const [locationQuery, setLocationQuery] = useState("");
     const [suggestedLocations, setSuggestedLocations] = useState([]);
     const [suggestedLoading, setSuggestedLoading] = useState(false);
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
 
     const [tripName, setTripName] = useState("Insert Name");
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [activeItineraryId, setActiveItineraryId] = useState(null);
+    const [originalTripDates, setOriginalTripDates] = useState({ startDate: "", endDate: "" });
+    const [readOnlyPastTrip, setReadOnlyPastTrip] = useState(false);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const editParam = searchParams.get("edit");
@@ -144,14 +198,23 @@ export default function Itinerary() {
 
                 setItinerary(data.itinerary || createBlankItinerary());
                 setTripName(data.tripName || "Insert Name");
-                setStartDate(normalizeDateInput(data.startDate));
-                setEndDate(normalizeDateInput(data.endDate));
+                const normalizedStartDate = normalizeDateInput(data.startDate);
+                const normalizedEndDate = normalizeDateInput(data.endDate);
+                setStartDate(normalizedStartDate);
+                setEndDate(normalizedEndDate);
+                setOriginalTripDates({
+                    startDate: normalizedStartDate,
+                    endDate: normalizedEndDate,
+                });
+                setReadOnlyPastTrip(hasTripAlreadyHappened(normalizedStartDate, normalizedEndDate));
                 const loadedId = Number(data.itineraryId);
                 setActiveItineraryId(Number.isInteger(loadedId) ? loadedId : itineraryId);
             } catch (err) {
                 if (!cancelled) {
                     setError(err.message || "Failed to load itinerary.");
                     setActiveItineraryId(null);
+                    setOriginalTripDates({ startDate: "", endDate: "" });
+                    setReadOnlyPastTrip(false);
                 }
             } finally {
                 if (!cancelled) setLoading(false);
@@ -162,6 +225,12 @@ export default function Itinerary() {
         return () => {
             cancelled = true;
         };
+    }, [editParam]);
+
+    useEffect(() => {
+        if (!editParam) {
+            setReadOnlyPastTrip(false);
+        }
     }, [editParam]);
 
     useEffect(() => {
@@ -303,8 +372,19 @@ export default function Itinerary() {
     }
 
     async function generateItinerary(formData) {
+        if (readOnlyPastTrip) {
+            setError("This trip has already happened and is view-only.");
+            return;
+        }
+
         if (!formData?.city) {
             setError("Please choose a city.");
+            return;
+        }
+
+        const dateValidation = validateBookingWindow(formData.startDate, formData.endDate);
+        if (!dateValidation.ok) {
+            setError(dateValidation.message);
             return;
         }
 
@@ -328,12 +408,14 @@ export default function Itinerary() {
                     city: formData.city,
                     days,
                     stopsPerDay: formData.stopsPerDay,
+                    interests: Array.isArray(formData.interests) ? formData.interests : [],
                     includeHotels: formData.includeHotels,
                 }),
             });
 
             if (!res.ok) {
-                throw new Error(`Request failed: ${res.status}`);
+                const body = await res.json().catch(() => null);
+                throw new Error(body?.message || body?.error || `Request failed: ${res.status}`);
             }
 
             const data = await res.json();
@@ -349,6 +431,11 @@ export default function Itinerary() {
     }
 
     async function handleSaveItinerary() {
+        if (readOnlyPastTrip) {
+            setSaveError("This trip has already happened and is view-only.");
+            return;
+        }
+
         const city = inferCityFromItinerary(itinerary);
         if (!tripName || !tripName.trim()) {
             setSaveError("Please enter a trip name before saving.");
@@ -360,6 +447,20 @@ export default function Itinerary() {
         }
         if (!Array.isArray(itinerary?.days) || itinerary.days.length === 0) {
             setSaveError("Itinerary must contain at least one day.");
+            return;
+        }
+
+        const isEditing = Number.isInteger(activeItineraryId);
+        const unchangedLegacyDates =
+            isEditing &&
+            startDate === originalTripDates.startDate &&
+            endDate === originalTripDates.endDate;
+
+        const dateValidation = validateBookingWindow(startDate, endDate, {
+            allowPastDates: unchangedLegacyDates,
+        });
+        if (!dateValidation.ok) {
+            setSaveError(dateValidation.message);
             return;
         }
 
@@ -385,7 +486,6 @@ export default function Itinerary() {
                 })),
             };
 
-            const isEditing = Number.isInteger(activeItineraryId);
             const method = isEditing ? "PUT" : "POST";
             const url = isEditing
                 ? apiUrl(`/api/itinerary/${activeItineraryId}`)
@@ -432,6 +532,8 @@ export default function Itinerary() {
     }
 
     function handleAddDay() {
+        if (readOnlyPastTrip) return;
+
         setItinerary((prev) => {
             const prevDays = Array.isArray(prev?.days) ? prev.days : [];
             const nextDayNumber = prevDays.length + 1;
@@ -444,9 +546,30 @@ export default function Itinerary() {
             };
         });
     }
+
+    function handleClearItineraryConfirm() {
+        if (readOnlyPastTrip) return;
+        setItinerary(createBlankItinerary());
+        setStartDate("");
+        setEndDate("");
+        setTripName("Insert Name");
+        setActiveItineraryId(null);
+        setSaveMessage(null);
+        setSaveError(null);
+        setError(null);
+        setReadOnlyPastTrip(false);
+        setShowStopModal(false);
+        setSelectedStop(null);
+        setShowAddLocation(false);
+        setAddDayNumber(null);
+        setAddingHotel(false);
+        sessionStorage.removeItem("cachedItinerary");
+    }
     
     // Removes locations from the itinerary
     function handleRemoveStop(dayNumber, stopIndex) {
+        if (readOnlyPastTrip) return;
+
         setItinerary((prev) => {
             if (!prev) return prev;
             return {
@@ -460,6 +583,8 @@ export default function Itinerary() {
 
     // Updates the ordering of itinerary locations
     function handleMoveStop(dayNumber, fromIndex, toIndex) {
+        if (readOnlyPastTrip) return;
+
         setItinerary((prev) => {
             if (!prev) return prev;
             return {
@@ -478,6 +603,8 @@ export default function Itinerary() {
     }
 
     function handleOpenAddLocation(dayNumber) {
+        if (readOnlyPastTrip) return;
+
         setAddDayNumber(dayNumber);
         setAddingHotel(false);
         setShowAddLocation(true);
@@ -490,12 +617,15 @@ export default function Itinerary() {
     }
 
     function handleOpenAddHotel() {
+        if (readOnlyPastTrip) return;
+
         setAddDayNumber(null);
         setAddingHotel(true);
         setShowAddLocation(true);
     }
 
     function handleAddLocation(dayNumber, location) {
+        if (readOnlyPastTrip) return;
         if (!location || !dayNumber) return;
 
         const stop = {
@@ -523,6 +653,7 @@ export default function Itinerary() {
     }
 
     function handleRemoveLocation(dayNumber, location) {
+        if (readOnlyPastTrip) return;
         if (!location || !dayNumber) return;
         const idToRemove = location.id;
         if (!idToRemove) return;
@@ -542,6 +673,7 @@ export default function Itinerary() {
     }
 
     function handleAddHotel(location) {
+        if (readOnlyPastTrip) return;
         if (!location) return;
         setItinerary((prev) => ({
             ...prev,
@@ -561,6 +693,7 @@ export default function Itinerary() {
     }
 
     function handleRemoveHotel() {
+        if (readOnlyPastTrip) return;
         setItinerary((prev) => ({ ...prev, hotel: null }));
     }
     function handleOpenStop(stop){
@@ -677,19 +810,26 @@ export default function Itinerary() {
                                     <Button
                                         className="tt-btn tt-btn-secondary"
                                         onClick={handleSaveItinerary}
-                                        disabled={saving}
+                                        disabled={saving || readOnlyPastTrip}
                                     >
                                         <SaveIcon className="tt-save-icon" />
                                         {saving ? "Saving..." : "Save"}
                                     </Button>
                                     <Button
                                         className="tt-btn tt-btn-primary"
-                                        disabled={loading}
+                                        disabled={loading || readOnlyPastTrip}
                                         onClick={() => setShowGenerateModal(true)}>
                                         Generate Trip
                                     </Button>
                                 </div>
                             </div>
+                            {readOnlyPastTrip && (
+                                <WarningBanner
+                                    message="This trip has already happened and is in view-only mode."
+                                    variant="warning"
+                                    inline
+                                />
+                            )}
                             {error && (
                                 <WarningBanner
                                     message={error}
@@ -746,6 +886,7 @@ export default function Itinerary() {
                                     hotel={itinerary.hotel}
                                     onViewDetails={handleOpenStop}
                                     onRemove={handleRemoveHotel}
+                                    readOnly={readOnlyPastTrip}
                                 />
                             )}
                             {!itinerary?.hotel && (
@@ -755,9 +896,11 @@ export default function Itinerary() {
                                         <p className="mb-3 text-muted">
                                             No hotel added yet. Pick one from the hotel list.
                                         </p>
-                                        <Button className="tt-btn tt-btn-primary" onClick={handleOpenAddHotel}>
-                                            + Add Hotel
-                                        </Button>
+                                        {!readOnlyPastTrip && (
+                                            <Button className="tt-btn tt-btn-primary" onClick={handleOpenAddHotel}>
+                                                + Add Hotel
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -781,6 +924,7 @@ export default function Itinerary() {
                                     <TripDay
                                         key={day.day}
                                         day={day}
+                                        readOnly={readOnlyPastTrip}
                                         dayColour={getDayColour(day.day)}
                                         onRemoveStop={handleRemoveStop}
                                         onMoveStop={handleMoveStop}
@@ -796,9 +940,16 @@ export default function Itinerary() {
                                     onViewDetails={handleViewDetails}
                                 />
                                 <div className="mt-3">
-                                    <Button className="tt-btn tt-btn-primary" onClick={handleAddDay}>
-                                        + Add Day
-                                    </Button>
+                                    {!readOnlyPastTrip && (
+                                        <div className="d-flex flex-wrap gap-2">
+                                            <Button className="tt-btn tt-btn-primary" onClick={handleAddDay}>
+                                                + Add Day
+                                            </Button>
+                                            <Button className="tt-btn tt-btn-secondary" onClick={() => setShowClearConfirm(true)}>
+                                                Clear itinerary
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -853,6 +1004,19 @@ export default function Itinerary() {
                     addingHotel ? handleRemoveHotel() : handleRemoveLocation(addDayNumber, loc)
                 }
                 onClose={handleCloseAddLocation}
+            />
+            <ConfirmModal
+                isOpen={showClearConfirm}
+                title="Clear itinerary"
+                message="This will remove all days, locations, and the hotel from this itinerary."
+                confirmLabel="Clear itinerary"
+                cancelLabel="Keep itinerary"
+                confirmClassName="tt-btn tt-btn-secondary"
+                onCancel={() => setShowClearConfirm(false)}
+                onConfirm={() => {
+                    setShowClearConfirm(false);
+                    handleClearItineraryConfirm();
+                }}
             />
         </div>
     );

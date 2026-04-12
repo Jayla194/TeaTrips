@@ -5,7 +5,8 @@ import { apiUrl } from "../utils/api";
 import WarningBanner from "../components/WarningBanner";
 import ReviewCard from "../components/reviews/reviewCard";
 import ReviewModal from "../components/reviews/reviewModal";
-import changePasswordModal from "../components/changePasswordModal";
+import ChangePasswordModal from "../components/changePasswordModal";
+import ConfirmModal from "../components/ConfirmModal";
 import {
     OverviewIcon,
     SaveIcon,
@@ -34,6 +35,7 @@ export default function Profile(){
     const [reviewsError, setReviewsError] = useState("");
     const [reviewOpen, setReviewOpen] = useState(false);
     const [editingReview, setEditingReview] = useState(null);
+    const [reviewDeleteTarget, setReviewDeleteTarget] = useState(null);
 
     // Controls which profile section is visible in the main panel
     const [activeSection, setActiveSection] = useState("overview");
@@ -46,6 +48,7 @@ export default function Profile(){
         }
     });
     const [prefsOpen, setPrefsOpen] = useState(false);
+    const [showDeleteAccount, setShowDeleteAccount] = useState(false);
 
     const navigate = useNavigate();
 
@@ -208,6 +211,17 @@ export default function Profile(){
         return diff > 0 ? diff : null;
     }
 
+    function hasTripAlreadyHappened(itinerary) {
+        const reference = itinerary?.end_date || itinerary?.start_date;
+        if (!reference) return false;
+        const tripDate = new Date(`${String(reference).slice(0, 10)}T00:00:00`);
+        if (Number.isNaN(tripDate.getTime())) return false;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return tripDate < today;
+    }
+
     function handleEditReview(review) {
         // Open the modal with the selected review pre-filled
         setEditingReview(review);
@@ -242,7 +256,32 @@ export default function Profile(){
             setReviewsError(err.message || "Failed to update review");
         }
     }
+
+    async function handleChangePassword({ currentPassword, newPassword }) {
+        try {
+            const res = await fetch(apiUrl("/api/auth/change-password"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ currentPassword, newPassword }),
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                return { error: data.message || data.error || "Failed to change password" };
+            }
+
+            setChangePassOpen(false);
+            return { ok: true };
+        } catch (err) {
+            return { error: err.message || "Failed to change password" };
+        }
+    }
     // Sets review to invisible, effectively deletes it without removing it in the database
+    function handleDeleteReviewRequest(reviewId) {
+        setReviewDeleteTarget(reviewId);
+    }
+
     async function handleDeleteReview(reviewId) {
         try {
             const res = await fetch(apiUrl(`/api/reviews/${reviewId}`), {
@@ -373,11 +412,15 @@ export default function Profile(){
                                     <LockIcon className="tt-profile-pref-icon" />
                                     Change password
                                 </button>
+                                <button
+                                    type="button"
+                                    className="tt-profile-pref-option tt-profile-danger-btn"
+                                    onClick={() => setShowDeleteAccount(true)}
+                                >
+                                    Delete account
+                                </button>
                             </div>
                         )}
-                        <button type="button" className="tt-profile-danger-btn">
-                            Delete account
-                        </button>
                     </div>
                 </div>
             </div>
@@ -454,6 +497,7 @@ export default function Profile(){
                                 <div className="tt-itinerary-grid">
                                     {itineraryCards.map((itinerary) => {
                                         const dayCount = getDayCount(itinerary);
+                                        const hasHappened = hasTripAlreadyHappened(itinerary);
                                         const title = itinerary.trip_name || "Untitled trip";
                                         const subtitleParts = [
                                             itinerary.city ? String(itinerary.city) : "",
@@ -463,17 +507,20 @@ export default function Profile(){
                                         return (
                                             <div
                                                 key={itinerary.itinerary_id}
-                                                className="tt-itinerary-card"
+                                                className={`tt-itinerary-card ${hasHappened ? "tt-itinerary-card-past" : ""}`}
                                             >
                                                 <div className="tt-itinerary-main">
                                                     <div className="tt-itinerary-title">{title}</div>
                                                     <div className="tt-itinerary-sub">{subtitle}</div>
+                                                    {hasHappened && (
+                                                        <div className="tt-itinerary-note">This trip has already happened.</div>
+                                                    )}
                                                     <button
                                                         type="button"
                                                         className="tt-btn tt-btn-secondary mt-3"
                                                         onClick={() => navigate(`/itinerary?edit=${itinerary.itinerary_id}`)}
                                                     >
-                                                        Edit itinerary
+                                                        {hasHappened ? "View itinerary" : "Edit itinerary"}
                                                     </button>
                                                 </div>
                                             </div>
@@ -534,7 +581,7 @@ export default function Profile(){
                                                 )}
                                                 isOwner
                                                 onEdit={handleEditReview}
-                                                onDelete={handleDeleteReview}
+                                                onDelete={(reviewId) => handleDeleteReviewRequest(reviewId)}
                                             />
                                         </div>
                                     ))}
@@ -559,6 +606,39 @@ export default function Profile(){
             }}
             onSubmit={handleUpdateReview}
             locationName={editingReview?.location_name}
+        />
+        <ChangePasswordModal
+            isOpen={changePassOpen}
+            onClose={() => setChangePassOpen(false)}
+            onSubmit={handleChangePassword}
+        />
+        <ConfirmModal
+            isOpen={Boolean(reviewDeleteTarget)}
+            title="Delete review"
+            message="This action will permanently remove your review."
+            confirmLabel="Delete review"
+            cancelLabel="Keep review"
+            confirmClassName="tt-btn tt-btn-secondary"
+            onCancel={() => setReviewDeleteTarget(null)}
+            onConfirm={() => {
+                if (reviewDeleteTarget) {
+                    handleDeleteReview(reviewDeleteTarget);
+                }
+                setReviewDeleteTarget(null);
+            }}
+        />
+        <ConfirmModal
+            isOpen={showDeleteAccount}
+            title="Delete account"
+            message="This action cannot be undone. All your data will be removed."
+            confirmLabel="Delete account"
+            cancelLabel="Keep account"
+            confirmClassName="tt-btn tt-btn-secondary"
+            onCancel={() => setShowDeleteAccount(false)}
+            onConfirm={() => {
+                setShowDeleteAccount(false);
+                // TODO: hook up delete account
+            }}
         />
     </div>
 );

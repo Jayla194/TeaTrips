@@ -29,9 +29,27 @@ async function findUserById(userId) {
     return rows[0];
 }
 
+async function findUserAuthById(userId) {
+    const [rows] = await db.query(
+        "SELECT user_id, password_hash FROM users WHERE user_id = ?",
+        [userId]
+    );
+    return rows[0];
+}
+
+async function updateUserPassword(userId, password_hash) {
+    const [result] = await db.query(
+        "UPDATE users SET password_hash = ? WHERE user_id = ?",
+        [password_hash, userId]
+    );
+    return result;
+}
+
 module.exports = {
     findUserIdByEmail,
     createUser,
     findUserByEmail,
     findUserById,
+    findUserAuthById,
+    updateUserPassword,
 };

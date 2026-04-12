@@ -10,7 +10,7 @@ function rating(avg) {
 const fallback =
     "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=60";
 
-export default function HotelCard({ hotel, onViewDetails, onRemove }) {
+export default function HotelCard({ hotel, onViewDetails, onRemove, readOnly = false }) {
     const ratingVal = useMemo(() => rating(hotel?.avg_rating), [hotel?.avg_rating]);
     const navigate = useNavigate();
 
@@ -42,9 +42,11 @@ export default function HotelCard({ hotel, onViewDetails, onRemove }) {
                                 <button className="tt-btn tt-btn-primary" onClick={() => onViewDetails?.(hotel)}>
                                     View Details
                                 </button>
-                                <button className="tt-btn tt-btn-secondary" onClick={() => onRemove?.(hotel)}>
-                                    Remove
-                                </button>
+                                {!readOnly && (
+                                    <button className="tt-btn tt-btn-secondary" onClick={() => onRemove?.(hotel)}>
+                                        Remove
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

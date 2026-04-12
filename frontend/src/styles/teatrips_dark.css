@@ -871,6 +871,20 @@
   color: var(--tt-ink);
 }
 
+:root.tt-dark .tt-confirm-modal {
+  border-color: rgba(240, 226, 207, 0.18);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.45);
+}
+
+:root.tt-dark .tt-confirm-modal .tt-modal-header {
+  background: linear-gradient(to right, rgba(50, 36, 22, 0.92), rgba(50, 36, 22, 0.6));
+  border-bottom-color: rgba(240, 226, 207, 0.12);
+}
+
+:root.tt-dark .tt-confirm-message {
+  color: rgba(240, 226, 207, 0.7);
+}
+
 :root.tt-dark .tt-modal-title {
   color: var(--tt-ink);
 }
@@ -887,6 +901,18 @@
 :root.tt-dark .tt-modal-subtitle,
 :root.tt-dark .tt-review-modal-subtitle {
   color: rgba(240, 226, 207, 0.55);
+}
+
+:root.tt-dark .tt-modal .tt-password-toggle-btn {
+  border-color: rgba(240, 226, 207, 0.2);
+  background: linear-gradient(to bottom, rgba(76, 54, 34, 0.9), rgba(60, 42, 25, 0.9));
+  color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-modal .tt-password-toggle-btn:hover,
+:root.tt-dark .tt-modal .tt-password-toggle-btn:focus {
+  background: linear-gradient(to bottom, rgba(90, 64, 38, 0.95), rgba(70, 48, 28, 0.95));
+  box-shadow: inset 0 0 0 1px rgba(240, 226, 207, 0.1);
 }
 
 :root.tt-dark .tt-modal .tt-field-textarea {

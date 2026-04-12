@@ -380,6 +380,17 @@ background: rgba(43,31,22,0.25);
   padding-right: 84px;
 }
 
+.tt-itinerary-card-past{
+  opacity: 0.7;
+  filter: saturate(0.75);
+}
+
+.tt-itinerary-note{
+  margin-top: 6px;
+  font-size: 0.84rem;
+  color: rgba(55, 36, 22, 0.78);
+}
+
 .tt-itinerary-grid{
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2173,7 +2184,7 @@ transition: all 0.2s ease;
   color: var(--tt-ink);
 }
 .tt-modal-body {
-  padding: 16px 24px ;
+  padding: 18px 28px 22px;
 }
 
 .tt-modal-header {
@@ -2214,6 +2225,54 @@ transition: all 0.2s ease;
 
 .tt-modal .tt-modal-footer {
   justify-content: center;
+}
+
+.tt-password-group {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.tt-modal .tt-password-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  max-width: 70%;
+}
+
+.tt-modal .tt-password-toggle-btn {
+  border: 1px solid var(--tt-border);
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  background: linear-gradient(to bottom, #f7e6c7, #f2d4a7);
+  color: var(--tt-ink);
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.tt-modal .tt-password-toggle-btn:hover,
+.tt-modal .tt-password-toggle-btn:focus {
+  background: linear-gradient(to bottom, #f4dcb7, #edc998);
+  box-shadow: inset 0 0 0 1px rgba(139, 90, 60, 0.18);
+  transform: translateY(-1px);
+}
+
+.tt-modal .tt-password-toggle-btn:focus-visible {
+  outline: 2px solid rgba(139, 90, 60, 0.35);
+  outline-offset: 1px;
+}
+
+.tt-modal .tt-password-toggle-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.tt-modal .tt-password-toggle-icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .tt-budget-options {
@@ -2838,8 +2897,8 @@ transition: all 0.2s ease;
 }
 
 .tt-modal {
-    width: min(720px, 100%);
-    margin-inline: 24px;
+    width: min(720px, 92vw);
+    margin-inline: 0;
     background: var(--tt-warm-white);
     border-radius: 20px;
     box-shadow: 0 4px 10px rgba(43, 31, 22, 0.16);
@@ -2862,10 +2921,46 @@ transition: all 0.2s ease;
     z-index: 0;
   }
 
-  .tt-modal > *{
+.tt-modal > *{
     position: relative;
     z-index: 1;
   }
+
+.tt-confirm-modal {
+  width: min(520px, 92vw);
+  border-radius: 14px;
+  border-color: rgba(58, 39, 26, 0.55);
+  box-shadow: 0 3px 8px rgba(43, 31, 22, 0.14);
+}
+
+.tt-confirm-modal::before {
+  display: none;
+}
+
+.tt-confirm-modal .tt-modal-header {
+  background: linear-gradient(to right, rgba(226, 202, 170, 0.7), rgba(226, 202, 170, 0.35));
+  border-bottom-color: rgba(139, 90, 60, 0.12);
+  padding: 12px 16px;
+}
+
+.tt-confirm-modal .tt-modal-title {
+  font-size: 1.1rem;
+}
+
+.tt-confirm-modal .tt-modal-body {
+  padding: 14px 20px 18px;
+}
+
+.tt-confirm-modal .tt-modal-footer {
+  padding-top: 10px;
+  padding-bottom: 0;
+}
+
+.tt-confirm-message {
+  margin: 0 0 10px;
+  color: rgba(55, 36, 22, 0.75);
+  font-size: 0.95rem;
+}
 
   .tt-modal .tt-field-textarea{
     background: #fffaf3;
@@ -3010,12 +3105,26 @@ transition: all 0.2s ease;
 .tt-field-input,
 .tt-field-textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: 12px;
   border: 1px solid rgba(73, 52, 34, 0.15);
   background: rgba(255, 255, 255, 0.9);
   box-shadow: inset 0 1px 2px rgba(43, 31, 22, 0.05);
   font-size: 0.95rem;
+}
+
+.tt-modal .tt-field {
+  margin-bottom: 14px;
+}
+
+.tt-modal .tt-field-label {
+  margin-bottom: 6px;
+  margin-left: 13%;
+}
+
+
+.tt-modal .tt-field-input {
+  font-size: 0.92rem;
 }
 
 .tt-field-input:focus,

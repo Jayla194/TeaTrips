@@ -13,6 +13,7 @@ export default function TripDestinationCard({
     stop,
     index,
     totalStops,
+    readOnly = false,
     onMoveUp,
     onMoveDown,
     onRemove,
@@ -46,41 +47,43 @@ export default function TripDestinationCard({
                         </div>
                     </div>
 
-                    <div className="tt-destination-actions">
-                        <button
-                            className="tt-mini-btn"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onMoveUp?.();
-                            }}
-                            disabled={index === 0}
-                            aria-label="Move up"
-                        >
-                            ^
-                        </button>
-                        <button
-                            className="tt-mini-btn tt-mini-btn-icon tt-mini-btn-danger"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onRemove?.();
-                            }}
-                            aria-label="Remove location"
-                            title="Remove"
-                        >
-                            <DeleteIcon className="tt-mini-icon" />
-                        </button>
-                        <button
-                            className="tt-mini-btn"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onMoveDown?.();
-                            }}
-                            disabled={index === totalStops - 1}
-                            aria-label="Move down"
-                        >
-                            v
-                        </button>
-                    </div>
+                    {!readOnly && (
+                        <div className="tt-destination-actions">
+                            <button
+                                className="tt-mini-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onMoveUp?.();
+                                }}
+                                disabled={index === 0}
+                                aria-label="Move up"
+                            >
+                                ^
+                            </button>
+                            <button
+                                className="tt-mini-btn tt-mini-btn-icon tt-mini-btn-danger"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onRemove?.();
+                                }}
+                                aria-label="Remove location"
+                                title="Remove"
+                            >
+                                <DeleteIcon className="tt-mini-icon" />
+                            </button>
+                            <button
+                                className="tt-mini-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onMoveDown?.();
+                                }}
+                                disabled={index === totalStops - 1}
+                                aria-label="Move down"
+                            >
+                                v
+                            </button>
+                        </div>
+                    )}
 
                 </div>
             </div>

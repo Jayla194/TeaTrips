@@ -1,9 +1,28 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 
+function formatLocalDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
 export default function TripDetails({tripName,setTripName,startDate,setStartDate,endDate,setEndDate}){
     const [collapsed, setCollapsed] = useState(false);
+
+    const today = useMemo(() => {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        return now;
+    }, []);
+
+    const maxBookingDate = useMemo(() => {
+        const max = new Date(today);
+        max.setFullYear(max.getFullYear() + 2);
+        return max;
+    }, [today]);
 
     const parseDate = (value) => {
         if (!value) return null;
@@ -19,7 +38,7 @@ export default function TripDetails({tripName,setTripName,startDate,setStartDate
     };
     const formatDate = (value) => {
         if (!(value instanceof Date)) return "";
-        return Number.isNaN(value.getTime()) ? "" : value.toISOString().slice(0, 10);
+        return Number.isNaN(value.getTime()) ? "" : formatLocalDate(value);
     };
     
     // Calculate Number of days
@@ -67,6 +86,8 @@ export default function TripDetails({tripName,setTripName,startDate,setStartDate
                             <DatePicker
                                 selected={parseDate(startDate)}
                                 onChange={(date) => setStartDate(formatDate(date))}
+                                minDate={today}
+                                maxDate={maxBookingDate}
                                 dateFormat="dd/MM/yyyy"
                                 placeholderText="Select date"
                                 className="tt-form-input tt-date-input"
@@ -81,6 +102,8 @@ export default function TripDetails({tripName,setTripName,startDate,setStartDate
                             <DatePicker
                                 selected={parseDate(endDate)}
                                 onChange={(date) => setEndDate(formatDate(date))}
+                                minDate={parseDate(startDate) || today}
+                                maxDate={maxBookingDate}
                                 dateFormat="dd/MM/yyyy"
                                 placeholderText="Select date"
                                 className="tt-form-input tt-date-input"

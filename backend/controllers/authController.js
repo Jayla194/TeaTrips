@@ -7,6 +7,8 @@ const {
     createUser,
     findUserByEmail,
     findUserById,
+    findUserAuthById,
+    updateUserPassword,
 } = require("../models/userModel");
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -115,4 +117,37 @@ exports.user = async (req,res)=> {
 exports.logout = (req,res)=>{
     res.clearCookie("tt_token", cookieOptions);
     res.json({message:"Logged Out"})
+};
+
+// Change password for current user
+exports.changePassword = async (req, res) => {
+    const token = req.cookies.tt_token;
+    if (!token) return res.status(401).json({ message: "Not logged in" });
+
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        const { currentPassword, newPassword } = req.body || {};
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: "Current and new password are required" });
+        }
+        if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+            return res.status(400).json({ message: "Password must be 8+ characters with 1 uppercase letter and 1 number" });
+        }
+
+        const user = await findUserAuthById(payload.user_id);
+        if (!user) return res.status(401).json({ message: "Not logged in" });
+
+        const ok = await bcrypt.compare(currentPassword, user.password_hash);
+        if (!ok) {
+            return res.status(401).json({ message: "Current password is incorrect" });
+        }
+
+        const password_hash = await bcrypt.hash(newPassword, 10);
+        await updateUserPassword(user.user_id, password_hash);
+
+        return res.json({ message: "Password updated" });
+    } catch (err) {
+        return res.status(401).json({ message: "Not logged in" });
+    }
 };

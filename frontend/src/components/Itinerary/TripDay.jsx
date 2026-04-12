@@ -4,6 +4,7 @@ import { getDayColour } from "../../utils/dayColours";
 
 export default function TripDay({
   day,
+  readOnly = false,
   onRemoveStop,
   onMoveStop,
   onOpenStop,
@@ -33,15 +34,17 @@ export default function TripDay({
             {!collapsed && (
                 <div className="tt-day-body">
                     {/* Inline add button keeps manual flow lightweight */}
-                    <div className="tt-day-actions">
-            <button
-              type="button"
-              className="tt-mini-btn"
-              onClick={() => onAddStop?.(day.day)}
-            >
-              + Add location
-            </button>
-          </div>
+                    {!readOnly && (
+                        <div className="tt-day-actions">
+                            <button
+                                type="button"
+                                className="tt-mini-btn"
+                                onClick={() => onAddStop?.(day.day)}
+                            >
+                                + Add location
+                            </button>
+                        </div>
+                    )}
           {stops.length === 0 ? (
             <p className="mb-0 text-muted">No locations yet.</p>
           ) : (
@@ -51,6 +54,7 @@ export default function TripDay({
                 stop={stop}
                 index={index}
                 totalStops={stops.length}
+                readOnly={readOnly}
                 onMoveUp={() => onMoveStop?.(day.day, index, index - 1)}
                 onMoveDown={() => onMoveStop?.(day.day, index, index + 1)}
                 onRemove={() => onRemoveStop?.(day.day, index)}

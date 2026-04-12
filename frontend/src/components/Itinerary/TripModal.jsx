@@ -5,6 +5,14 @@ import { itineraryPreferences } from "../../utils/categoryMapping";
 import { apiUrl } from "../../utils/api";
 import DatePicker from "react-datepicker";
 
+function formatLocalDate(date) {
+    const year = date.getFullYear();
+    // Make sure month and day are always 2 digits (e.g. 09 and 11)
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
 export default function TripModal({ show, onClose, onGenerate }) {
     const [formData, setFormData] = useState({
         city: "",
@@ -21,6 +29,18 @@ export default function TripModal({ show, onClose, onGenerate }) {
 
     const maxInterests = itineraryPreferences.maxSelectableInterests;
     const interestOptions = itineraryPreferences.interests;
+
+    const today = useMemo(() => {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        return now;
+    }, []);
+
+    const maxBookingDate = useMemo(() => {
+        const max = new Date(today);
+        max.setFullYear(max.getFullYear() + 2);
+        return max;
+    }, [today]);
 
     // Converts list to react-select format and sorts alphabetically
     const formattedCityOptions = useMemo(() => {
@@ -99,7 +119,7 @@ export default function TripModal({ show, onClose, onGenerate }) {
     };
     const formatDate = (value) => {
         if (!(value instanceof Date)) return "";
-        return Number.isNaN(value.getTime()) ? "" : value.toISOString().slice(0, 10);
+        return Number.isNaN(value.getTime()) ? "" : formatLocalDate(value);
     };
 
     if (!show) return null;
@@ -147,6 +167,8 @@ export default function TripModal({ show, onClose, onGenerate }) {
                                         onChange={(date) =>
                                             setFormData({ ...formData, startDate: formatDate(date) })
                                         }
+                                        minDate={today}
+                                        maxDate={maxBookingDate}
                                         dateFormat="dd/MM/yyyy"
                                         placeholderText="Select date"
                                         className="tt-form-input tt-date-input"
@@ -160,6 +182,8 @@ export default function TripModal({ show, onClose, onGenerate }) {
                                         onChange={(date) =>
                                             setFormData({ ...formData, endDate: formatDate(date) })
                                         }
+                                        minDate={parseDate(formData.startDate) || today}
+                                        maxDate={maxBookingDate}
                                         dateFormat="dd/MM/yyyy"
                                         placeholderText="Select date"
                                         className="tt-form-input tt-date-input"

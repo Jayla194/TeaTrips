@@ -97,6 +97,54 @@ function addDaysIso(startDate, offsetDays) {
     return next.toISOString().slice(0, 10);
 }
 
+// Validates start and end dates for trips
+function validateBookingDateRange(startDate, endDate, options = {}) {
+    const { allowPastDates = false } = options;
+
+    if (!startDate && !endDate) {
+        return { ok: true };
+    }
+    if (!startDate || !endDate) {
+        return { ok: false, message: "Please provide both start and end dates." };
+    }
+
+    const start = new Date(`${startDate}T00:00:00Z`);
+    const end = new Date(`${endDate}T00:00:00Z`);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+        return { ok: false, message: "Invalid trip dates." };
+    }
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    const maxDate = new Date(today);
+    maxDate.setUTCFullYear(maxDate.getUTCFullYear() + 2);
+
+    if (!allowPastDates && start < today) {
+        return { ok: false, message: "Start date cannot be in the past." };
+    }
+    if (end < start) {
+        return { ok: false, message: "End date cannot be before start date." };
+    }
+    if (start > maxDate || end > maxDate) {
+        return { ok: false, message: "Trips can only be booked up to 2 years in advance." };
+    }
+
+    return { ok: true };
+}
+
+// Checks if the given date has already passed (compared to today)
+function hasDateAlreadyPassed(dateStr) {
+    if (!dateStr) return false;
+    const date = new Date(`${dateStr}T00:00:00Z`);
+    if (Number.isNaN(date.getTime())) return false;
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    return date < today;
+}
+
+// Saves itinerary to database if user logged in
 async function saveItinerary(req, res) {
     const userId = req.user?.user_id;
 
@@ -115,6 +163,10 @@ async function saveItinerary(req, res) {
     }
     if (!city) {
         return res.status(400).json({ message: "City is required" });
+    }
+    const dateValidation = validateBookingDateRange(startDate, endDate);
+    if (!dateValidation.ok) {
+        return res.status(400).json({ message: dateValidation.message });
     }
     if (days.length === 0) {
         return res.status(400).json({ message: "Itinerary must have at least one day" });
@@ -187,6 +239,7 @@ async function saveItinerary(req, res) {
     }
 }
 
+// Profile page - list of user's saved itineraries with basic info
 async function listUserItineraries(req, res) {
     const userId = req.user?.user_id;
     if (!userId) {
@@ -202,6 +255,7 @@ async function listUserItineraries(req, res) {
     }
 }
 
+// Maps database rows to the format needed for itinerary builder
 function mapItineraryRowsToBuilderData(baseItinerary, rows) {
     const dayMap = new Map();
 
@@ -263,6 +317,7 @@ function mapItineraryRowsToBuilderData(baseItinerary, rows) {
     };
 }
 
+// Open and edit itinerary if hasn't already happened, otherwise read only
 async function getUserItinerary(req, res) {
     const userId = req.user?.user_id;
     const itineraryId = Number(req.params.itineraryId);
@@ -305,6 +360,7 @@ async function getUserItinerary(req, res) {
     }
 }
 
+// Overwrite existing itinerary with updated version
 async function updateUserItinerary(req, res) {
     const userId = req.user?.user_id;
     const itineraryId = Number(req.params.itineraryId);
@@ -352,6 +408,20 @@ async function updateUserItinerary(req, res) {
         if (!existing) {
             await conn.rollback();
             return res.status(404).json({ message: "Itinerary not found" });
+        }
+
+        const existingStartDate = normaliseDate(existing.start_date);
+        const existingEndDate = normaliseDate(existing.end_date);
+
+        if (hasDateAlreadyPassed(existingEndDate || existingStartDate)) {
+            await conn.rollback();
+            return res.status(400).json({ message: "This trip has already happened and is view-only." });
+        }
+
+        const dateValidation = validateBookingDateRange(startDate, endDate);
+        if (!dateValidation.ok) {
+            await conn.rollback();
+            return res.status(400).json({ message: dateValidation.message });
         }
 
         await updateItineraryHeader(conn, {
@@ -403,6 +473,7 @@ async function updateUserItinerary(req, res) {
     }
 }
 
+// Delete itinerary
 async function removeItinerary(req, res) {
     const userId = req.user?.user_id;
     const itineraryId = Number(req.params.itineraryId);
