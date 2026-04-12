@@ -1,9 +1,10 @@
-import { Button, Form, Card } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { useEffect, useMemo, useState, useRef } from "react";
 import Select from "react-select";
 import { itineraryPreferences } from "../../utils/categoryMapping";
 import { apiUrl } from "../../utils/api";
 import DatePicker from "react-datepicker";
+import WarningBanner from "../WarningBanner";
 
 function formatLocalDate(date) {
     const year = date.getFullYear();
@@ -13,7 +14,8 @@ function formatLocalDate(date) {
     return `${year}-${month}-${day}`;
 }
 
-export default function TripModal({ isOpen, onClose, onGenerate }) {
+export default function TripModal({ isOpen, show, onClose, onGenerate, errorMessage, onClearError }) {
+    const isModalOpen = typeof show === "boolean" ? show : isOpen;
     const [formData, setFormData] = useState({
         city: "",
         startDate: "",
@@ -56,7 +58,7 @@ export default function TripModal({ isOpen, onClose, onGenerate }) {
     }, [cityOptions]);
 
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isModalOpen) return;
 
         let isCancelled = false;
 
@@ -80,11 +82,11 @@ export default function TripModal({ isOpen, onClose, onGenerate }) {
         return () => {
             isCancelled = true;
         };
-    }, [isOpen]);
+    }, [isModalOpen]);
 
     // Focus management and scroll lock
     useEffect(() => {
-        if (isOpen) {
+        if (isModalOpen) {
             previouslyFocusedElement.current = document.activeElement;
             modalRef.current?.focus();
             document.body.style.overflow = "hidden";
@@ -95,7 +97,7 @@ export default function TripModal({ isOpen, onClose, onGenerate }) {
         return () => {
             document.body.style.overflow = "";
         };
-        }, [isOpen]);
+        }, [isModalOpen]);
 
     // Close on Escape key
     useEffect(() => {
@@ -103,13 +105,13 @@ export default function TripModal({ isOpen, onClose, onGenerate }) {
         if (e.key === "Escape") {
         onClose();
     }}
-    if (isOpen) {
+    if (isModalOpen) {
         document.addEventListener("keydown", handleKey);
     }
     return () => {
         document.removeEventListener("keydown", handleKey);
     };
-    }, [isOpen, onClose]);
+    }, [isModalOpen, onClose]);
 
     const handleInterestToggle = (interest) => {
         setFormData((prev) => {
@@ -121,11 +123,15 @@ export default function TripModal({ isOpen, onClose, onGenerate }) {
         });
     };
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
+        let generated = true;
+
         if (typeof onGenerate === "function") {
-            onGenerate(formData);
+            const result = await onGenerate(formData);
+            generated = result !== false;
         }
-        if (typeof onClose === "function") {
+
+        if (generated && typeof onClose === "function") {
             onClose();
         }
     };
@@ -154,7 +160,7 @@ export default function TripModal({ isOpen, onClose, onGenerate }) {
         return Number.isNaN(value.getTime()) ? "" : formatLocalDate(value);
     };
 
-    if (!isOpen) return null;
+    if (!isModalOpen) return null;
 
     return (
         <div className="tt-trip-overlay" onClick={onClose}
@@ -163,13 +169,13 @@ export default function TripModal({ isOpen, onClose, onGenerate }) {
             aria-labelledby="modal-title"
             >
             <div className="tt-trip-overlay-panel" onClick={(e) => e.stopPropagation()}>
-                <Card className="tt-trip-details-card tt-trip-overlay-card">
+                <div className="tt-modal tt-trip-modal" ref={modalRef} tabIndex={-1}>
                     <div className="tt-modal-header">
                         <div className="tt-modal-header-left">
                             <h3 id="modal-title" className="tt-modal-title mb-0">Generate Your Perfect Trip</h3>
                         </div>
                         <Button
-                            variant="tt-btn tt-btn"
+                            className="tt-btn tt-btn-secondary"
                             size="sm"
                             onClick={onClose}
                             aria-label="Close trip settings"
@@ -177,7 +183,12 @@ export default function TripModal({ isOpen, onClose, onGenerate }) {
                             Close
                         </Button>
                     </div>
-                    <Card.Body className="tt-modal-body">
+                    <div className="tt-modal-body">
+                        <WarningBanner
+                            message={errorMessage}
+                            onClose={onClearError}
+                            variant="warning"
+                        />
 
                         <Form.Group className="mb-3">
                             <Form.Label className="tt-form-label">City</Form.Label>
@@ -319,8 +330,8 @@ export default function TripModal({ isOpen, onClose, onGenerate }) {
                                 Generate Trip
                             </Button>
                         </div>
-                    </Card.Body>
-                </Card>
+                    </div>
+                </div>
             </div>
         </div>
     );

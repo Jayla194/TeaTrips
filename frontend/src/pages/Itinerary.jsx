@@ -374,24 +374,24 @@ export default function Itinerary() {
     async function generateItinerary(formData) {
         if (readOnlyPastTrip) {
             setError("This trip has already happened and is view-only.");
-            return;
+            return false;
         }
 
         if (!formData?.city) {
             setError("Please choose a city.");
-            return;
+            return false;
         }
 
         const dateValidation = validateBookingWindow(formData.startDate, formData.endDate);
         if (!dateValidation.ok) {
             setError(dateValidation.message);
-            return;
+            return false;
         }
 
         const days = daysBetweenInclusive(formData.startDate, formData.endDate);
         if (days < 1) {
             setError("Please choose valid dates.");
-            return;
+            return false;
         }
 
         try {
@@ -422,9 +422,11 @@ export default function Itinerary() {
             setItinerary(data);
             setStartDate(formData.startDate || "");
             setEndDate(formData.endDate || "");
+            return true;
         } catch (err) {
             console.error(err);
             setError("Failed to generate itinerary.");
+            return false;
         } finally {
             setLoading(false);
         }
@@ -981,6 +983,8 @@ export default function Itinerary() {
                 show={showGenerateModal}
                 onClose={() => setShowGenerateModal(false)}
                 onGenerate={generateItinerary}
+                errorMessage={error}
+                onClearError={() => setError(null)}
             />
 
             <AddLocationModal

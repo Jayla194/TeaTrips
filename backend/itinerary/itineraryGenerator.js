@@ -145,6 +145,7 @@ function isHotel(location){
 function generateItinerary(input, allLocations){
     const { city, days, stopsPerDay, seed } = input;
     const warnings = [];
+    let effectiveStopsPerDay = stopsPerDay;
 
     if (!Array.isArray(allLocations) || allLocations.length === 0){
         return {
@@ -163,12 +164,12 @@ function generateItinerary(input, allLocations){
 
 
     // Decide how many stops we need
-    const totalStops = days * stopsPerDay;
+    const totalStops = days * effectiveStopsPerDay;
     const rand = createSeededRandom(seed ?? Date.now());
     const selectedLocations = weightedSampleWithoutReplacement(candidates, weights, totalStops, rand);
     if (candidates.length < totalStops) {
-        stopsPerDay = Math.ceil(candidates.length / days);
-        warnings.push(`Only found ${candidates.length} locations matching your criteria. Adjusted stops per day to ${stopsPerDay}.`);
+        effectiveStopsPerDay = Math.ceil(candidates.length / days);
+        warnings.push(`Only found ${candidates.length} locations matching your criteria. Adjusted stops per day to ${effectiveStopsPerDay}.`);
         
     }
 
@@ -180,7 +181,7 @@ function generateItinerary(input, allLocations){
     for(let dayNumber = 1; dayNumber <= days; dayNumber++){
         const stopsForDay = [];
 
-        for(let i = 0; i< stopsPerDay; i++){
+        for(let i = 0; i< effectiveStopsPerDay; i++){
             if (currentIndex >= selectedLocations.length) break;
 
             const location = selectedLocations[currentIndex];
@@ -206,7 +207,7 @@ function generateItinerary(input, allLocations){
         meta:{
             city,
             days,
-            stopsPerDay,
+            stopsPerDay: effectiveStopsPerDay,
             totalStops: selectedLocations.length,
             seed,
             generatedAt: new Date().toISOString(),
