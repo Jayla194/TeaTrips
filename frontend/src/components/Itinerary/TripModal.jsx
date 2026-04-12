@@ -13,7 +13,7 @@ function formatLocalDate(date) {
     return `${year}-${month}-${day}`;
 }
 
-export default function TripModal({ show, onClose, onGenerate }) {
+export default function TripModal({ isOpen, onClose, onGenerate }) {
     const [formData, setFormData] = useState({
         city: "",
         startDate: "",
@@ -56,7 +56,7 @@ export default function TripModal({ show, onClose, onGenerate }) {
     }, [cityOptions]);
 
     useEffect(() => {
-        if (!show) return;
+        if (!isOpen) return;
 
         let isCancelled = false;
 
@@ -80,7 +80,7 @@ export default function TripModal({ show, onClose, onGenerate }) {
         return () => {
             isCancelled = true;
         };
-    }, [show]);
+    }, [isOpen]);
 
     // Focus management and scroll lock
     useEffect(() => {
@@ -154,7 +154,7 @@ export default function TripModal({ show, onClose, onGenerate }) {
         return Number.isNaN(value.getTime()) ? "" : formatLocalDate(value);
     };
 
-    if (!show) return null;
+    if (!isOpen) return null;
 
     return (
         <div className="tt-trip-overlay" onClick={onClose}

@@ -3,7 +3,7 @@ import WarningBanner from "../WarningBanner";
 import { DeleteIcon } from "../icons";
 
 export default function AddLocationModal({
-    show,
+    isOpen,
     dayNumber,
     title,
     suggestedLocations,
@@ -70,7 +70,7 @@ export default function AddLocationModal({
         };
         }, [isOpen, onClose]);
 
-    if (!show) return null;
+    if (!isOpen) return null;
 
     return (
         <div className="tt-trip-overlay"
