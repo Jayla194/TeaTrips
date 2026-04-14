@@ -159,13 +159,6 @@ export default function AddLocationModal({
                             </div>
                         )}
 
-                        {!loading && Array.isArray(suggestedLocations) && suggestedLocations.length === 0 && (
-                            <p className="tt-empty-note text-muted mb-3">
-                                <span className="tt-teabag-icon" aria-hidden="true"></span>
-                                No suggestions yet.
-                            </p>
-                        )}
-
                         {suggestedLoading && (
                             <p className="tt-empty-note text-muted mb-3">
                                 <span className="tt-teabag-icon" aria-hidden="true"></span>

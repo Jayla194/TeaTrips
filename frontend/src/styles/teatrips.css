@@ -2449,6 +2449,8 @@ transition: all 0.2s ease;
   margin: 12px;
   box-shadow: 0 10px 30px rgba(43, 31, 22, 0.3);
   border: none;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .tt-trip-overlay .tt-modal-body {

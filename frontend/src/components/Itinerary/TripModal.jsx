@@ -14,8 +14,7 @@ function formatLocalDate(date) {
     return `${year}-${month}-${day}`;
 }
 
-export default function TripModal({ isOpen, show, onClose, onGenerate, errorMessage, onClearError }) {
-    const isModalOpen = typeof show === "boolean" ? show : isOpen;
+export default function TripModal({ isOpen, onClose, onGenerate, errorMessage, onClearError }) {
     const [formData, setFormData] = useState({
         city: "",
         startDate: "",
@@ -58,7 +57,7 @@ export default function TripModal({ isOpen, show, onClose, onGenerate, errorMess
     }, [cityOptions]);
 
     useEffect(() => {
-        if (!isModalOpen) return;
+        if (!isOpen) return;
 
         let isCancelled = false;
 
@@ -82,11 +81,11 @@ export default function TripModal({ isOpen, show, onClose, onGenerate, errorMess
         return () => {
             isCancelled = true;
         };
-    }, [isModalOpen]);
+    }, [isOpen]);
 
     // Focus management and scroll lock
     useEffect(() => {
-        if (isModalOpen) {
+        if (isOpen) {
             previouslyFocusedElement.current = document.activeElement;
             modalRef.current?.focus();
             document.body.style.overflow = "hidden";
@@ -97,7 +96,7 @@ export default function TripModal({ isOpen, show, onClose, onGenerate, errorMess
         return () => {
             document.body.style.overflow = "";
         };
-        }, [isModalOpen]);
+        }, [isOpen]);
 
     // Close on Escape key
     useEffect(() => {
@@ -105,13 +104,13 @@ export default function TripModal({ isOpen, show, onClose, onGenerate, errorMess
         if (e.key === "Escape") {
         onClose();
     }}
-    if (isModalOpen) {
+    if (isOpen) {
         document.addEventListener("keydown", handleKey);
     }
     return () => {
         document.removeEventListener("keydown", handleKey);
     };
-    }, [isModalOpen, onClose]);
+    }, [isOpen, onClose]);
 
     const handleInterestToggle = (interest) => {
         setFormData((prev) => {
@@ -160,7 +159,7 @@ export default function TripModal({ isOpen, show, onClose, onGenerate, errorMess
         return Number.isNaN(value.getTime()) ? "" : formatLocalDate(value);
     };
 
-    if (!isModalOpen) return null;
+    if (!isOpen) return null;
 
     return (
         <div className="tt-trip-overlay" onClick={onClose}

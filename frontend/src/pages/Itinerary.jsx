@@ -133,7 +133,7 @@ export default function Itinerary() {
     const [suggestedLoading, setSuggestedLoading] = useState(false);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-    const [tripName, setTripName] = useState("Insert Name");
+    const [tripName, setTripName] = useState("");
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [activeItineraryId, setActiveItineraryId] = useState(null);
     const [originalTripDates, setOriginalTripDates] = useState({ startDate: "", endDate: "" });
@@ -935,7 +935,7 @@ export default function Itinerary() {
                                     />
                                 ))}
                                 <ShowInfoModal
-                                    show={showStopModal}
+                                    isOpen={showStopModal}
                                     stop={selectedStop}
                                     anchor={stopAnchor}
                                     onClose={() => setShowStopModal(false)}
@@ -980,7 +980,7 @@ export default function Itinerary() {
 
             {/* Generate Trip Modal */}
             <TripModal
-                show={showGenerateModal}
+                isOpen={showGenerateModal}
                 onClose={() => setShowGenerateModal(false)}
                 onGenerate={generateItinerary}
                 errorMessage={error}
@@ -988,7 +988,7 @@ export default function Itinerary() {
             />
 
             <AddLocationModal
-                show={showAddLocation}
+                isOpen={showAddLocation}
                 dayNumber={addDayNumber}
                 title={addingHotel ? "Add Hotel" : undefined}
                 suggestedLocations={addingHotel ? hotelSuggestions : suggestedLocations}

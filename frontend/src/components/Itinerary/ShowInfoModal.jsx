@@ -11,7 +11,7 @@ function getPreviewText(text) {
 }
 
 export default function ShowInfoModal({
-  show,
+  isOpen,
   stop,
   anchor,
   onClose,
@@ -22,7 +22,7 @@ export default function ShowInfoModal({
 
   // Load full location details when the modal is shown
   useEffect(() => {
-    if (!show || !Number.isFinite(locationId)) return;
+    if (!isOpen || !Number.isFinite(locationId)) return;
     let cancelled = false;
     setFull(null);
 
@@ -41,9 +41,9 @@ export default function ShowInfoModal({
     return () => {
       cancelled = true;
     };
-  }, [show, locationId]);
+  }, [isOpen, locationId]);
 
-  if (!show || !stop) return null;
+  if (!isOpen || !stop) return null;
 
   // Anchors card to map marker position
   const anchoredStyle = anchor
