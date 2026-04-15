@@ -10,6 +10,7 @@ import LocationDetails from "./pages/LocationDetails";
 import Itinerary from "./pages/Itinerary";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/itinerary" element={<Itinerary />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </main>
 

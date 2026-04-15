@@ -76,6 +76,11 @@ export default function TopNav(){
 
                         {!loadingUser && user ? (
                             <div className="d-flex align-items-center gap-2">
+                                {user?.role === "admin" && (
+                                    <Nav.Link as={NavLink} to="/admin" className="tt-navlink">
+                                        Admin
+                                    </Nav.Link>
+                                )}
                                 <Nav.Link as={NavLink} to="/profile" className="tt-navlink d-flex align-items-center gap-2">
                                     <span className="tt-avatar" title={user.first_name}>
                                         {initial}

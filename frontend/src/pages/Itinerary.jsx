@@ -197,7 +197,7 @@ export default function Itinerary() {
                 if (cancelled) return;
 
                 setItinerary(data.itinerary || createBlankItinerary());
-                setTripName(data.tripName || "Insert Name");
+                setTripName(data.tripName || "");
                 const normalizedStartDate = normalizeDateInput(data.startDate);
                 const normalizedEndDate = normalizeDateInput(data.endDate);
                 setStartDate(normalizedStartDate);
@@ -554,7 +554,7 @@ export default function Itinerary() {
         setItinerary(createBlankItinerary());
         setStartDate("");
         setEndDate("");
-        setTripName("Insert Name");
+        setTripName("New Trip");
         setActiveItineraryId(null);
         setSaveMessage(null);
         setSaveError(null);

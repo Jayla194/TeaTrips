@@ -29,12 +29,13 @@ CREATE TABLE IF NOT EXISTS locations (
 
 -- Create User Table
 CREATE TABLE IF NOT EXISTS users (
-  user_id INT AUTO_INCREMENT PRIMARY KEY,
-  first_name VARCHAR(50) NOT NULL,
-  last_name VARCHAR(50) NOT NULL,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
-  role VARCHAR(20) NOT NULL DEFAULT 'user'
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'user',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -161,7 +162,10 @@ CREATE TABLE IF NOT EXISTS review_likes (
 
 -- LOAD DATA LOCAL INFILE './data/users.csv'
 -- INTO TABLE users
--- FIELDS TERMINATED BY ',' 
+-- FIELDS TERMINATED BY ','
 -- ENCLOSED BY '"'
 -- LINES TERMINATED BY '\n'
 -- IGNORE 1 ROWS;
+-- (user_id, first_name, last_name, email, password_hash, role);
+
+ 
