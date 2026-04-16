@@ -139,12 +139,38 @@ async function update(req, res) {
 // DELETE /api/reviews/:reviewId (author delete)
 async function remove(req, res) {
     const userId = req.user.user_id;
+    const userRole = req.user.role;
     const reviewId = Number(req.params.reviewId);
     
     if (!Number.isInteger(reviewId)) {
         return res.status(400).json({ error: 'Invalid review ID' });
     }
+
+    const rawVisibility = req.body?.is_visible;
+    const visibilityProvided = rawVisibility !== undefined;
+    const requestedVisible =
+        rawVisibility === true ||
+        rawVisibility === 1 ||
+        rawVisibility === "1" ||
+        String(rawVisibility).toLowerCase() === "true";
+
     try {
+        // Admin moderation path: hide/unhide by visibility value.
+        if (userRole === "admin") {
+            const existingAny = await reviewModel.getReviewByIdAny(reviewId);
+            if (!existingAny) {
+                return res.status(404).json({ error: 'Review not found' });
+            }
+
+            const nextVisible = visibilityProvided ? requestedVisible : false;
+            await reviewModel.setReviewVisibility(reviewId, nextVisible, userId);
+            return res.json({
+                message: nextVisible ? 'Review is now visible' : 'Review hidden successfully',
+                review_id: reviewId,
+                is_visible: nextVisible,
+            });
+        }
+
         const existing = await reviewModel.getReviewById(reviewId);
         if (!existing || existing.is_visible === false) {
             return res.status(404).json({ error: 'Review not found' });
@@ -152,7 +178,7 @@ async function remove(req, res) {
         if (existing.user_id !== userId) {
             return res.status(403).json({ error: 'Not allowed to delete review' });
         }
-        await reviewModel.deleteReview(reviewId);
+        await reviewModel.deleteReview(reviewId, userId);
         return res.json({ message: 'Review deleted successfully' });
     } catch (error) {
         return res.status(500).json({ error: 'Error deleting review' });

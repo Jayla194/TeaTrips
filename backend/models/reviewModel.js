@@ -36,6 +36,16 @@ function getReviewById(reviewId) {
     return pool.query(sql, [reviewId]).then(([rows]) => rows[0]);
 }
 
+// Get review by ID regardless of visibility (admin moderation)
+function getReviewByIdAny(reviewId) {
+    const sql = `
+        SELECT review_id, user_id, location_id, rating, comment, like_count, created_at, is_visible
+        FROM reviews
+        WHERE review_id = ?
+    `;
+    return pool.query(sql, [reviewId]).then(([rows]) => rows[0]);
+}
+
 // Update review content or rating if review is visible
 function updateReview(reviewId, updatedFields) {
     const fields = [];
@@ -167,11 +177,27 @@ async function getAllReviews(visibility = "visible") {
     return rows;
 }
 
+// Admin: set review visibility (hide/unhide)
+async function setReviewVisibility(reviewId, isVisible, adminUserId) {
+    const visibleFlag = isVisible ? 1 : 0;
+    const sql = `
+        UPDATE reviews
+        SET is_visible = ?,
+            deleted_at = CASE WHEN ? = 1 THEN NULL ELSE NOW() END,
+            deleted_by = CASE WHEN ? = 1 THEN NULL ELSE ? END
+        WHERE review_id = ?
+    `;
+
+    const [result] = await pool.query(sql, [visibleFlag, visibleFlag, visibleFlag, adminUserId, reviewId]);
+    return result;
+}
+
 
 module.exports = {
     getByLocation: getReviewsByLocation,
     createReview,
     getReviewById,
+    getReviewByIdAny,
     updateReview,
     deleteReview,
     addLike,
@@ -180,5 +206,6 @@ module.exports = {
     getReviewCountByLocation,
     getTopReviewsByLocation,
     getAllReviews,
+    setReviewVisibility,
 
 };

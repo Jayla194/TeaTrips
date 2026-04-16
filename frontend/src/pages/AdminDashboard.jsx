@@ -3,6 +3,7 @@ import { apiUrl } from "../utils/api";
 import WarningBanner from "../components/WarningBanner";
 import SearchBar from "../components/SearchBar";
 import LocationCard from "../components/LocationCard";
+import ReviewCard from "../components/reviews/reviewCard";
 
 // Reset shape for the Add Location form.
 const emptyLocation = {
@@ -36,6 +37,8 @@ export default function AdminDashboard() {
     const [adminReviews, setAdminReviews] = useState([]);
     const [reviewsLoading, setReviewsLoading] = useState(false);
     const [reviewVisibility, setReviewVisibility] = useState("visible");
+    const [reviewSavingId, setReviewSavingId] = useState(null);
+    const [reviewSearch, setReviewSearch] = useState("");
     const [adminUsers, setAdminUsers] = useState([]);
     const [usersLoading, setUsersLoading] = useState(false);
 
@@ -287,6 +290,37 @@ useEffect(() => {
         setIsLocationModalOpen(true);
     }
 
+    async function handleAdminToggleReviewVisibility(review) {
+        const reviewId = Number(review?.review_id);
+        if (!Number.isInteger(reviewId)) return;
+
+        const nextVisible = !(review.is_visible === true || review.is_visible === 1);
+
+        try {
+            setReviewSavingId(reviewId);
+            const res = await fetch(apiUrl(`/api/admin/reviews/${reviewId}/visibility`), {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ is_visible: nextVisible }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || "Failed to update review visibility");
+            }
+
+            // The review no longer belongs in the currently selected visibility tab.
+            setAdminReviews((current) => current.filter((item) => item.review_id !== reviewId));
+        } catch (err) {
+            setError(err.message || "Failed to update review visibility");
+        } finally {
+            setReviewSavingId(null);
+        }
+    }
+
 if (loadingUser) {
     return (
     <div className="container py-4" style={{ minHeight: "100vh" }}>
@@ -334,6 +368,17 @@ const filteredAdminLocations = adminLocations.filter((location) => {
     ]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(normalizedLocationSearch));
+});
+
+const normalizedReviewSearch = reviewSearch.trim().toLowerCase();
+const filteredAdminReviews = adminReviews.filter((review) => {
+    if (!normalizedReviewSearch) return true;
+    return [
+        `${review.first_name || ""} ${review.last_name || ""}`.trim(),
+        review.location_name,
+    ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(normalizedReviewSearch));
 });
 
 return (
@@ -511,29 +556,35 @@ return (
                     </div>
                 </div>
 
+                <div className="mb-3">
+                    <SearchBar
+                        value={reviewSearch}
+                        onChange={setReviewSearch}
+                        placeholder="Search reviews by user or location"
+                        onClear={() => setReviewSearch("")}
+                        containerClassName="w-100"
+                        maxWidth="100%"
+                    />
+                </div>
+
                 {reviewsLoading ? (
                     <p className="mb-0 text-muted">Loading reviews...</p>
-                ) : adminReviews.length === 0 ? (
+                ) : filteredAdminReviews.length === 0 ? (
                     <p className="mb-0 text-muted">
-                        No {reviewVisibility} reviews found.
+                        No {reviewVisibility} reviews found for that search.
                     </p>
                 ) : (
-                    <div className="tt-reviews-list">
-                        {adminReviews.map((review) => (
-                            <article className="tt-review-card" key={review.review_id}>
-                                <div className="tt-review-header">
-                                    <div className="tt-review-meta">
-                                        <div className="tt-review-author">
-                                            {review.first_name} {review.last_name}
-                                        </div>
-                                        <div className="tt-review-date">
-                                            {review.location_name}
-                                        </div>
-                                    </div>
-                                    <div className="tt-review-rating">★ {Number(review.rating || 0).toFixed(1)}</div>
-                                </div>
-                                <p className="tt-review-content mb-0">{review.comment || "No comment"}</p>
-                            </article>
+                    <div className="tt-reviews-list tt-reviews-list-admin">
+                        {filteredAdminReviews.map((review) => (
+                            <ReviewCard
+                                key={review.review_id}
+                                review={review}
+                                displayName={`${review.first_name || ""} ${review.last_name || ""}`.trim() || "User"}
+                                isOwner={false}
+                                isAdminView
+                                onToggleVisibility={handleAdminToggleReviewVisibility}
+                                isToggling={reviewSavingId === review.review_id}
+                            />
                         ))}
                     </div>
                 )}

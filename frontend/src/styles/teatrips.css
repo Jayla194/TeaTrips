@@ -3084,8 +3084,8 @@ transition: all 0.2s ease;
 
 .tt-review-header {
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 12px;
 }
 
@@ -3093,6 +3093,8 @@ transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .tt-review-meta {
@@ -3109,6 +3111,13 @@ transition: all 0.2s ease;
 .tt-review-date {
   font-size: 0.85rem;
   opacity: 0.7;
+}
+
+.tt-review-location-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(55, 36, 22, 0.85);
+  line-height: 1.2;
 }
 
 .tt-review-rating {
@@ -3490,6 +3499,66 @@ transition: all 0.2s ease;
 .tt-reviews-list {
   display: grid;
   gap: 16px;
+}
+
+.tt-reviews-list-admin {
+  gap: 12px;
+}
+
+.tt-review-card-admin {
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.tt-review-card-admin .tt-review-grid {
+  gap: 10px;
+}
+
+.tt-review-rating-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--tt-ink);
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 244, 225, 0.95);
+  border: 1px solid rgba(139, 90, 60, 0.2);
+  line-height: 1;
+}
+
+.tt-review-rating-mini-star {
+  color: #c27c3f;
+  font-size: 1.12rem;
+}
+
+.tt-review-card-admin .tt-review-content {
+  margin-top: 4px;
+  line-height: 1.35;
+  font-size: 0.95rem;
+}
+
+.tt-review-card-admin .tt-review-divider {
+  margin: 8px 0 6px;
+}
+
+.tt-review-card-admin .tt-review-footer {
+  margin-top: 6px;
+}
+
+.tt-review-card-admin .tt-review-date {
+  font-size: 0.8rem;
+}
+
+.tt-review-card-admin .tt-review-delete-btn {
+  padding: 4px;
+}
+
+.tt-review-card-admin .tt-review-delete-btn svg,
+.tt-review-card-admin .tt-review-delete-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 @media (min-width: 992px) {

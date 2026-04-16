@@ -10,5 +10,6 @@ router.get("/summary", requireAdmin, adminController.getDashboardStats);
 router.get("/locations", requireAdmin, adminController.getAllForAdmin);
 router.post("/locations", requireAdmin, locationController.createLocation);
 router.get("/reviews", requireAdmin, reviewController.getAllReviews);
+router.patch("/reviews/:reviewId/visibility", requireAdmin, reviewController.remove);
 
 module.exports = router;

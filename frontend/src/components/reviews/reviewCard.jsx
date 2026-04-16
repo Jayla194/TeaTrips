@@ -1,6 +1,16 @@
 import { DeleteIcon } from "../icons";
 
-export default function ReviewCard({ review, onLike, onEdit, onDelete, isOwner, displayName }) {
+export default function ReviewCard({
+    review,
+    onLike,
+    onEdit,
+    onDelete,
+    isOwner,
+    displayName,
+    isAdminView = false,
+    onToggleVisibility,
+    isToggling = false,
+}) {
     const {
         review_id,
         rating,
@@ -8,18 +18,23 @@ export default function ReviewCard({ review, onLike, onEdit, onDelete, isOwner, 
         like_count,
         created_at,
         first_name,
+        is_visible,
+        location_name,
     } = review;
 
     // formatting reviews
-    const percentage = `${Math.max(0, Math.min(100, (Number(rating) / 5) * 100))}%`;
     const hasComment = typeof comment === "string" && comment.trim().length > 0;
     const liked = Boolean(review?.liked_by_me);
     const realLikeCount = Number.isFinite(Number(like_count)) ? like_count : 0;
-    // The review owner should not be able to like thier own reviews
+    // The review owner should not be able to like their own reviews
     const canLike = Boolean(onLike) && !isOwner;
+    const isVisible = is_visible !== false;
+    const showAdminToggle = isAdminView && typeof onToggleVisibility === "function";
+    const cardClassName = `tt-review-card ${hasComment ? "" : "tt-review-card-full"} ${isAdminView ? "tt-review-card-admin" : ""}`.trim();
+    const ratingValue = Number.isFinite(Number(rating)) ? Number(rating).toFixed(1) : "0.0";
     
     return (
-        <div className={`tt-review-card ${hasComment ? "" : "tt-review-card-full"}`}>
+        <div className={cardClassName}>
             <div className={`tt-review-grid ${hasComment ? "" : "tt-review-grid-full"}`}>
                 <div className="tt-review-main">
                     <div className="tt-review-header">
@@ -31,14 +46,17 @@ export default function ReviewCard({ review, onLike, onEdit, onDelete, isOwner, 
                             <div className="tt-review-date">
                                 {new Date(created_at).toLocaleDateString()}
                             </div>
-                            <div className="tt-stars-input tt-stars-display" aria-hidden="true">
-                                <div className="tt-stars-base">{"\u2605\u2605\u2605\u2605\u2605"}</div>
-                                <div className="tt-stars-fill" style={{ width: percentage }}>
-                                    {"\u2605\u2605\u2605\u2605\u2605"}
+                            {isAdminView && location_name && (
+                                <div className="tt-review-location-name">
+                                    {location_name}
                                 </div>
-                            </div>
-                            <div className="tt-review-score">{Number(rating).toFixed(1)}</div>
+                            )}
                         </div>
+                        </div>
+
+                        <div className="tt-review-rating-mini" aria-label={`Rating ${ratingValue} out of 5`}>
+                            <span className="tt-review-rating-mini-star" aria-hidden="true">★</span>
+                            <span>{ratingValue}</span>
                         </div>
                     </div>
 
@@ -72,6 +90,23 @@ export default function ReviewCard({ review, onLike, onEdit, onDelete, isOwner, 
                                         </button>
                                     )}
                                 </>
+                            )}
+
+                            {showAdminToggle && (
+                                <button
+                                    type="button"
+                                    className={`tt-review-action-btn ${isVisible ? "tt-review-delete-btn" : ""}`}
+                                    onClick={() => onToggleVisibility(review)}
+                                    disabled={isToggling}
+                                    aria-label={isVisible ? "Hide review" : "Unhide review"}
+                                    title={isVisible ? "Hide review" : "Unhide review"}
+                                >
+                                    {isVisible ? (
+                                        <DeleteIcon className="tt-review-delete-icon" />
+                                    ) : (
+                                        isToggling ? "Saving..." : "Unhide"
+                                    )}
+                                </button>
                             )}
                         </div>
                         <div className="tt-review-like">
