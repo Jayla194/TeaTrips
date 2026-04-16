@@ -3579,13 +3579,13 @@ transition: all 0.2s ease;
   font-size: 0.95rem;
 }
 
-.tt-admin-kpi-grid {
+.tt-admin-stat-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 12px;
 }
 
-.tt-admin-kpi-card {
+.tt-admin-stat-card {
   grid-column: span 12;
   border-radius: 14px;
   border: 1px solid rgba(139, 90, 60, 0.2);
@@ -3597,14 +3597,14 @@ transition: all 0.2s ease;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.tt-admin-kpi-card:hover {
+.tt-admin-stat-card:hover {
   border-color: rgba(139, 90, 60, 0.3);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.62),
     0 6px 14px rgba(139, 90, 60, 0.16);
 }
 
-.tt-admin-kpi-label {
+.tt-admin-stat-label {
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.9px;
@@ -3612,7 +3612,7 @@ transition: all 0.2s ease;
   margin-bottom: 6px;
 }
 
-.tt-admin-kpi-value {
+.tt-admin-stat-value {
   font-size: clamp(1.45rem, 2.3vw, 2rem);
   line-height: 1.1;
   font-weight: 800;
@@ -3620,13 +3620,355 @@ transition: all 0.2s ease;
 }
 
 @media (min-width: 768px) {
-  .tt-admin-kpi-card {
+  .tt-admin-stat-card {
     grid-column: span 4;
   }
 
-  .tt-admin-kpi-card-wide {
+  .tt-admin-stat-card-wide {
     grid-column: span 6;
   }
+}
+
+.tt-admin-location-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.tt-admin-location-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tt-admin-location-toolbar-search {
+  flex: 1 1 360px;
+  min-width: 220px;
+}
+
+.tt-admin-location-toolbar-search .tt-search {
+  width: 100%;
+  max-width: none;
+}
+
+.tt-admin-filter-placeholder {
+  flex: 0 0 210px;
+  max-width: 210px;
+  border-radius: 999px;
+  border: 1px solid rgba(139, 90, 60, 0.24);
+  background-color: var(--tt-warm-white);
+  color: var(--tt-ink);
+  font-weight: 700;
+  padding-left: 14px;
+  padding-right: 36px;
+}
+
+.tt-admin-filter-placeholder:focus {
+  border-color: rgba(139, 90, 60, 0.42);
+  box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.16);
+}
+
+@media (max-width: 768px) {
+  .tt-admin-filter-placeholder {
+    flex: 1 1 180px;
+    max-width: none;
+  }
+}
+
+.tt-admin-main-card {
+  transition: none;
+}
+
+.tt-admin-main-card:hover {
+  transform: none;
+  border-color: rgba(139, 90, 60, 0.15);
+  box-shadow:
+    0 2px 0 rgba(139, 90, 60, 0.1),
+    0 8px 20px rgba(139, 90, 60, 0.12);
+}
+
+.tt-admin-location-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 10px;
+}
+
+.tt-admin-compact-card .tt-loc-imgwrap {
+  height: 118px;
+}
+
+.tt-admin-compact-card .tt-loc-body {
+  padding: 9px 11px 10px;
+}
+
+.tt-admin-compact-card .tt-loc-title {
+  font-size: 0.95rem;
+  margin-bottom: 3px;
+}
+
+.tt-admin-compact-card .tt-loc-info {
+  font-size: 0.82rem;
+  gap: 5px;
+  margin-bottom: 1px;
+}
+
+.tt-admin-compact-card .tt-loc-bottom {
+  margin-top: 6px;
+  padding-top: 6px;
+}
+
+.tt-admin-compact-card .tt-stars {
+  font-size: 0.8rem;
+}
+
+.tt-admin-compact-card .tt-admin-location-edit-btn {
+  padding: 2px 8px !important;
+  font-size: 0.76rem !important;
+}
+
+.tt-admin-compact-card .tt-admin-location-stats {
+  margin-top: 6px;
+  padding-top: 0;
+  border-top: none;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 576px) {
+  .tt-admin-compact-card .tt-loc-imgwrap {
+    height: 108px;
+  }
+}
+
+.tt-admin-location-card {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid rgba(139, 90, 60, 0.15);
+  border-radius: 18px;
+  background: var(--tt-warm-white);
+  overflow: hidden;
+  box-shadow:
+    0 2px 0 rgba(139, 90, 60, 0.1),
+    0 8px 20px rgba(139, 90, 60, 0.12);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tt-admin-location-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  border-color: rgba(139, 90, 60, 0.25);
+  box-shadow:
+    0 4px 0 rgba(139, 90, 60, 0.14),
+    0 14px 30px rgba(139, 90, 60, 0.18);
+}
+
+.tt-admin-location-media {
+  height: 150px;
+  min-height: 150px;
+  background: var(--tt-card);
+  overflow: hidden;
+}
+
+.tt-admin-location-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tt-admin-location-main {
+  padding: 12px 14px 14px;
+}
+
+.tt-admin-location-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tt-admin-location-name {
+  color: var(--tt-ink);
+  font-weight: 800;
+  line-height: 1.2;
+  font-size: 1.02rem;
+}
+
+.tt-admin-location-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tt-admin-location-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(139, 90, 60, 0.22);
+  font-size: 0.78rem;
+  color: rgba(43, 31, 22, 0.85);
+  background: rgba(255, 248, 239, 0.7);
+}
+
+.tt-admin-location-rating {
+  font-weight: 700;
+  color: rgba(43, 31, 22, 0.9);
+  font-size: 0.95rem;
+}
+
+.tt-admin-location-stats {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(139, 90, 60, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(55, 36, 22, 0.78);
+  font-size: 0.85rem;
+}
+
+.tt-admin-location-edit-btn {
+  margin: 0;
+  padding: 4px 10px !important;
+  font-size: 0.8rem !important;
+  flex-shrink: 0;
+}
+
+@media (max-width: 576px) {
+  .tt-admin-location-media {
+    height: 140px;
+    min-height: 140px;
+  }
+
+  .tt-admin-location-main {
+    padding: 10px 12px 12px;
+  }
+}
+
+.tt-admin-location-panel .tt-btn {
+  margin: 0;
+}
+
+.tt-admin-location-form .form-label {
+  font-weight: 700;
+  color: var(--tt-ink);
+}
+
+.tt-admin-location-form .form-control {
+  border-radius: 12px;
+  border: 1px solid rgba(139, 90, 60, 0.22);
+  background: rgba(255, 248, 239, 0.82);
+  color: var(--tt-ink);
+}
+
+.tt-admin-location-form .form-control:focus {
+  border-color: rgba(139, 90, 60, 0.42);
+  box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.16);
+}
+
+.tt-admin-location-modal {
+  width: min(760px, 94vw);
+  max-width: 760px;
+  border: 1px solid rgba(139, 90, 60, 0.22);
+  background: linear-gradient(to bottom, #fffaf3, #fff6ea);
+}
+
+.tt-admin-location-modal .tt-modal-header {
+  border-bottom: 1px solid rgba(139, 90, 60, 0.18);
+  padding: 12px 16px;
+}
+
+.tt-admin-location-modal .tt-modal-body {
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  padding: 14px 16px;
+}
+
+.tt-admin-location-modal .tt-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(139, 90, 60, 0.14);
+}
+
+.tt-admin-location-modal .tt-btn {
+  margin: 0;
+}
+
+.tt-admin-location-modal .tt-btn:hover {
+  transform: translateY(-1px);
+}
+
+.tt-admin-location-modal .tt-btn-ghost {
+  background: #fff8ef !important;
+  border: 1px solid rgba(139, 90, 60, 0.24) !important;
+  color: var(--tt-ink) !important;
+  box-shadow: none;
+}
+
+.tt-admin-location-modal .tt-btn-ghost:hover {
+  background: #f8ebd8 !important;
+  box-shadow: 0 4px 12px rgba(139, 90, 60, 0.14);
+}
+
+.tt-admin-modal-close {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0 !important;
+  border-radius: 10px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem !important;
+  line-height: 1;
+}
+
+.tt-admin-optional-details {
+  border: 1px solid rgba(139, 90, 60, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 248, 239, 0.7);
+  padding: 10px 12px;
+}
+
+.tt-admin-optional-details > summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--tt-ink);
+  list-style: none;
+}
+
+.tt-admin-optional-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.tt-admin-optional-details > summary::before {
+  content: "+ ";
+  font-weight: 800;
+}
+
+.tt-admin-optional-details[open] > summary::before {
+  content: "- ";
+}
+
+@media (max-width: 991.98px) {
+  .tt-modal-backdrop {
+    align-items: flex-start;
+    padding-top: 86px;
+    padding-bottom: 16px;
+  }
+}
+
+.tt-admin-form-footer {
+  padding-top: 4px;
+}
+
+.tt-admin-form-note {
+  color: rgba(55, 36, 22, 0.72);
+  font-size: 0.92rem;
 }
 
 

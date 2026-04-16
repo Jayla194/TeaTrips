@@ -1,5 +1,7 @@
 const pool = require('../config/db');
 
+
+// Get reviews for a specific location with like count
 function getReviewsByLocation(locationId, orderBy, userId) {
     const sql = `
         SELECT r.review_id, r.user_id, r.location_id, r.rating, r.comment,
@@ -15,6 +17,7 @@ function getReviewsByLocation(locationId, orderBy, userId) {
     return pool.query(sql, [userId, locationId]).then(([rows]) => rows);
 }
 
+// Create a new review
 function createReview({ user_id, location_id, comment, rating }) {
     const sql = `
         INSERT INTO reviews (user_id, location_id, rating, comment, like_count, created_at, is_visible)
@@ -23,6 +26,7 @@ function createReview({ user_id, location_id, comment, rating }) {
     return pool.query(sql, [user_id, location_id, rating, comment]).then(([result]) => result);
 }
 
+// Get review by ID 
 function getReviewById(reviewId) {
     const sql = `
         SELECT review_id, user_id, location_id, rating, comment, like_count, created_at, is_visible
@@ -32,6 +36,7 @@ function getReviewById(reviewId) {
     return pool.query(sql, [reviewId]).then(([rows]) => rows[0]);
 }
 
+// Update review content or rating if review is visible
 function updateReview(reviewId, updatedFields) {
     const fields = [];
     const values = [];
@@ -55,15 +60,17 @@ function updateReview(reviewId, updatedFields) {
     return pool.query(sql, values).then(([result]) => result);
 }
 
-function deleteReview(reviewId) {
+// soft delete and record if admin removes review for moderation purposes
+function deleteReview(reviewId, userId) {
     const sql = `
         UPDATE reviews
-        SET is_visible = FALSE, deleted_at = NOW()
+        SET is_visible = FALSE, deleted_at = NOW(), deleted_by=?
         WHERE review_id = ?
     `;
-    return pool.query(sql, [reviewId]).then(([result]) => result);
+    return pool.query(sql, [userId, reviewId]).then(([result]) => result);
 }
 
+// Add like to review
 async function addLike(reviewId, userId) {
     const sql = `
         INSERT IGNORE INTO review_likes (review_id, user_id)
@@ -82,6 +89,7 @@ async function addLike(reviewId, userId) {
     return { liked: true, alreadyLiked: true };
 }
 
+// Remove like from review
 async function removeLike(reviewId, userId) {
     const sql = `
         DELETE FROM review_likes
@@ -100,6 +108,7 @@ async function removeLike(reviewId, userId) {
     return { liked: false, alreadyUnliked: true };
 }
 
+// Get all reviews by a specific user
 function getReviewsByUser(userId) {
     const sql = `
         SELECT r.review_id, r.user_id, r.location_id, r.rating, r.comment,
@@ -116,6 +125,7 @@ function getReviewsByUser(userId) {
     return pool.query(sql, [userId, userId]).then(([rows]) => rows);
 }
 
+// Get total review count for a location
 async function getReviewCountByLocation(locationId) {
     const sql = `
         SELECT COUNT(*) AS review_count
@@ -126,6 +136,8 @@ async function getReviewCountByLocation(locationId) {
     return rows[0].review_count;
 }
 
+// Get top 3 reviews by like count for a location
+// Used in generating location descriptions
 async function getTopReviewsByLocation(locationId, limit = 3) {
     const sql = `
     SELECT comment
@@ -138,6 +150,24 @@ async function getTopReviewsByLocation(locationId, limit = 3) {
     return rows.map((r)=>({ text: r.comment || ""}));
 }
 
+// Admin function to get reviews for moderation by visibility
+async function getAllReviews(visibility = "visible") {
+    const isHidden = visibility === "hidden";
+    const sql = `
+        SELECT r.review_id, r.user_id, r.location_id, r.rating, r.comment,
+            r.like_count, r.created_at, r.is_visible, r.deleted_at,
+            u.first_name, u.last_name, l.name AS location_name
+        FROM reviews r
+        JOIN users u ON r.user_id = u.user_id
+        JOIN locations l ON r.location_id = l.id
+        WHERE r.is_visible = ?
+        ORDER BY r.created_at DESC
+    `;
+    const [rows] = await pool.query(sql, [isHidden ? 0 : 1]);
+    return rows;
+}
+
+
 module.exports = {
     getByLocation: getReviewsByLocation,
     createReview,
@@ -149,4 +179,6 @@ module.exports = {
     getByUser: getReviewsByUser,
     getReviewCountByLocation,
     getTopReviewsByLocation,
+    getAllReviews,
+
 };

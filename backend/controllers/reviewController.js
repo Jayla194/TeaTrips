@@ -206,6 +206,18 @@ async function unlike(req, res) {
     }
 }
 
+// GET /api/admin/reviews
+async function getAllReviews(req, res) {
+    try {
+        const visibility = String(req.query.visibility || "visible").toLowerCase();
+        const normalizedVisibility = visibility === "hidden" ? "hidden" : "visible";
+        const rows = await reviewModel.getAllReviews(normalizedVisibility);
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching reviews" });
+    }
+}
+
 module.exports = {
     getByLocation,
     getByUser,
@@ -213,5 +225,6 @@ module.exports = {
     update,
     remove,
     like,
-    unlike
+    unlike,
+    getAllReviews,
 };

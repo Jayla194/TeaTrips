@@ -23,6 +23,36 @@ async function getDashboardStats(req, res) {
     }
 }
 
-module.exports = {
-    getDashboardStats
+async function getAllForAdmin(req, res) {
+    try {
+        const data = await adminModel.getAllLocationsAdmin();
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: "database error" });
+    }
 }
+
+async function getReviewsForAdmin(req, res) {
+    try {
+        const data = await adminModel.getAllReviewsAdmin();
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: "database error" });
+    }
+}
+
+async function getUsersForAdmin(req, res) {
+    try {
+        const data = await adminModel.getAllUsersAdmin();
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: "database error" });
+    }
+}
+
+module.exports = {
+    getDashboardStats,
+    getAllForAdmin,
+    getReviewsForAdmin,
+    getUsersForAdmin,
+};

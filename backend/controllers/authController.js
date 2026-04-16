@@ -100,16 +100,16 @@ exports.login = async (req, res) => {
 // Returns current logged-in user
 exports.user = async (req,res)=> {
     const token = req.cookies.tt_token;
-    if (!token) return res.status(401).json({message:"Not logged in"});
+    if (!token) return res.json({ user: null });
 
     try {
         const payload = jwt.verify(token, process.env.JWT_SECRET);
         const user = await findUserById(payload.user_id);
-        if (!user) return res.status(401).json({message:"Not logged in"});
+        if (!user) return res.json({ user: null });
             
         return res.json({user});
         } catch (err){
-            return res.status(401).json({message:"Not logged in"});
+            return res.json({ user: null });
         }
 };
 

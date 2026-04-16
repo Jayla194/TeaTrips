@@ -1,12 +1,20 @@
 import { SearchIcon } from "./icons";
 
-export default function SearchBar ({ value, onChange, placeholder, onSearch, onClear }){
+export default function SearchBar({
+    value,
+    onChange,
+    placeholder,
+    onSearch,
+    onClear,
+    containerClassName = "d-flex justify-content-center",
+    maxWidth = 520,
+}) {
     
     const hasText = Boolean(value && value.trim().length > 0);
     
     return (
-        <div className="d-flex justify-content-center">
-            <div className="tt-search input-group" style={{maxWidth: 520}}>
+        <div className={containerClassName}>
+            <div className="tt-search input-group" style={{ maxWidth }}>
                 <input
                 className="form-control tt-search-input"
                 value={value}

@@ -7,7 +7,8 @@ const adminController = require("../controllers/adminController");
 
 // Admin only management
 router.get("/summary", requireAdmin, adminController.getDashboardStats);
-router.get("/locations", requireAdmin, locationController.getAll);
-//router.get("/reviews", requireAdmin, reviewController.getAllReviews);
+router.get("/locations", requireAdmin, adminController.getAllForAdmin);
+router.post("/locations", requireAdmin, locationController.createLocation);
+router.get("/reviews", requireAdmin, reviewController.getAllReviews);
 
 module.exports = router;
