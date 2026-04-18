@@ -317,9 +317,9 @@ export default function LocationDetails(){
     // Use the generated description if we have one, otherwise show the short summary.
     const aboutText = location?.description_long || location?.description_short || "";
     const aboutParagraphs = useMemo(() => {
-        // Split on blank lines so two-paragraph output stays separate on the page.
+        // Preserve user/newline formatting by splitting on one or more newlines.
         return aboutText
-            .split(/\n\s*\n/)
+            .split(/\r?\n+/)
             .map((paragraph) => paragraph.trim())
             .filter(Boolean);
     }, [aboutText]);
