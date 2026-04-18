@@ -64,10 +64,10 @@ export default function TopNav(){
                 <Navbar.Collapse id="tt-nav">
                     <Nav className="ms-auto align-items-md-center gap-md-4">
                         <Nav.Link as={NavLink} to="/explore" className="tt-navlink">
-                        Explore
+                        <span className="tt-navlink-label">Explore</span>
                         </Nav.Link>
                         <Nav.Link as={NavLink} to="/itinerary" className="tt-navlink">
-                        Itinerary
+                        <span className="tt-navlink-label">Itinerary</span>
                         </Nav.Link>
                         
 
@@ -75,25 +75,25 @@ export default function TopNav(){
                         {/* Login and User Profile*/}
 
                         {!loadingUser && user ? (
-                            <div className="d-flex align-items-center gap-2">
+                            <div className="tt-nav-auth-group d-flex align-items-center gap-2">
                                 {user?.role === "admin" && (
                                     <Nav.Link as={NavLink} to="/admin" className="tt-navlink">
-                                        Admin
+                                        <span className="tt-navlink-label">Admin</span>
                                     </Nav.Link>
                                 )}
                                 <Nav.Link as={NavLink} to="/profile" className="tt-navlink d-flex align-items-center gap-2">
                                     <span className="tt-avatar" title={user.first_name}>
                                         {initial}
                                     </span>
-                                    <span>Profile</span>
+                                    <span className="tt-navlink-label">Profile</span>
                                 </Nav.Link>
                                 <Nav.Link type="button" className="tt-navlink tt-logout-btn" onClick={handleLogout}>
-                                    Log Out
+                                    <span className="tt-navlink-label">Log Out</span>
                                 </Nav.Link>
                             </div>
                         ):(
                             <Nav.Link as={NavLink} to="/login" className="tt-navlink">
-                                Log In
+                                <span className="tt-navlink-label">Log In</span>
                             </Nav.Link>
                         )}
 

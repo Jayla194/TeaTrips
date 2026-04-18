@@ -243,8 +243,8 @@ padding: 6px !important;
 .tt-navlink::after{
 content:"";
 position:absolute;
-left:0;
-right:0;
+left:6px;
+right:6px;
 bottom:-6px;
 height:2px;
 background: rgba(43,31,22,0.55);
@@ -298,6 +298,73 @@ transform: scaleX(1);
 width: 1px;
 height: 26px;
 background: rgba(43,31,22,0.25);
+}
+
+@media (max-width: 767.98px) {
+  .tt-navbar .navbar-toggler {
+    border: 1px solid rgba(43, 31, 22, 0.22);
+    border-radius: 12px;
+    padding: 6px 10px;
+    background: rgba(255, 248, 239, 0.55);
+  }
+
+  .tt-navbar .navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.2);
+    border-color: rgba(43, 31, 22, 0.35);
+  }
+
+  .tt-navbar #tt-nav {
+    margin-top: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(139, 90, 60, 0.22);
+    background: linear-gradient(180deg, rgba(252, 241, 227, 0.98), rgba(239, 214, 177, 0.98));
+    box-shadow: 0 10px 24px rgba(43, 31, 22, 0.16);
+    padding: 10px 12px;
+  }
+
+  .tt-navbar #tt-nav .navbar-nav {
+    align-items: stretch !important;
+    gap: 2px;
+  }
+
+  .tt-navbar #tt-nav .tt-navlink {
+    display: block;
+    width: 100%;
+    padding: 10px 8px !important;
+  }
+
+  .tt-navbar #tt-nav .tt-navlink::after {
+    display: none;
+  }
+
+  .tt-navbar #tt-nav .tt-navlink:hover,
+  .tt-navbar #tt-nav .tt-navlink.active {
+    text-decoration: none;
+  }
+
+  .tt-navbar #tt-nav .tt-navlink:hover .tt-navlink-label,
+  .tt-navbar #tt-nav .tt-navlink.active .tt-navlink-label {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    text-decoration-color: rgba(43, 31, 22, 0.55);
+  }
+
+  .tt-nav-auth-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 2px !important;
+    width: 100%;
+  }
+
+  .tt-nav-auth-group .tt-navlink {
+    width: 100%;
+  }
+
+  .tt-nav-auth-group .tt-avatar {
+    flex-shrink: 0;
+  }
 }
 /* ==================
     HERO SECTION
@@ -4078,14 +4145,6 @@ body.tt-modal-open .tt-footer {
 
 .tt-admin-optional-details[open] > summary::before {
   content: "- ";
-}
-
-@media (max-width: 991.98px) {
-  .tt-modal-backdrop {
-    align-items: flex-start;
-    padding-top: 86px;
-    padding-bottom: 16px;
-  }
 }
 
 .tt-admin-form-footer {
