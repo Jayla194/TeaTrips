@@ -30,6 +30,7 @@ export default function LocationDetails(){
     const [location, setLocation] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error,setError] = useState("");
+    const [isLoggedIn, setIsLoggedIn] = useState(null);
     const [isSaved, setIsSaved] = useState(false);
     const [saving, setSaving] = useState(false);
     
@@ -121,14 +122,17 @@ export default function LocationDetails(){
                     credentials:"include"
                 });
                 if (!res.ok){
+                    if (res.status === 401 && !cancelled) setIsLoggedIn(false);
                     if(!cancelled) setIsSaved(false);
                     return;
                 }
                 const saved = await res.json();
 
                 const savedIds = new Set(saved.map((loc)=> String(loc.id)));
+                if (!cancelled) setIsLoggedIn(true);
                 if (!cancelled) setIsSaved(savedIds.has(String(id)));
             } catch(err){
+                if (!cancelled) setIsLoggedIn(false);
                 if (!cancelled) setIsSaved(false);
             }
         }
@@ -359,10 +363,10 @@ export default function LocationDetails(){
                 {/* Save Locations Button */}
                 <button className={`tt-btn tt-btn-secondary ${isSaved ? "opacity-100": ""} `}
                 onClick={toggleSave}
-                disabled={saving}
-                title={isSaved ? "Remove": "Save"}>
+                disabled={saving || isLoggedIn === false}
+                title={isLoggedIn === false ? "Login to save" : isSaved ? "Remove" : "Save"}>
                     <SaveIcon className="tt-save-icon" />
-                    {saving ? "Saving..." : isSaved ? "Saved" : "Save"}
+                    {isLoggedIn === false ? "Login to save" : saving ? "Saving..." : isSaved ? "Saved" : "Save"}
                 </button>
             </div>
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-1 gap-3">
@@ -524,8 +528,8 @@ export default function LocationDetails(){
                                 </div>
                                 <p className="tt-reviews-subtitle">Share your thoughts or read what others said.</p>
                             </div>
-                            <button className="tt-btn" onClick={() => setReviewOpen(true)}>
-                                Write a review
+                            <button className="tt-btn" onClick={() => setReviewOpen(true)} disabled={isLoggedIn === false}>
+                                {isLoggedIn === false ? "Login to review" : "Write a review"}
                             </button>
                         </div>
 

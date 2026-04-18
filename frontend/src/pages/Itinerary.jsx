@@ -117,6 +117,7 @@ export default function Itinerary() {
     const [saveError, setSaveError] = useState(null);
     const [saveMessage, setSaveMessage] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(null);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [selectedStop, setSelectedStop] = useState(null);
@@ -141,6 +142,31 @@ export default function Itinerary() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const editParam = searchParams.get("edit");
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadAuthStatus() {
+            try {
+                const res = await fetch(apiUrl("/api/auth/user"), {
+                    credentials: "include",
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!cancelled) {
+                    setIsLoggedIn(Boolean(res.ok && data?.user));
+                }
+            } catch {
+                if (!cancelled) {
+                    setIsLoggedIn(false);
+                }
+            }
+        }
+
+        loadAuthStatus();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const builderHelp = (
         <Tooltip id="tt-itinerary-help" className="tt-help-tooltip">
@@ -433,6 +459,11 @@ export default function Itinerary() {
     }
 
     async function handleSaveItinerary() {
+        if (isLoggedIn === false) {
+            setSaveError("Please log in to save itineraries.");
+            return;
+        }
+
         if (readOnlyPastTrip) {
             setSaveError("This trip has already happened and is view-only.");
             return;
@@ -812,10 +843,11 @@ export default function Itinerary() {
                                     <Button
                                         className="tt-btn tt-btn-secondary"
                                         onClick={handleSaveItinerary}
-                                        disabled={saving || readOnlyPastTrip}
+                                        disabled={saving || readOnlyPastTrip || isLoggedIn === false}
+                                        title={isLoggedIn === false ? "Login to save" : "Save itinerary"}
                                     >
                                         <SaveIcon className="tt-save-icon" />
-                                        {saving ? "Saving..." : "Save"}
+                                        {isLoggedIn === false ? "Login to save" : saving ? "Saving..." : "Save"}
                                     </Button>
                                     <Button
                                         className="tt-btn tt-btn-primary"
