@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { apiUrl } from "../utils/api";
 import WarningBanner from "../components/WarningBanner";
 import SearchBar from "../components/SearchBar";
@@ -328,6 +328,27 @@ useEffect(() => {
         }
     }
 
+const locationTypeOptions = useMemo(() => {
+    const defaults = ["Attraction", "Hotel", "Food", "Entertainment", "Nature"];
+    const existing = adminLocations
+        .map((location) => String(location.type || "").trim())
+        .filter(Boolean);
+
+    return Array.from(new Set([...defaults, ...existing]))
+        .sort((a, b) => a.localeCompare(b));
+}, [adminLocations]);
+
+const locationTagOptions = useMemo(() => {
+    return Array.from(
+        new Set(
+            adminLocations
+                .flatMap((location) => String(location.tags || "").split(/[;,]/))
+                .map((tag) => tag.trim())
+                .filter(Boolean)
+        )
+    ).sort((a, b) => a.localeCompare(b));
+}, [adminLocations]);
+
 if (loadingUser) {
     return (
     <div className="container py-4" style={{ minHeight: "100vh" }}>
@@ -638,6 +659,8 @@ return (
         editingLocationId={editingLocationId}
         locationForm={locationForm}
         locationSaving={locationSaving}
+        typeOptions={locationTypeOptions}
+        tagOptions={locationTagOptions}
         onChange={handleLocationChange}
         onSubmit={handleLocationSubmit}
         onClose={() => setIsLocationModalOpen(false)}

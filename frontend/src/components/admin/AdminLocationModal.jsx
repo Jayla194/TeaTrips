@@ -1,14 +1,85 @@
+import { useEffect, useMemo, useState } from "react";
+
+const TAG_COLOR_COUNT = 8;
+
+function getTagColorIndex(tag) {
+    const value = String(tag || "").toLowerCase();
+    let hash = 0;
+    for (let i = 0; i < value.length; i += 1) {
+        hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+    }
+    return hash % TAG_COLOR_COUNT;
+}
+
 export default function AdminLocationModal({
     isOpen,
     editingLocationId,
     locationForm,
     locationSaving,
+    typeOptions = [],
+    tagOptions = [],
     onChange,
     onSubmit,
     onClose,
     onCancel,
 }) {
+    const [tagInput, setTagInput] = useState("");
+
+    useEffect(() => {
+        if (isOpen) {
+            setTagInput("");
+        }
+    }, [isOpen, editingLocationId]);
+
+    const selectedTags = useMemo(
+        () => String(locationForm.tags || "")
+            .split(/[;,]/)
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+        [locationForm.tags]
+    );
+
+    const suggestedTags = useMemo(() => {
+        const needle = tagInput.trim().toLowerCase();
+        const selectedSet = new Set(selectedTags.map((tag) => tag.toLowerCase()));
+        return tagOptions
+            .filter((tag) => !selectedSet.has(String(tag).toLowerCase()))
+            .filter((tag) => {
+                if (!needle) return true;
+                return String(tag).toLowerCase().includes(needle);
+            });
+    }, [tagInput, tagOptions, selectedTags]);
+
     if (!isOpen) return null;
+
+    function updateTags(nextTags) {
+        onChange({ target: { name: "tags", value: nextTags.join(";") } });
+    }
+
+    function addTag(rawTag) {
+        const nextTag = String(rawTag || "").trim();
+        if (!nextTag) return;
+
+        const exists = selectedTags.some((tag) => tag.toLowerCase() === nextTag.toLowerCase());
+        if (exists) {
+            setTagInput("");
+            return;
+        }
+
+        updateTags([...selectedTags, nextTag]);
+        setTagInput("");
+    }
+
+    function removeTag(tagToRemove) {
+        updateTags(selectedTags.filter((tag) => tag !== tagToRemove));
+    }
+
+    function handleTagKeyDown(event) {
+        if (event.key === "Enter" || event.key === ",") {
+            event.preventDefault();
+            addTag(tagInput);
+        }
+    }
 
     return (
         <div
@@ -51,15 +122,21 @@ export default function AdminLocationModal({
 
                         <div className="col-12 col-md-6">
                             <label className="form-label" htmlFor="location-type">Type *</label>
-                            <input
+                            <select
                                 id="location-type"
                                 className="form-control"
                                 name="type"
                                 value={locationForm.type}
                                 onChange={onChange}
-                                placeholder="e.g. Attraction, Hotel, Food"
                                 required
-                            />
+                            >
+                                <option value="">Select a type</option>
+                                {typeOptions.map((typeOption) => (
+                                    <option key={typeOption} value={typeOption}>
+                                        {typeOption}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="col-12">
@@ -166,14 +243,61 @@ export default function AdminLocationModal({
 
                                     <div className="col-12">
                                         <label className="form-label" htmlFor="location-tags">Tags</label>
-                                        <input
-                                            id="location-tags"
-                                            className="form-control"
-                                            name="tags"
-                                            value={locationForm.tags}
-                                            onChange={onChange}
-                                            placeholder="e.g. Family;Food;Museum"
-                                        />
+                                        <div className="tt-admin-tags-wrap">
+                                            {selectedTags.length > 0 && (
+                                                <div className="tt-admin-tag-list" aria-label="Selected tags">
+                                                    {selectedTags.map((tag) => (
+                                                        <button
+                                                            key={tag}
+                                                            type="button"
+                                                            className={`tt-admin-tag-chip tt-tag-color-${getTagColorIndex(tag)}`}
+                                                            onClick={() => removeTag(tag)}
+                                                            aria-label={`Remove tag ${tag}`}
+                                                            title="Remove tag"
+                                                        >
+                                                            <span>{tag}</span>
+                                                            <span className="tt-admin-tag-chip-remove" aria-hidden="true">x</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            <div className="input-group tt-admin-tag-input-group">
+                                                <input
+                                                    id="location-tags"
+                                                    className="form-control"
+                                                    value={tagInput}
+                                                    onChange={(event) => setTagInput(event.target.value)}
+                                                    onKeyDown={handleTagKeyDown}
+                                                    placeholder="Search existing tags or type a new one"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="tt-btn"
+                                                    onClick={() => addTag(tagInput)}
+                                                    disabled={!tagInput.trim()}
+                                                >
+                                                    Add
+                                                </button>
+                                            </div>
+                                            {suggestedTags.length > 0 && (
+                                                <div className="tt-admin-tag-suggestions" aria-label="Tag suggestions">
+                                                    {suggestedTags.map((tag) => (
+                                                        <button
+                                                            key={tag}
+                                                            type="button"
+                                                            className={`tt-admin-tag-suggestion tt-tag-color-${getTagColorIndex(tag)}`}
+                                                            onClick={() => addTag(tag)}
+                                                            title={`Add ${tag}`}
+                                                        >
+                                                            + {tag}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            <small className="text-muted">
+                                                Press Enter or Add to insert a tag. Click a tag chip to remove it.
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
                             </details>

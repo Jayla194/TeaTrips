@@ -4096,5 +4096,136 @@ body.tt-modal-open .tt-footer {
   font-size: 0.92rem;
 }
 
+.tt-admin-tags-wrap {
+  display: grid;
+  gap: 8px;
+}
+
+.tt-admin-tag-list,
+.tt-admin-tag-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tt-admin-tag-list {
+  max-height: 110px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.tt-admin-tag-suggestions {
+  max-height: 140px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.tt-admin-tag-list::-webkit-scrollbar,
+.tt-admin-tag-suggestions::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tt-admin-tag-list::-webkit-scrollbar-track,
+.tt-admin-tag-suggestions::-webkit-scrollbar-track {
+  background: rgba(43, 31, 22, 0.06);
+  border-radius: 999px;
+}
+
+.tt-admin-tag-list::-webkit-scrollbar-thumb,
+.tt-admin-tag-suggestions::-webkit-scrollbar-thumb {
+  background: rgba(139, 90, 60, 0.35);
+  border-radius: 999px;
+}
+
+.tt-admin-tag-list::-webkit-scrollbar-thumb:hover,
+.tt-admin-tag-suggestions::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 90, 60, 0.55);
+}
+
+.tt-admin-tag-chip,
+.tt-admin-tag-suggestion {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tt-admin-tag-chip {
+  cursor: pointer;
+}
+
+.tt-admin-tag-suggestion {
+  cursor: pointer;
+}
+
+.tt-admin-tag-chip:hover,
+.tt-admin-tag-suggestion:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(43, 31, 22, 0.12);
+}
+
+.tt-admin-tag-chip-remove {
+  opacity: 0.72;
+  font-weight: 800;
+}
+
+.tt-admin-tag-input-group .tt-btn {
+  margin-left: 0;
+}
+
+.tt-tag-color-0 {
+  background: #f4e2c3;
+  color: #6c4627;
+  border-color: #d6b58a;
+}
+
+.tt-tag-color-1 {
+  background: #ead0b9;
+  color: #6a3f2a;
+  border-color: #d1a886;
+}
+
+.tt-tag-color-2 {
+  background: #dbe7cf;
+  color: #3f5d36;
+  border-color: #b8cf9f;
+}
+
+.tt-tag-color-3 {
+  background: #d5ece4;
+  color: #2f6055;
+  border-color: #abd4c4;
+}
+
+.tt-tag-color-4 {
+  background: #f1dfc9;
+  color: #6f4e2f;
+  border-color: #d8ba95;
+}
+
+.tt-tag-color-5 {
+  background: #e3d2bf;
+  color: #594531;
+  border-color: #c4ac8f;
+}
+
+.tt-tag-color-6 {
+  background: #e9e3be;
+  color: #5f5631;
+  border-color: #cec48f;
+}
+
+.tt-tag-color-7 {
+  background: #e6d7c2;
+  color: #634d36;
+  border-color: #cab296;
+}
+
 
 
