@@ -6,12 +6,15 @@ import LocationCarousel from "../components/LocationCarousel";
 import WarningBanner from "../components/WarningBanner";
 import {
   getLondonAttractionsMostSaved,
+  getBirminghamAttractionsMostSaved,
+  getManchesterAttractionsMostSaved,
   getHighlyRatedCheapLocations,
 } from "../utils/exploreCarousels";
 import { pillMatches } from "../utils/categoryMapping";
 import LocationCard from "../components/LocationCard";
 import { apiUrl } from "../utils/api";
 
+// Icons
 import {
   AttractionIcon,
   FoodIcon,
@@ -20,14 +23,6 @@ import {
   EntertainmentIcon,
 } from "../components/icons";
 
-// need icon for nature and entertainment
-const CATEGORY_OPTIONS = [
-  "Attractions",
-  "Food & Drink",
-  "Entertainment",
-  "Nature & Outdoors",
-  "Accommodation",
-];
 const CATEGORY_ICONS = {
   Attractions: AttractionIcon,
   "Food & Drink": FoodIcon,
@@ -35,6 +30,7 @@ const CATEGORY_ICONS = {
   Entertainment: EntertainmentIcon,
   "Nature & Outdoors": NatureIcon,
 };
+const CATEGORY_OPTIONS = Object.keys(CATEGORY_ICONS);
 
 export default function Explore() {
   const [searchActive, setSearchActive] = useState(false);
@@ -293,16 +289,26 @@ export default function Explore() {
               />
               <div className="tt-carousel-divider"></div>
               <LocationCarousel
+                title="Highly Rated & Cheap"
+                locations={highlyRatedCheapLocations}
+              />
+              <div className="tt-carousel-divider"></div>
+              <LocationCarousel
+                title="Manchester Attractions"
+                locations={getManchesterAttractionsMostSaved(locations)}
+              />
+              <div className="tt-carousel-divider"></div>
+              <LocationCarousel
                 title="Popular Locations"
                 // slice top 10 locations based on saved count for the carousel
                 locations={popularLocations.slice(0, 10)}
               />
-
               <div className="tt-carousel-divider"></div>
               <LocationCarousel
-                title="Highly Rated & Cheap"
-                locations={highlyRatedCheapLocations}
+                title="Birmingham Attractions"
+                locations={getBirminghamAttractionsMostSaved(locations)}
               />
+
             </>
           ) : (
             <>
@@ -311,10 +317,10 @@ export default function Explore() {
                 Showing <strong>{filteredLocations.length}</strong> result(s)
               </p>
               {filteredLocations.length === 0 && (
-                <p className="tt-empty-note text-muted mb-3">
-                  <span className="tt-teabag-icon" aria-hidden="true"></span>
-                  No places found. Try a different search.
-                </p>
+                <WarningBanner
+                  message="No places found for that search. Try a different location or category."
+                  variant="warning"
+                />
               )}
 
               <div className="row g-3">

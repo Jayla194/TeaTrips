@@ -8,6 +8,8 @@ import { ShowIcon, HideIcon } from "../components/icons";
 
 function Register() {
     const backgroundImg = "https://images.unsplash.com/photo-1681407979872-0a4cbde28391?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+    const NAME_MAX_LENGTH = 50;
+    const NAME_PATTERN = /^[\p{L}\p{M}][\p{L}\p{M}\p{Zs}'’.-]*$/u;
 
     const navigate = useNavigate();
 
@@ -68,10 +70,36 @@ function Register() {
     const registration = async (e) => {
         e.preventDefault();
         setError("");
+
+        const normalizedFirstName = firstName.trim();
+        const normalizedLastName = lastName.trim();
+
+        function validateName(label, value) {
+            if (!value) {
+                return `${label} is required`;
+            }
+            if (value.length > NAME_MAX_LENGTH) {
+                return `${label} must be ${NAME_MAX_LENGTH} characters or fewer`;
+            }
+            if (!NAME_PATTERN.test(value)) {
+                return `${label} can only include letters, spaces, apostrophes, hyphens, and periods`;
+            }
+            return "";
+        }
         
         // Validation
-        if (!firstName || !lastName || !email || !password || !confirmPassword){
+        if (!normalizedFirstName || !normalizedLastName || !email || !password || !confirmPassword){
             setError("Please fill out all fields");
+            return;
+        }
+        const firstNameError = validateName("First name", normalizedFirstName);
+        if (firstNameError) {
+            setError(firstNameError);
+            return;
+        }
+        const lastNameError = validateName("Last name", normalizedLastName);
+        if (lastNameError) {
+            setError(lastNameError);
             return;
         }
         if (password !== confirmPassword){
@@ -91,8 +119,8 @@ function Register() {
                 headers: {"Content-Type": "application/json"},
                 credentials:"include",
                 body: JSON.stringify({
-                    first_name: firstName,
-                    last_name: lastName,
+                    first_name: normalizedFirstName,
+                    last_name: normalizedLastName,
                     email,
                     password,
                 }),

@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import WarningBanner from "../WarningBanner";
+
+const MAX_COMMENT_LENGTH = 1000;
 
 function StarRating({ value, onChange }) {
     const percentage = `${Math.max(0, Math.min(100, (value / 5) * 100))}%`;
@@ -60,7 +63,9 @@ export default function ReviewModal({
 }) {
     const [rating, setRating] = useState(0.5);
     const [comment, setComment] = useState("");
+    const [error, setError] = useState("");
     const modalRef = useRef(null);
+    const errorRef = useRef(null);
     const previouslyFocusedElement = useRef(null);
     
     useEffect(() => {
@@ -71,6 +76,7 @@ export default function ReviewModal({
             setRating(0.5);
             setComment("");
         }
+        setError("");
     }, [mode, initialReview, isOpen]);
 
     // Focus management and scroll lock
@@ -79,14 +85,23 @@ export default function ReviewModal({
             previouslyFocusedElement.current = document.activeElement;
             modalRef.current?.focus();
             document.body.style.overflow = "hidden";
+            document.body.classList.add("tt-modal-open");
         } else {
             document.body.style.overflow = "";
             previouslyFocusedElement.current?.focus();
+            document.body.classList.remove("tt-modal-open");
         }
         return () => {
             document.body.style.overflow = "";
+            document.body.classList.remove("tt-modal-open");
         };
         }, [isOpen]);
+
+    useEffect(() => {
+        if (error) {
+            errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    }, [error]);
 
     // Close on Escape key
     useEffect(() => {
@@ -108,10 +123,23 @@ export default function ReviewModal({
     const subheading = mode === "edit"
         ? "Update your rating or tweak your comments."
         : "Help others by sharing what you loved (or did not).";
+    const isCommentOverLimit = comment.length > MAX_COMMENT_LENGTH;
 
     function handleSubmit(e) {
         e.preventDefault();
-        onSubmit({ rating, comment });
+        if (comment.length > MAX_COMMENT_LENGTH) {
+            setError(`Review must be ${MAX_COMMENT_LENGTH} characters or fewer.`);
+            return;
+        }
+        Promise.resolve(onSubmit({ rating, comment }))
+            .then((result) => {
+                if (result?.error) {
+                    setError(result.error);
+                }
+            })
+            .catch((err) => {
+                setError(err?.message || "Failed to save review");
+            });
     }
 
     return (
@@ -121,7 +149,7 @@ export default function ReviewModal({
             aria-labelledby="modal-title"
             onClick={onClose}
             >
-            <div className="tt-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="tt-modal tt-review-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="tt-modal-header">
                     <div className="tt-modal-header-left">
                         <h2 id="modal-title" className="tt-modal-title">{heading}</h2>
@@ -132,7 +160,17 @@ export default function ReviewModal({
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="tt-modal-body">
+                {error && (
+                    <div ref={errorRef}>
+                        <WarningBanner
+                            message={error}
+                            onClose={() => setError("")}
+                            variant="warning"
+                        />
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="tt-modal-body tt-review-modal-body">
                     <label className="tt-field">
                         <span className="tt-field-label">Rating</span>
                         <div className="tt-star-row">
@@ -146,16 +184,31 @@ export default function ReviewModal({
                         <textarea
                             className="tt-field-textarea"
                             value={comment}
-                            onChange={e => setComment(e.target.value)}
+                            maxLength={MAX_COMMENT_LENGTH}
+                            onChange={e => {
+                                setComment(e.target.value);
+                                if (error) setError("");
+                            }}
                             placeholder="What stood out? Service, atmosphere, tea selection, value..."
                             rows={5}
                         />
+                        <div className="tt-review-meta-row">
+                            <span className="tt-field-hint">Max {MAX_COMMENT_LENGTH} characters.</span>
+                            <span className={`tt-field-count ${comment.length >= MAX_COMMENT_LENGTH ? "is-limit" : ""}`}>
+                                {comment.length}/{MAX_COMMENT_LENGTH}
+                            </span>
+                        </div>
                     </label>
                     <div className="tt-modal-footer">
                         <button type="button" className="tt-btn tt-btn-ghost" onClick={onClose}>
                             Cancel
                         </button>
-                        <button type="submit" className="tt-btn tt-btn-primary">
+                        <button
+                            type="submit"
+                            className="tt-btn tt-btn-primary"
+                            disabled={isCommentOverLimit}
+                            title={isCommentOverLimit ? `Review must be ${MAX_COMMENT_LENGTH} characters or fewer.` : undefined}
+                        >
                             {mode === "edit" ? "Update Review" : "Submit Review"}
                         </button>
                     </div>

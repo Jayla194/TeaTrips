@@ -1,6 +1,31 @@
+import { useEffect, useRef } from "react";
 import { ExploreIcon, SaveIcon, AddIcon } from "../icons";
 
 export default function HowItWorks(){
+    const sectionRef = useRef(null);
+
+    useEffect(() => {
+        const section = sectionRef.current;
+        if (!section) return;
+
+        const cards = section.querySelectorAll("[data-scroll-reveal]");
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.2 }
+        );
+
+        cards.forEach((card) => observer.observe(card));
+
+        return () => observer.disconnect();
+    }, []);
+
     const steps = [
         {
             Icon: ExploreIcon,
@@ -18,7 +43,7 @@ export default function HowItWorks(){
     ];
 
     return (
-        <section className="tt-how-section">
+        <section className="tt-how-section" ref={sectionRef}>
             <div className="container">
                 <div className="tt-header">
                     <h2 className="tt-title">How TeaTrips Works</h2>
@@ -28,7 +53,12 @@ export default function HowItWorks(){
 
                 <div className="tt-how-grid">
                     {steps.map((step, index) => (
-                        <div className="tt-how-card"key={step.title}>
+                        <div
+                            className="tt-how-card tt-scroll-reveal"
+                            key={step.title}
+                            data-scroll-reveal
+                            style={{ "--tt-reveal-delay": `${index * 120}ms` }}
+                        >
                             <div className="tt-how-number" >{index + 1}</div>
                             
                             <div className="tt-how-icon-wrap">

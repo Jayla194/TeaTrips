@@ -2,13 +2,25 @@ import { pillMatches } from "./categoryMapping";
 
 // First Tester Carousel
 
+function getCityAttractionsMostSaved(locations, city) {
+    return locations
+        .filter((l) => String(l.city || "").toLowerCase() === city.toLowerCase())
+        .filter((l) => pillMatches(l.type, "Attractions"))
+        .slice()
+        .sort((a, b) => (b.saved_count || 0) - (a.saved_count || 0));
+}
+
 // Finds attractions in London and sorts them by most saved
 export function getLondonAttractionsMostSaved(locations){
-    return locations
-    .filter((l) => String(l.city || "").toLowerCase() === "london")
-    .filter((l) => pillMatches(l.type,"Attractions"))
-    .slice()
-    .sort((a,b) => (b.saved_count || 0) - (a.saved_count || 0));
+    return getCityAttractionsMostSaved(locations, "London");
+}
+
+export function getBirminghamAttractionsMostSaved(locations) {
+    return getCityAttractionsMostSaved(locations, "Birmingham");
+}
+
+export function getManchesterAttractionsMostSaved(locations) {
+    return getCityAttractionsMostSaved(locations, "Manchester");
 }
 
 // Most Rated and Cheap

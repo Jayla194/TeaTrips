@@ -20,6 +20,25 @@ const cookieOptions = {
     maxAge: 30 * 24 * 60 * 60 * 1000,
 };
 
+const NAME_MAX_LENGTH = 50;
+const NAME_PATTERN = /^[\p{L}\p{M}][\p{L}\p{M}\p{Zs}'’.-]*$/u;
+
+function validateName(fieldName, value) {
+    const trimmedValue = typeof value === "string" ? value.trim() : "";
+
+    if (!trimmedValue) {
+        return `${fieldName} is required`;
+    }
+    if (trimmedValue.length > NAME_MAX_LENGTH) {
+        return `${fieldName} must be ${NAME_MAX_LENGTH} characters or fewer`;
+    }
+    if (!NAME_PATTERN.test(trimmedValue)) {
+        return `${fieldName} can only include letters, spaces, apostrophes, hyphens, and periods`;
+    }
+
+    return null;
+}
+
 function setCookie(res, payload){
     const token = jwt.sign(payload, process.env.JWT_SECRET);
 
@@ -31,6 +50,22 @@ exports.register = async (req, res) => {
     try {
         const { first_name, last_name, email, password} = req.body;
         const normEmail = email?.trim().toLowerCase();
+        const firstName = typeof first_name === "string" ? first_name.trim() : "";
+        const lastName = typeof last_name === "string" ? last_name.trim() : "";
+
+        const firstNameError = validateName("First name", firstName);
+        if (firstNameError) {
+            return res.status(400).json({ message: firstNameError });
+        }
+
+        const lastNameError = validateName("Last name", lastName);
+        if (lastNameError) {
+            return res.status(400).json({ message: lastNameError });
+        }
+
+        if (!normEmail || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
 
         const exists = await findUserIdByEmail(normEmail);
         if (exists.length) {
@@ -40,8 +75,8 @@ exports.register = async (req, res) => {
         const password_hash = await bcrypt.hash(password,10);
 
         const result = await createUser({
-            first_name,
-            last_name,
+            first_name: firstName,
+            last_name: lastName,
             email: normEmail,
             password_hash,
             role: "user",
@@ -52,9 +87,9 @@ exports.register = async (req, res) => {
         return res.status(201).json({
             user: {
                 user_id: result.insertId,
-                first_name,
-                last_name,
-                email,
+                first_name: firstName,
+                last_name: lastName,
+                email: normEmail,
                 role: "user",
             },
         });

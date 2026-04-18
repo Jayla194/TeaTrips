@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { ShowIcon, HideIcon } from "./icons";
 import WarningBanner from "./WarningBanner";
@@ -16,6 +16,7 @@ export default function ChangePasswordModal({
     const [showNew, setShowNew] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [error, setError] = useState("");
+    const errorRef = useRef(null);
     
 
     const heading = "Change Password";
@@ -31,8 +32,24 @@ export default function ChangePasswordModal({
             setShowNew(false);
             setShowConfirm(false);
             setError("");
+            document.body.classList.add("tt-modal-open");
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.classList.remove("tt-modal-open");
+            document.body.style.overflow = "";
         }
+
+        return () => {
+            document.body.classList.remove("tt-modal-open");
+            document.body.style.overflow = "";
+        };
     }, [isOpen]);
+
+    useEffect(() => {
+        if (error) {
+            errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    }, [error]);
 
     async function handleSubmit(e) {
 
@@ -84,11 +101,13 @@ export default function ChangePasswordModal({
                     </button>
                 </div>
                 {error && (
-                    <WarningBanner
-                    message={error}
-                    onClose={() => setError("")}
-                    variant="warning"
-                    />
+                    <div ref={errorRef}>
+                        <WarningBanner
+                            message={error}
+                            onClose={() => setError("")}
+                            variant="warning"
+                        />
+                    </div>
                 )}
                 <form onSubmit={handleSubmit} className="tt-modal-body">
                     <label className="tt-field">

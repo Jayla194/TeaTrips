@@ -175,10 +175,10 @@ export default function AddLocationModal({
                         )}
 
                         {!loading && Array.isArray(locations) && locations.length === 0 && (
-                            <p className="tt-empty-note text-muted">
-                                <span className="tt-teabag-icon" aria-hidden="true"></span>
-                                No locations match your search.
-                            </p>
+                            <WarningBanner
+                                message="No locations match your search. Try a different name or city."
+                                variant="warning"
+                            />
                         )}
 
                         {!loading && Array.isArray(locations) && locations.length > 0 && (

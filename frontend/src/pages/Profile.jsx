@@ -40,6 +40,7 @@ export default function Profile(){
     // Controls which profile section is visible in the main panel
     const [activeSection, setActiveSection] = useState("overview");
     const [changePassOpen, setChangePassOpen] = useState(false);
+    const [passwordFeedback, setPasswordFeedback] = useState({ message: "", variant: "success" });
     const [darkMode, setDarkMode] = useState(() => {
         try {
             return localStorage.getItem("tt-dark-mode") === "true";
@@ -240,8 +241,8 @@ export default function Profile(){
             });
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
-                setReviewsError(data.error || "Failed to update review");
-                return;
+                const error = data.error || data.message || "Failed to update review";
+                return { error };
             }
             setReviewOpen(false);
             setEditingReview(null);
@@ -252,8 +253,10 @@ export default function Profile(){
                 const data = await refreshed.json();
                 setReviews(Array.isArray(data) ? data : []);
             }
+            return { ok: true };
         } catch (err) {
-            setReviewsError(err.message || "Failed to update review");
+            const error = err.message || "Failed to update review";
+            return { error };
         }
     }
 
@@ -272,6 +275,7 @@ export default function Profile(){
             }
 
             setChangePassOpen(false);
+            setPasswordFeedback({ message: "Password changed successfully", variant: "success" });
             return { ok: true };
         } catch (err) {
             return { error: err.message || "Failed to change password" };
@@ -306,6 +310,13 @@ export default function Profile(){
                 message={error}
                 onClose={() => setError("")}
                 variant="warning"
+            />
+        )}
+        {passwordFeedback.message && (
+            <WarningBanner
+                message={passwordFeedback.message}
+                onClose={() => setPasswordFeedback({ message: "", variant: "success" })}
+                variant={passwordFeedback.variant}
             />
         )}
         <div className="row g-5">

@@ -803,15 +803,8 @@ font-style: italic;
   padding: 40px 30px;
   text-align: center;
   position: relative;
-  transform: translateY(30px);
   box-shadow: 0 4px 0 rgba(139, 90, 60, 0.1), 0 10px 24px rgba(139, 90, 60, 0.12);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tt-how-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(139, 90, 60, 0.3);
-  box-shadow: 0 6px 0 rgba(139, 90, 60, 0.15), 0 16px 36px rgba(139, 90, 60, 0.2);
 }
 
 .tt-how-number {
@@ -829,10 +822,7 @@ font-style: italic;
   font-weight: 800;
   font-size: 1.3rem;
   box-shadow: 0 4px 12px rgba(43, 30, 22, 0.3);
-  transition: transform 0.3s ease;
-}
-.tt-how-card:hover .tt-how-number {
-  transform: scale(1.1);
+  transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
 .tt-how-icon-wrap {
@@ -846,13 +836,7 @@ font-style: italic;
   justify-content: center;
   border: 2px solid rgba(139, 90, 60, 0.15);
   box-shadow: 0 4px 12px rgba(139, 90, 60, 0.08);
-  transition: all 0.3s ease;
-}
-.tt-how-card:hover .tt-how-icon-wrap {
-  background: var(--tt-cream);
-  border-color: rgba(139, 90, 60, 0.25);
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(139, 90, 60, 0.15);
+  transition: all 0.4s ease;
 }
 
 .tt-how-icon {
@@ -861,16 +845,13 @@ font-style: italic;
   display: block;
   /* Makes SVGs match your brown color - remove filter line below to keep original colors */
   filter: brightness(0) saturate(100%) invert(13%) sepia(18%) saturate(2095%) hue-rotate(358deg) brightness(96%) contrast(91%);
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
 .tt-how-icon svg {
   width: 50px;
   height: 50px;
   display: block;
-}
-.tt-how-card:hover .tt-how-icon {
-  transform: scale(1.1) rotate(5deg);
 }
 
 .tt-how-card-title {
@@ -917,12 +898,32 @@ font-style: italic;
   outline: 3px solid #5b3a29;
   outline-offset: 3px;
 }
-.tt-region-card:hover,
-.tt-region-card:focus {
-  transform: translateY(-3px);
+
+.tt-scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  filter: blur(2px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease,
+    filter 0.55s ease;
+  transition-delay: var(--tt-reveal-delay, 0ms);
+}
+
+.tt-scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.tt-how-card.tt-scroll-reveal.is-visible {
+  box-shadow: 0 4px 0 rgba(139, 90, 60, 0.1), 0 10px 24px rgba(139, 90, 60, 0.12);
+}
+
+.tt-region-card.tt-scroll-reveal.is-visible {
   box-shadow:
-    0 5px 0 rgba(139, 90, 60, 0.25),
-    0 12px 28px rgba(139, 90, 60, 0.25);
+    0 3px 0 rgba(139, 90, 60, 0.2),
+    0 8px 16px rgba(139, 90, 60, 0.15);
 }
 /* ==================
     CLOSING SECTION
@@ -2205,8 +2206,13 @@ transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 30000;
   padding: 24px 16px;
+}
+
+body.tt-modal-open .tt-navbar,
+body.tt-modal-open .tt-footer {
+  pointer-events: none;
 }
 
 .tt-modal {
@@ -2214,17 +2220,25 @@ transition: all 0.2s ease;
   border-radius: 16px;
   max-width: 500px;
   width: 90%;
+  max-height: calc(100vh - 48px);
   outline: none;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   position: relative;
+  z-index: 30001;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tt-review-modal {
+  max-width: 440px;
 }
 
 .tt-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
+  padding: 12px 16px;
   background: linear-gradient(
     to bottom,
     #E9D3B1,
@@ -2234,7 +2248,9 @@ transition: all 0.2s ease;
 }
 
 .tt-modal-body {
-  padding: 20px;
+  padding: 12px 16px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .tt-modal-footer {
@@ -3144,7 +3160,7 @@ transition: all 0.2s ease;
 }
 
 .tt-review-modal-header {
-  padding: 18px 20px;
+  padding: 12px 16px;
   background: linear-gradient(135deg, rgba(255, 246, 229, 0.9), rgba(255, 238, 213, 0.6));
   border-bottom: 1px solid rgba(73, 52, 34, 0.08);
 }
@@ -3168,8 +3184,8 @@ transition: all 0.2s ease;
 
 .tt-review-modal-body {
   display: grid;
-  gap: 14px;
-  padding: 18px 24px 20px;
+  gap: 10px;
+  padding: 10px 14px 12px;
 }
 
 .tt-field {
@@ -3178,13 +3194,15 @@ transition: all 0.2s ease;
 }
 
 .tt-field-label {
-    font-weight: 700;
-    color: var(--tt-ink);
-  }
+  display: block;
+  font-weight: 700;
+  color: var(--tt-ink);
+}
 
-  .tt-modal .tt-field-label {
-    font-size: 1.05rem;
-  }
+.tt-modal .tt-field-label {
+  margin: 0;
+  font-size: 1rem;
+}
 
 .tt-field-input,
 .tt-field-textarea {
@@ -3198,12 +3216,7 @@ transition: all 0.2s ease;
 }
 
 .tt-modal .tt-field {
-  margin-bottom: 14px;
-}
-
-.tt-modal .tt-field-label {
-  margin-bottom: 6px;
-  margin-left: 13%;
+  margin-bottom: 0;
 }
 
 
@@ -3221,6 +3234,49 @@ transition: all 0.2s ease;
 .tt-field-hint {
   font-size: 0.85rem;
   color: rgba(43, 31, 22, 0.6);
+}
+
+.tt-review-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.tt-field-count {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: rgba(43, 31, 22, 0.72);
+  background: rgba(233, 211, 177, 0.45);
+  border: 1px solid rgba(184, 116, 70, 0.2);
+  padding: 4px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.tt-field-count.is-limit {
+  color: #b87446;
+  background: rgba(184, 116, 70, 0.14);
+  border-color: rgba(184, 116, 70, 0.35);
+}
+
+.tt-review-modal-body {
+  scrollbar-width: thin;
+}
+
+.tt-review-modal-body .tt-field {
+  margin-bottom: 12px;
+}
+
+.tt-review-modal-body .tt-field-textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.tt-review-modal-body .tt-warning-banner {
+  margin: 0 0 10px;
 }
 
 .tt-modal-subtitle {

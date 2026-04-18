@@ -188,16 +188,30 @@ export default function LocationDetails(){
 
     // Handling Create Review Modal
     async function handleCreateReview(payload) {
-        await fetch(apiUrl(`/api/reviews/location/${location.id}`), {
+        try {
+            const res = await fetch(apiUrl(`/api/reviews/location/${location.id}`), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
             body: JSON.stringify({ rating: payload.rating, comment: payload.comment }),
-        });
-        setReviewOpen(false);
-        // refresh reviews after submit
-        const res = await fetch(apiUrl(`/api/reviews/location/${location.id}?sort=recent`));
-        if (res.ok) setReviews(await res.json());
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                const error = data.error || data.message || "Failed to create review";
+                return { error };
+            }
+
+            setReviewOpen(false);
+            const refreshed = await fetch(apiUrl(`/api/reviews/location/${location.id}?sort=recent`));
+            if (refreshed.ok) {
+                setReviews(await refreshed.json());
+            }
+            return { ok: true };
+        } catch (err) {
+            const error = err?.message || "Failed to create review";
+            return { error };
+        }
     }
 
     // Toggle Saved
