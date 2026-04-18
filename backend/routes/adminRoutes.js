@@ -9,7 +9,9 @@ const adminController = require("../controllers/adminController");
 router.get("/summary", requireAdmin, adminController.getDashboardStats);
 router.get("/locations", requireAdmin, adminController.getAllForAdmin);
 router.post("/locations", requireAdmin, locationController.createLocation);
+router.put("/locations/:id", requireAdmin, locationController.updateLocation);
 router.get("/reviews", requireAdmin, reviewController.getAllReviews);
 router.patch("/reviews/:reviewId/visibility", requireAdmin, reviewController.remove);
+router.get("/users", requireAdmin, adminController.getUsersForAdmin);
 
 module.exports = router;

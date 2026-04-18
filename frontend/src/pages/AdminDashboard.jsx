@@ -13,6 +13,7 @@ const emptyLocation = {
     address: "",
     city: "",
     postcode: "",
+    price_tier: "",
     website: "",
     phone: "",
     opening_hours: "",
@@ -221,16 +222,27 @@ useEffect(() => {
                 ? apiUrl(`/api/admin/locations/${editingLocationId}`)
                 : apiUrl("/api/admin/locations");
 
+            const payload = {
+                ...locationForm,
+                price_tier:
+                    locationForm.price_tier === "" || locationForm.price_tier === null
+                        ? null
+                        : Number(locationForm.price_tier),
+            };
+
             const res = await fetch(endpoint, {
                 method: isEditingLocation ? "PUT" : "POST",
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(locationForm),
+                body: JSON.stringify(payload),
             });
 
-            const data = await res.json();
+            const contentType = res.headers.get("content-type") || "";
+            const data = contentType.includes("application/json")
+                ? await res.json()
+                : { message: await res.text() };
 
             if (!res.ok) {
                 throw new Error(data.error || data.message || "Failed to create location");
@@ -281,6 +293,7 @@ useEffect(() => {
             address: location.address || "",
             city: location.city || "",
             postcode: location.postcode || "",
+            price_tier: location.price_tier == null ? "" : String(location.price_tier),
             website: location.website || "",
             phone: location.phone || "",
             opening_hours: location.opening_hours || "",

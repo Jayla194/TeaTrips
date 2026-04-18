@@ -8,7 +8,41 @@ async function getAllLocations() {
 
 // Return a single location by ID
 async function getLocationById(id) {
-    const [rows] = await db.query("SELECT * FROM locations WHERE id = ?", [id]);
+    const [rows] = await db.query(
+        `
+        SELECT
+            loc.id,
+            loc.name,
+            loc.type,
+            loc.address,
+            loc.city,
+            loc.postcode,
+            loc.lat,
+            loc.lon,
+            loc.website,
+            loc.phone,
+            loc.opening_hours,
+            loc.price_tier,
+            COALESCE(
+                (
+                    SELECT ROUND(AVG(r.rating), 1)
+                    FROM reviews r
+                    WHERE r.location_id = loc.id AND r.is_visible = TRUE
+                ),
+                loc.avg_rating
+            ) AS avg_rating,
+            loc.suggested_duration,
+            loc.tags,
+            loc.image_url,
+            loc.description_short,
+            loc.description_long,
+            loc.description_last_generated,
+            loc.review_count_at_generation
+        FROM locations loc
+        WHERE loc.id = ?
+        `,
+        [id]
+    );
     return rows[0];
 }
 

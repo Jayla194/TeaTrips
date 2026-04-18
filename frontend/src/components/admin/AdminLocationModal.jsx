@@ -218,6 +218,23 @@ export default function AdminLocationModal({
                                     </div>
 
                                     <div className="col-12 col-md-6">
+                                        <label className="form-label" htmlFor="location-price-tier">Price rating</label>
+                                        <select
+                                            id="location-price-tier"
+                                            className="form-control"
+                                            name="price_tier"
+                                            value={locationForm.price_tier ?? ""}
+                                            onChange={onChange}
+                                        >
+                                            <option value="">Not set</option>
+                                            <option value="1">£ (Budget)</option>
+                                            <option value="2">££ (Mid-range)</option>
+                                            <option value="3">£££ (Premium)</option>
+                                            <option value="4">££££ (Luxury)</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="col-12 col-md-6">
                                         <label className="form-label" htmlFor="location-website">Website</label>
                                         <input
                                             id="location-website"
