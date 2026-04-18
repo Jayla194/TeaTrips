@@ -802,13 +802,13 @@ export default function Itinerary() {
         <div className="tt-itinerary-page">
             <Container className="py-4">
                 <Row className="tt-itinerary-layout">
-                    <Col lg={6} className="mb-4 tt-itinerary-left-col">
+                    <Col lg={7} xl={6} className="mb-4 tt-itinerary-left-col">
                         <div className="tt-itinerary-builder">
-                            <div className="d-flex align-items-center justify-content-between mb-4">
+                            <div className="tt-itinerary-header d-flex align-items-center justify-content-between mb-4">
                                 <div className="d-flex align-items-center gap-2">
                                     <h1 className="tt-title mb-0">Itinerary Builder</h1>
                                 </div>
-                                <div className="d-flex gap-2">
+                                <div className="tt-itinerary-actions d-flex gap-2">
                                     <Button
                                         className="tt-btn tt-btn-secondary"
                                         onClick={handleSaveItinerary}
@@ -958,8 +958,8 @@ export default function Itinerary() {
                     </Col>
 
                     {/* Right Side Map */}
-                    <Col lg={6} className="mb-4 tt-itinerary-map-col">
-                        <div>
+                    <Col lg={5} xl={6} className="mb-4 tt-itinerary-map-col">
+                        <div className="tt-itinerary-map-top">
                             <OverlayTrigger placement="bottom" trigger={["hover", "focus"]} overlay={builderHelp}>
                                 <button type="button" className="tt-help-trigger" aria-label="How to build a trip">
                                     i

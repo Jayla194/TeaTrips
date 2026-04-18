@@ -300,7 +300,42 @@ height: 26px;
 background: rgba(43,31,22,0.25);
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 900px) {
+  .tt-btn,
+  .tt-login-btn,
+  .tt-login-btn.btn,
+  .tt-login-btn.btn-primary,
+  .tt-pill-btn {
+    border-radius: 20px !important;
+    font-size: 1rem !important;
+    padding: 7px 15px !important;
+  }
+
+  .tt-mini-btn {
+    border-radius: 12px;
+  }
+
+  .tt-itinerary-header {
+    align-items: flex-start !important;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .tt-itinerary-actions {
+    width: auto;
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px !important;
+  }
+
+  .tt-itinerary-actions .tt-btn {
+    margin: 0;
+    width: auto;
+    min-width: 110px;
+    justify-content: center;
+  }
+
   .tt-navbar .navbar-toggler {
     border: 1px solid rgba(43, 31, 22, 0.22);
     border-radius: 12px;
@@ -366,6 +401,7 @@ background: rgba(43,31,22,0.25);
     flex-shrink: 0;
   }
 }
+
 /* ==================
     HERO SECTION
    ================== */
@@ -2236,6 +2272,12 @@ transition: all 0.2s ease;
   position: relative;
 }
 
+.tt-itinerary-map-top {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 4px 8px;
+}
+
 @media (min-width: 992px) {
   .tt-itinerary-map-col {
     position: sticky;
@@ -2249,6 +2291,18 @@ transition: all 0.2s ease;
 
   .tt-itinerary-map-sticky .leaflet-container {
     height: 100% !important;
+  }
+}
+
+@media (max-width: 1500px) {
+  .tt-itinerary-header .tt-title {
+    font-size: 2.15rem;
+  }
+
+  .tt-itinerary-actions .tt-btn {
+    padding: 7px 14px !important;
+    border-radius: 20px !important;
+    font-size: 0.93rem !important;
   }
 }
 
