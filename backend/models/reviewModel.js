@@ -192,6 +192,24 @@ async function setReviewVisibility(reviewId, isVisible, adminUserId) {
     return result;
 }
 
+// Persist latest visible-review average into locations.avg_rating
+async function refreshLocationAverageRating(locationId) {
+    const sql = `
+        UPDATE locations l
+        LEFT JOIN (
+            SELECT location_id, ROUND(AVG(rating), 1) AS avg_rating
+            FROM reviews
+            WHERE location_id = ? AND is_visible = TRUE
+            GROUP BY location_id
+        ) r_avg ON r_avg.location_id = l.id
+        SET l.avg_rating = r_avg.avg_rating
+        WHERE l.id = ?
+    `;
+
+    const [result] = await pool.query(sql, [locationId, locationId]);
+    return result;
+}
+
 
 module.exports = {
     getByLocation: getReviewsByLocation,
@@ -207,5 +225,6 @@ module.exports = {
     getTopReviewsByLocation,
     getAllReviews,
     setReviewVisibility,
+    refreshLocationAverageRating,
 
 };

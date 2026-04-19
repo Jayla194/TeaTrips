@@ -2351,6 +2351,18 @@ transition: all 0.2s ease;
 body.tt-modal-open .tt-navbar,
 body.tt-modal-open .tt-footer {
   pointer-events: none;
+  z-index: 0 !important;
+}
+
+/* Fallback for modals that do not toggle body.tt-modal-open */
+body:has(.tt-modal-backdrop) .tt-navbar,
+body:has(.tt-modal-backdrop) .tt-footer,
+body:has(.tt-trip-overlay) .tt-navbar,
+body:has(.tt-trip-overlay) .tt-footer,
+body:has(.tt-trp-overlay) .tt-navbar,
+body:has(.tt-trp-overlay) .tt-footer {
+  pointer-events: none;
+  z-index: 0 !important;
 }
 
 .tt-modal {
@@ -2568,11 +2580,10 @@ body.tt-modal-open .tt-footer {
 .tt-trip-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
-  padding: 90px 16px 16px;
+  z-index: 30000;
+  padding: 20px 12px;
   background: rgba(43, 31, 22, 0.35);
   overflow-y: auto;
-  padding:40px;
 }
 
 .tt-trip-overlay .tt-warning-banner {
@@ -2591,7 +2602,8 @@ body.tt-modal-open .tt-footer {
   background: var(--tt-warm-white);
   border: 1px solid rgba(139, 90, 60, 0.22);
   box-shadow: 0 10px 30px rgba(43, 31, 22, 0.3);
-  overflow: visible;
+  overflow: hidden;
+  max-height: calc(100dvh - 40px);
 }
 
 .tt-trip-modal .tt-modal-header {
@@ -2619,7 +2631,15 @@ body.tt-modal-open .tt-footer {
 
 .tt-trip-modal .tt-modal-body {
   max-height: none !important;
-  overflow: visible !important;
+  overflow-y: auto !important;
+  padding: 12px 14px 16px;
+}
+
+.tt-trip-modal .tt-modal-footer {
+  position: sticky;
+  bottom: 0;
+  padding: 10px 0 2px;
+  margin-top: 12px;
 }
 
 .tt-trip-overlay .tt-modal-body::-webkit-scrollbar {
@@ -2629,11 +2649,59 @@ body.tt-modal-open .tt-footer {
 
 @media (max-width: 576px) {
   .tt-trip-overlay {
-    padding-top: 82px;
+    padding: 8px;
   }
 
-  .tt-trip-overlay .tt-modal-body {
-    max-height: calc(100dvh - 120px);
+  .tt-trip-overlay-panel,
+  .tt-trip-modal {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .tt-trip-modal {
+    max-height: calc(100dvh - 16px);
+    border-radius: 16px;
+  }
+
+  .tt-trip-modal .tt-modal-header {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .tt-trip-modal .tt-modal-title {
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  .tt-trip-modal .tt-modal-header .tt-btn {
+    font-size: 0.92rem !important;
+    padding: 6px 12px !important;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .tt-trip-modal .tt-modal-body {
+    padding: 10px 12px 14px;
+  }
+
+  .tt-trip-modal .tt-modal-footer {
+    gap: 8px;
+  }
+
+  .tt-trip-modal .tt-modal-footer .tt-btn {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .tt-trip-modal .tt-interests-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .tt-trip-modal .tt-interest-checkbox {
+    min-height: 46px;
+    padding: 9px 10px;
   }
 }
 
@@ -2644,13 +2712,14 @@ body.tt-modal-open .tt-footer {
 .tt-trp-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 30000;
   pointer-events: none;
 }
 
 .tt-trip-overlay-content {
   position: relative;
   position: fixed;
+  z-index: 30001;
   top: 170px;
   right: 24px;
   width: min(300px, 90vw);

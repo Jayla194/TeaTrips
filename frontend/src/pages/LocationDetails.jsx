@@ -43,6 +43,8 @@ export default function LocationDetails(){
     const [reviewsLoading, setReviewsLoading] = useState(true);
     const [reviewsError, setReviewsError] = useState("");
     const [descriptionLoading, setDescriptionLoading] = useState(true);
+    const [hasSubmittedReview, setHasSubmittedReview] = useState(false);
+    const [myReviewId, setMyReviewId] = useState(null);
 
     const fallback =
         "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=60";
@@ -190,8 +192,53 @@ export default function LocationDetails(){
         };
     }, [id]);
 
+    // Check whether the logged-in user has already reviewed this location.
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadMyReviewStatus() {
+            if (isLoggedIn !== true) {
+                if (!cancelled) setHasSubmittedReview(false);
+                return;
+            }
+
+            try {
+                const res = await fetch(apiUrl("/api/reviews/user"), {
+                    credentials: "include",
+                });
+
+                if (!res.ok) {
+                    if (!cancelled) setHasSubmittedReview(false);
+                    if (!cancelled) setMyReviewId(null);
+                    return;
+                }
+
+                const data = await res.json();
+                const myReview = Array.isArray(data)
+                    ? data.find((review) => Number(review?.location_id) === Number(id))
+                    : null;
+                const hasReview = Boolean(myReview);
+
+                if (!cancelled) setHasSubmittedReview(hasReview);
+                if (!cancelled) setMyReviewId(myReview ? Number(myReview.review_id) : null);
+            } catch {
+                if (!cancelled) setHasSubmittedReview(false);
+                if (!cancelled) setMyReviewId(null);
+            }
+        }
+
+        loadMyReviewStatus();
+        return () => {
+            cancelled = true;
+        };
+    }, [id, isLoggedIn]);
+
     // Handling Create Review Modal
     async function handleCreateReview(payload) {
+        if (hasSubmittedReview) {
+            return { error: "You have already reviewed this location. Edit your existing review instead." };
+        }
+
         try {
             const res = await fetch(apiUrl(`/api/reviews/location/${location.id}`), {
             method: "POST",
@@ -202,11 +249,20 @@ export default function LocationDetails(){
 
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
-                const error = data.error || data.message || "Failed to create review";
+                const error =
+                    res.status === 409
+                        ? "You have already reviewed this location. Edit your existing review instead."
+                        : data.error || data.message || "Failed to create review";
                 return { error };
             }
 
+            const createData = await res.json().catch(() => ({}));
+
             setReviewOpen(false);
+            setHasSubmittedReview(true);
+            if (Number.isInteger(Number(createData?.review_id))) {
+                setMyReviewId(Number(createData.review_id));
+            }
             const refreshed = await fetch(apiUrl(`/api/reviews/location/${location.id}?sort=recent`));
             if (refreshed.ok) {
                 setReviews(await refreshed.json());
@@ -215,6 +271,38 @@ export default function LocationDetails(){
         } catch (err) {
             const error = err?.message || "Failed to create review";
             return { error };
+        }
+    }
+
+    function handleEditReview(review) {
+        setEditingReview(review);
+    }
+
+    async function handleUpdateReview(payload) {
+        if (!editingReview) return;
+
+        try {
+            const res = await fetch(apiUrl(`/api/reviews/${editingReview.review_id}`), {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ rating: payload.rating, comment: payload.comment }),
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                const error = data.error || data.message || "Failed to update review";
+                return { error };
+            }
+
+            setEditingReview(null);
+            const refreshed = await fetch(apiUrl(`/api/reviews/location/${location.id}?sort=recent`));
+            if (refreshed.ok) {
+                setReviews(await refreshed.json());
+            }
+            return { ok: true };
+        } catch (err) {
+            return { error: err?.message || "Failed to update review" };
         }
     }
 
@@ -307,6 +395,10 @@ export default function LocationDetails(){
                 return;
             }
             setReviews((prev) => prev.filter((review) => review.review_id !== reviewId));
+            setHasSubmittedReview(false);
+            if (Number(reviewId) === Number(myReviewId)) {
+                setMyReviewId(null);
+            }
         } catch (err) {
             setError(err.message || "Failed to delete review");
         }
@@ -528,8 +620,16 @@ export default function LocationDetails(){
                                 </div>
                                 <p className="tt-reviews-subtitle">Share your thoughts or read what others said.</p>
                             </div>
-                            <button className="tt-btn" onClick={() => setReviewOpen(true)} disabled={isLoggedIn === false}>
-                                {isLoggedIn === false ? "Login to review" : "Write a review"}
+                            <button
+                                className="tt-btn"
+                                onClick={() => setReviewOpen(true)}
+                                disabled={isLoggedIn === false || hasSubmittedReview}
+                            >
+                                {isLoggedIn === false
+                                    ? "Login to review"
+                                    : hasSubmittedReview
+                                    ? "Review submitted"
+                                    : "Write a review"}
                             </button>
                         </div>
 
@@ -538,6 +638,15 @@ export default function LocationDetails(){
                             mode="create"
                             onClose={() => setReviewOpen(false)}
                             onSubmit={handleCreateReview}
+                            locationName={location.name}
+                        />
+
+                        <ReviewModal
+                            isOpen={Boolean(editingReview)}
+                            mode="edit"
+                            initialReview={editingReview}
+                            onClose={() => setEditingReview(null)}
+                            onSubmit={handleUpdateReview}
                             locationName={location.name}
                         />
 
@@ -565,8 +674,9 @@ export default function LocationDetails(){
                                 key={review.review_id}
                                 review={review}
                                 displayName={review.first_name}
-                                isOwner={review.is_owner}
+                                isOwner={Number(review.review_id) === Number(myReviewId) || review.is_owner === true}
                                 onLike={handleLikeReview}
+                                onEdit={handleEditReview}
                                 onDelete={handleDeleteReview}
                             />
                             ))}
