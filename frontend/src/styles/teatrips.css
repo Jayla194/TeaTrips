@@ -1095,6 +1095,12 @@ font-style: italic;
   margin-top: 32px;
 }
 
+@media (max-width: 768px) {
+  .tt-closing-section {
+    padding: 90px 20px;
+  }
+}
+
 
 /* ==================
     LOGIN BUTTON
