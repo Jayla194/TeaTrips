@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef } from "react";
+import { useMemo, useEffect, useRef, useState } from "react";
 import WarningBanner from "../WarningBanner";
 import { DeleteIcon } from "../icons";
 
@@ -9,24 +9,27 @@ export default function AddLocationModal({
     suggestedLocations,
     suggestedLoading,
     locations,
+    savedLocations,
+    savedLoading,
+    savedError,
+    isLoggedIn,
     loading,
     error,
     onClearError,
     query,
     onQueryChange,
-    cityLabel,
     dayStops,
     onAddLocation,
     onRemoveLocation,
     onClose,
 }) {
+    const [activeTab, setActiveTab] = useState("browse");
 
     const addedIds = useMemo(() => {
         if (!Array.isArray(dayStops)) return new Set();
         return new Set(dayStops.map((stop) => stop?.id));
     }, [dayStops]);
 
-    // Filters suggested list using the search input
     const suggestedFiltered = useMemo(() => {
         if (!Array.isArray(suggestedLocations)) return [];
         const term = String(query || "").trim().toLowerCase();
@@ -38,7 +41,17 @@ export default function AddLocationModal({
         });
     }, [suggestedLocations, query]);
 
-    // Focus management and scroll lock
+    const savedFiltered = useMemo(() => {
+        if (!Array.isArray(savedLocations)) return [];
+        const term = String(query || "").trim().toLowerCase();
+        if (!term) return savedLocations;
+        return savedLocations.filter((loc) => {
+            const name = String(loc?.name || "").toLowerCase();
+            const city = String(loc?.city || "").toLowerCase();
+            return name.includes(term) || city.includes(term);
+        });
+    }, [savedLocations, query]);
+
     const modalRef = useRef(null);
     const previouslyFocusedElement = useRef(null);
 
@@ -48,39 +61,76 @@ export default function AddLocationModal({
             modalRef.current?.focus();
             document.body.style.overflow = "hidden";
         } else {
-                document.body.style.overflow = "";
-                previouslyFocusedElement.current?.focus();
-            }
-            return () => {
-                document.body.style.overflow = "";
-            };
-            }, [isOpen]);
-    
-        // Close on Escape key
-        useEffect(() => {
+            document.body.style.overflow = "";
+            previouslyFocusedElement.current?.focus();
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [isOpen]);
+
+    useEffect(() => {
         function handleKey(e) {
-            if (e.key === "Escape") {
-            onClose();
-        }}
+            if (e.key === "Escape") onClose();
+        }
         if (isOpen) {
             document.addEventListener("keydown", handleKey);
         }
         return () => {
             document.removeEventListener("keydown", handleKey);
         };
-        }, [isOpen, onClose]);
+    }, [isOpen, onClose]);
 
     if (!isOpen) return null;
 
+    const renderLocationList = (list, keyPrefix = "loc") => (
+        <div className="tt-add-loc-list">
+            {list.map((loc) => {
+                const isAdded = addedIds.has(loc?.id);
+                return (
+                    <div className="tt-add-loc-item" key={`${keyPrefix}-${loc.id}`}>
+                        <div className="tt-add-loc-info">
+                            <div className="tt-add-loc-title">{loc.name}</div>
+                            <div className="tt-add-loc-meta">
+                                {loc.city || "Unknown city"}
+                                {loc.type ? ` - ${loc.type}` : ""}
+                            </div>
+                        </div>
+                        {isAdded ? (
+                            <button
+                                type="button"
+                                className="tt-mini-btn tt-mini-btn-icon tt-mini-btn-danger"
+                                onClick={() => onRemoveLocation?.(loc)}
+                                aria-label={`Remove ${loc.name}`}
+                                title="Remove from day"
+                            >
+                                <DeleteIcon className="tt-mini-icon" />
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                className="tt-mini-btn"
+                                onClick={() => onAddLocation?.(loc)}
+                            >
+                                Add
+                            </button>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+
     return (
-        <div className="tt-trip-overlay"
+        <div
+            className="tt-trip-overlay"
             onClick={onClose}
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
-            >
+        >
             <div className="tt-trip-overlay-panel" onClick={(e) => e.stopPropagation()}>
-                <div className="tt-trip-details-card tt-trip-overlay-card">
+                <div className="tt-trip-details-card tt-trip-overlay-card" ref={modalRef} tabIndex={-1}>
                     <div className="tt-modal-header">
                         <div className="tt-modal-header-left">
                             <h3 id="modal-title" className="tt-modal-title mb-0">
@@ -96,6 +146,7 @@ export default function AddLocationModal({
                             Close
                         </button>
                     </div>
+
                     <div className="tt-modal-body">
                         <div className="tt-add-loc-controls">
                             <label className="tt-form-label" htmlFor="tt-add-location-search">
@@ -111,55 +162,42 @@ export default function AddLocationModal({
                             />
                         </div>
 
-                        {loading && (
+                        <div className="tt-add-loc-tabs" role="tablist" aria-label="Location source">
+                            <button
+                                type="button"
+                                className={`tt-add-loc-tab ${activeTab === "browse" ? "is-active" : ""}`}
+                                role="tab"
+                                aria-selected={activeTab === "browse"}
+                                onClick={() => setActiveTab("browse")}
+                            >
+                                Browse All
+                            </button>
+                            <button
+                                type="button"
+                                className={`tt-add-loc-tab ${activeTab === "saved" ? "is-active" : ""}`}
+                                role="tab"
+                                aria-selected={activeTab === "saved"}
+                                onClick={() => setActiveTab("saved")}
+                            >
+                                Saved
+                            </button>
+                        </div>
+
+                        {activeTab === "browse" && loading && (
                             <p className="tt-empty-note text-muted mb-3">
                                 <span className="tt-teabag-icon" aria-hidden="true"></span>
                                 Loading locations...
                             </p>
                         )}
 
-                        {!loading && suggestedFiltered.length > 0 && (
+                        {activeTab === "browse" && !loading && suggestedFiltered.length > 0 && (
                             <div className="tt-add-loc-suggest">
                                 <div className="tt-add-loc-suggest-title">Suggested for you</div>
-                                <div className="tt-add-loc-list">
-                                    {suggestedFiltered.map((loc) => {
-                                        const isAdded = addedIds.has(loc?.id);
-                                        return (
-                                            <div className="tt-add-loc-item" key={`suggest-${loc.id}`}>
-                                                <div className="tt-add-loc-info">
-                                                    <div className="tt-add-loc-title">{loc.name}</div>
-                                                    <div className="tt-add-loc-meta">
-                                                        {loc.city || "Unknown city"}
-                                                        {loc.type ? ` • ${loc.type}` : ""}
-                                                    </div>
-                                                </div>
-                                                {isAdded ? (
-                                                    <button
-                                                        type="button"
-                                                        className="tt-mini-btn tt-mini-btn-icon tt-mini-btn-danger"
-                                                        onClick={() => onRemoveLocation?.(loc)}
-                                                        aria-label={`Remove ${loc.name}`}
-                                                        title="Remove from day"
-                                                    >
-                                                        <DeleteIcon className="tt-mini-icon" />
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        type="button"
-                                                        className="tt-mini-btn"
-                                                        onClick={() => onAddLocation?.(loc)}
-                                                    >
-                                                        Add
-                                                    </button>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                {renderLocationList(suggestedFiltered, "suggest")}
                             </div>
                         )}
 
-                        {suggestedLoading && (
+                        {activeTab === "browse" && suggestedLoading && (
                             <p className="tt-empty-note text-muted mb-3">
                                 <span className="tt-teabag-icon" aria-hidden="true"></span>
                                 Brewing suggestions...
@@ -174,49 +212,47 @@ export default function AddLocationModal({
                             />
                         )}
 
-                        {!loading && Array.isArray(locations) && locations.length === 0 && (
+                        {activeTab === "browse" && !loading && Array.isArray(locations) && locations.length === 0 && (
                             <WarningBanner
                                 message="No locations match your search. Try a different name or city."
                                 variant="warning"
                             />
                         )}
 
-                        {!loading && Array.isArray(locations) && locations.length > 0 && (
-                            <div className="tt-add-loc-list">
-                                {locations.map((loc) => {
-                                    const isAdded = addedIds.has(loc?.id);
-                                    return (
-                                        <div className="tt-add-loc-item" key={loc.id}>
-                                            <div className="tt-add-loc-info">
-                                                <div className="tt-add-loc-title">{loc.name}</div>
-                                                <div className="tt-add-loc-meta">
-                                                    {loc.city || "Unknown city"}
-                                                    {loc.type ? ` • ${loc.type}` : ""}
-                                                </div>
-                                            </div>
-                                            {isAdded ? (
-                                                <button
-                                                    type="button"
-                                                    className="tt-mini-btn tt-mini-btn-icon tt-mini-btn-danger"
-                                                    onClick={() => onRemoveLocation?.(loc)}
-                                                    aria-label={`Remove ${loc.name}`}
-                                                    title="Remove from day"
-                                                >
-                                                    <DeleteIcon className="tt-mini-icon" />
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    className="tt-mini-btn"
-                                                    onClick={() => onAddLocation?.(loc)}
-                                                >
-                                                    Add
-                                                </button>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                        {activeTab === "browse" && !loading && Array.isArray(locations) && locations.length > 0 && (
+                            renderLocationList(locations)
+                        )}
+
+                        {activeTab === "saved" && isLoggedIn === false && (
+                            <WarningBanner
+                                message="Log in to browse your saved locations."
+                                variant="warning"
+                            />
+                        )}
+
+                        {activeTab === "saved" && isLoggedIn !== false && savedLoading && (
+                            <p className="tt-empty-note text-muted mb-3">
+                                <span className="tt-teabag-icon" aria-hidden="true"></span>
+                                Loading saved locations...
+                            </p>
+                        )}
+
+                        {activeTab === "saved" && savedError && (
+                            <WarningBanner
+                                message={savedError}
+                                variant="warning"
+                            />
+                        )}
+
+                        {activeTab === "saved" && !savedLoading && !savedError && savedFiltered.length === 0 && (
+                            <WarningBanner
+                                message="No saved locations found for this search."
+                                variant="warning"
+                            />
+                        )}
+
+                        {activeTab === "saved" && !savedLoading && !savedError && savedFiltered.length > 0 && (
+                            renderLocationList(savedFiltered, "saved")
                         )}
                     </div>
                 </div>

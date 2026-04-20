@@ -871,6 +871,24 @@
   border-color: rgba(240, 226, 207, 0.13);
 }
 
+:root.tt-dark .tt-add-loc-tabs {
+  background: rgba(240, 226, 207, 0.08);
+}
+
+:root.tt-dark .tt-add-loc-tab {
+  color: rgba(240, 226, 207, 0.78);
+}
+
+:root.tt-dark .tt-add-loc-tab:hover {
+  background: rgba(240, 226, 207, 0.12);
+}
+
+:root.tt-dark .tt-add-loc-tab.is-active {
+  border-color: rgba(240, 226, 207, 0.28);
+  background: rgba(240, 226, 207, 0.18);
+  color: var(--tt-ink);
+}
+
 :root.tt-dark .tt-add-loc-title {
   color: var(--tt-ink);
 }

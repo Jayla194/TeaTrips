@@ -14,7 +14,8 @@ import { Container, Row, Col, Button, OverlayTrigger, Tooltip } from "react-boot
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { apiUrl } from "../utils/api";
-import { getDayColour } from "../utils/dayColours";
+import { getDayColour, getDayStopColour } from "../utils/dayColours";
+import { optimizeItineraryByDayCounts, routeDistanceKm } from "../utils/routeOptimization";
 
 function createBlankItinerary() {
     return {
@@ -67,7 +68,7 @@ function inferCityFromItinerary(data) {
     return "";
 }
 
-function validateBookingWindow(startDate, endDate, options = {}) {
+function validateBooking(startDate, endDate, options = {}) {
     const { allowPastDates = false } = options;
 
     if (!startDate || !endDate) {
@@ -132,6 +133,9 @@ export default function Itinerary() {
     const [locationQuery, setLocationQuery] = useState("");
     const [suggestedLocations, setSuggestedLocations] = useState([]);
     const [suggestedLoading, setSuggestedLoading] = useState(false);
+    const [savedLocations, setSavedLocations] = useState([]);
+    const [savedLocationsLoading, setSavedLocationsLoading] = useState(false);
+    const [savedLocationsError, setSavedLocationsError] = useState("");
     const [showClearConfirm, setShowClearConfirm] = useState(false);
 
     const [tripName, setTripName] = useState("");
@@ -168,6 +172,7 @@ export default function Itinerary() {
         };
     }, []);
 
+    // Short note on different trip builder modes
     const builderHelp = (
         <Tooltip id="tt-itinerary-help" className="tt-help-tooltip">
             <div className="tt-help-tooltip-title">Design your Perfect Trip</div>
@@ -180,6 +185,7 @@ export default function Itinerary() {
         </Tooltip>
     );
 
+    // Loads cached itinerary
     useEffect(() => {
         if (itinerary?.days.length) return;
     const cached = sessionStorage.getItem("cachedItinerary");
@@ -191,6 +197,7 @@ export default function Itinerary() {
         setEndDate(normalizeDateInput(parsed.endDate));
     }}, []);
 
+    // Loads itinerary in edit mode
     useEffect(() => {
         if (!editParam) return;
 
@@ -253,12 +260,14 @@ export default function Itinerary() {
         };
     }, [editParam]);
 
+    // Loads itinerary in read only mode if date already passed
     useEffect(() => {
         if (!editParam) {
             setReadOnlyPastTrip(false);
         }
     }, [editParam]);
 
+    // Loads all locations for add location modal
     useEffect(() => {
         if (!showAddLocation) return;
         if (allLocations.length > 0) return;
@@ -292,6 +301,41 @@ export default function Itinerary() {
         };
     }, [showAddLocation, allLocations.length]);
 
+    // Loads saved locations for add location modal
+    useEffect(() => {
+        if (!showAddLocation) return;
+        if (isLoggedIn !== true) return;
+        if (savedLocations.length > 0) return;
+
+        let cancelled = false;
+        async function loadSavedLocations() {
+            try {
+                setSavedLocationsLoading(true);
+                setSavedLocationsError("");
+                const res = await fetch(apiUrl("/api/saved"), {
+                    credentials: "include",
+                });
+                if (!res.ok) throw new Error("Failed to load saved locations");
+                const data = await res.json();
+                if (!cancelled) {
+                    setSavedLocations(Array.isArray(data) ? data : []);
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setSavedLocationsError(err.message || "Failed to load saved locations");
+                }
+            } finally {
+                if (!cancelled) setSavedLocationsLoading(false);
+            }
+        }
+
+        loadSavedLocations();
+        return () => {
+            cancelled = true;
+        };
+    }, [showAddLocation, isLoggedIn, savedLocations.length]);
+
+    
     useEffect(() => {
         if (!showAddLocation) return;
         setLocationQuery("");
@@ -375,7 +419,7 @@ export default function Itinerary() {
                         : noHotels;
                     setSuggestedLocations(cityFiltered.length > 0 ? cityFiltered : noHotels);
                 }
-            } catch (err) {
+            } catch {
                 if (!cancelled) setSuggestedLocations([]);
             } finally {
                 if (!cancelled) setSuggestedLoading(false);
@@ -408,7 +452,7 @@ export default function Itinerary() {
             return false;
         }
 
-        const dateValidation = validateBookingWindow(formData.startDate, formData.endDate);
+        const dateValidation = validateBooking(formData.startDate, formData.endDate);
         if (!dateValidation.ok) {
             setError(dateValidation.message);
             return false;
@@ -489,7 +533,7 @@ export default function Itinerary() {
             startDate === originalTripDates.startDate &&
             endDate === originalTripDates.endDate;
 
-        const dateValidation = validateBookingWindow(startDate, endDate, {
+        const dateValidation = validateBooking(startDate, endDate, {
             allowPastDates: unchangedLegacyDates,
         });
         if (!dateValidation.ok) {
@@ -657,6 +701,48 @@ export default function Itinerary() {
         setShowAddLocation(true);
     }
 
+    function handleOptimizeRoutes() {
+        if (readOnlyPastTrip) return;
+
+        setItinerary((prev) => {
+            if (!prev || !Array.isArray(prev.days) || prev.days.length === 0) return prev;
+
+            const distanceByDays = (days) =>
+                days.reduce((sum, day) => sum + routeDistanceKm(Array.isArray(day?.stops) ? day.stops : []), 0);
+
+            const nextDays = optimizeItineraryByDayCounts(prev.days, prev?.hotel);
+            const totalBeforeKm = distanceByDays(prev.days);
+            const totalAfterKm = distanceByDays(nextDays);
+            const reducedKm = Math.max(0, totalBeforeKm - totalAfterKm);
+
+            const changedAnyDay = nextDays.some((day, idx) => {
+                const before = Array.isArray(prev.days[idx]?.stops) ? prev.days[idx].stops : [];
+                const after = Array.isArray(day?.stops) ? day.stops : [];
+                if (before.length !== after.length) return true;
+                return after.some((stop, stopIdx) => stop?.id !== before[stopIdx]?.id);
+            });
+
+            setSaveError(null);
+            if (changedAnyDay && reducedKm > 0.01) {
+                setSaveMessage(
+                    `Optimized route and day clustering. Estimated distance reduced by ` +
+                    `${reducedKm.toFixed(1)} km (${totalBeforeKm.toFixed(1)} -> ${totalAfterKm.toFixed(1)} km).`
+                );
+                return { ...prev, days: nextDays };
+            }
+
+            if (changedAnyDay) {
+                setSaveMessage(
+                    "Reordered stops across days (same stop count per day), but total distance stayed similar."
+                );
+                return { ...prev, days: nextDays };
+            }
+
+            setSaveMessage("No shorter route found. This is common with 1-2 stops per day.");
+            return prev;
+        });
+    }
+
     function handleAddLocation(dayNumber, location) {
         if (readOnlyPastTrip) return;
         if (!location || !dayNumber) return;
@@ -765,11 +851,14 @@ export default function Itinerary() {
 
             return day.stops.map((stop,stopIndex) => ({
                 id:`${day.day}-${stopIndex}-${stop?.id??"stop"}`,
+                markerKey: `${day.day}-${stopIndex}-${stop?.id ?? "stop"}`,
                 locationId: stop?.id,
                 name: stop?.name || `Day ${day.day} stop`,
                 lat: stop?.lat,
                 lon: stop.lon,
                 day: day.day, // Used for colour coding markers for each day
+                stopOrder: stopIndex + 1,
+                markerColor: getDayStopColour(day.day, stopIndex, day.stops.length),
             }));
         });
 
@@ -828,6 +917,29 @@ export default function Itinerary() {
 
         return hotels.slice(0, 30);
     }, [allLocations, locationQuery, cityLabel]);
+
+    const filteredSavedLocations = useMemo(() => {
+        if (!Array.isArray(savedLocations)) return [];
+        const term = locationQuery.trim().toLowerCase();
+        const cityFilter = cityLabel ? cityLabel.toLowerCase() : "";
+
+        const filtered = savedLocations.filter((loc) => {
+            if (addingHotel) {
+                if (!isHotelLocation(loc)) return false;
+            } else if (isHotelLocation(loc)) {
+                return false;
+            }
+
+            if (cityFilter && String(loc?.city || "").trim().toLowerCase() !== cityFilter) return false;
+            if (!term) return true;
+
+            const name = String(loc?.name || "").toLowerCase();
+            const locCity = String(loc?.city || "").toLowerCase();
+            return name.includes(term) || locCity.includes(term);
+        });
+
+        return filtered.slice(0, 30);
+    }, [savedLocations, locationQuery, cityLabel, addingHotel]);
 
     return (
         <div className="tt-itinerary-page">
@@ -979,8 +1091,21 @@ export default function Itinerary() {
                                             <Button className="tt-btn tt-btn-primary" onClick={handleAddDay}>
                                                 + Add Day
                                             </Button>
+                                            <Button className="tt-btn tt-btn-secondary" onClick={handleOptimizeRoutes}>
+                                                Optimize routes
+                                            </Button>
+                                            
                                             <Button className="tt-btn tt-btn-secondary" onClick={() => setShowClearConfirm(true)}>
                                                 Clear itinerary
+                                            </Button>
+                                            <Button
+                                                className="tt-btn tt-btn-secondary"
+                                                onClick={handleSaveItinerary}
+                                                disabled={saving || readOnlyPastTrip || isLoggedIn === false}
+                                                title={isLoggedIn === false ? "Login to save" : "Save itinerary"}
+                                            >
+                                                <SaveIcon className="tt-save-icon" />
+                                                {isLoggedIn === false ? "Login to save" : saving ? "Saving..." : "Save"}
                                             </Button>
                                         </div>
                                     )}
@@ -1020,12 +1145,17 @@ export default function Itinerary() {
             />
 
             <AddLocationModal
+                key={`${showAddLocation}-${addDayNumber || "hotel"}-${addingHotel ? "hotel" : "location"}`}
                 isOpen={showAddLocation}
                 dayNumber={addDayNumber}
                 title={addingHotel ? "Add Hotel" : undefined}
                 suggestedLocations={addingHotel ? hotelSuggestions : suggestedLocations}
                 suggestedLoading={addingHotel ? locationsLoading : suggestedLoading}
                 locations={addingHotel ? filteredHotelLocations : filteredLocations}
+                savedLocations={filteredSavedLocations}
+                savedLoading={savedLocationsLoading}
+                savedError={savedLocationsError}
+                isLoggedIn={isLoggedIn}
                 loading={locationsLoading}
                 error={locationsError}
                 onClearError={() => setLocationsError("")}

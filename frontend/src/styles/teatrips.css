@@ -3146,6 +3146,36 @@ body:has(.tt-trp-overlay) .tt-footer {
   margin-bottom: 6px;
 }
 
+.tt-add-loc-tabs {
+  display: inline-flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(139, 90, 60, 0.1);
+}
+
+.tt-add-loc-tab {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(55, 36, 22, 0.8);
+  background: transparent;
+  transition: all 0.18s ease;
+}
+
+.tt-add-loc-tab:hover {
+  background: rgba(139, 90, 60, 0.12);
+}
+
+.tt-add-loc-tab.is-active {
+  border-color: rgba(139, 90, 60, 0.28);
+  background: rgba(139, 90, 60, 0.18);
+  color: var(--tt-ink);
+}
+
 .tt-add-loc-list {
   display: grid;
   gap: 10px;
