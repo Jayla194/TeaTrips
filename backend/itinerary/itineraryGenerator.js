@@ -127,54 +127,77 @@ function matchesInterests(location,interests){
     });
 }
 
-function getInterestBoost(location, interests){
-    if (!Array.isArray(interests) || interests.length === 0) return 1;
-    const tagSet = extractLocationTags(location);
-    const matches = interests.some((label) => {
-        const wanted = INTEREST_TAGS[label] || [];
-        return wanted.some(tag => tagSet.has(tag));
-    });
-    return matches ? 1.5 : 1;
-}
-
 // Check if location is a hotel based on type
 function isHotel(location){
     return String(location?.type || "").toLowerCase() === "hotel";
 }
 
 function generateItinerary(input, allLocations){
-    const { city, days, stopsPerDay, seed } = input;
+    const { city, days, stopsPerDay, seed, interests, savedLocationIds = [] } = input;
     const warnings = [];
-    let effectiveStopsPerDay = stopsPerDay;
 
     if (!Array.isArray(allLocations) || allLocations.length === 0){
         return {
             meta: {city, days, stopsPerDay, seed},
             days: [],
-            warnings:["No Locations available for the selected city"]
+            warnings:["No locations available for the selected city"]
         };
     }
 
-
-
-    let candidates = allLocations.slice();
-    candidates = candidates.filter(loc => !isHotel(loc));
-    
-    const weights = candidates.map((loc) => getPopularityWeight(loc) * getInterestBoost(loc, input.interests));
-
-
-    // Decide how many stops we need
-    const totalStops = days * effectiveStopsPerDay;
     const rand = createSeededRandom(seed ?? Date.now());
-    const selectedLocations = weightedSampleWithoutReplacement(candidates, weights, totalStops, rand);
-    if (candidates.length < totalStops) {
-        effectiveStopsPerDay = Math.ceil(candidates.length / days);
-        warnings.push(`Only found ${candidates.length} locations matching your criteria. Adjusted stops per day to ${effectiveStopsPerDay}.`);
-        
+    const totalStops = days * stopsPerDay;
+
+    // Remove hotels from candidates
+    const candidates = allLocations.filter((loc) => !isHotel(loc));
+    const hasInterests = Array.isArray(interests) && interests.length > 0;
+
+    // Split into matched and unmatched pools
+    const matched = hasInterests
+        ? candidates.filter((loc) => matchesInterests(loc, interests))
+        : candidates;
+    const unmatched = hasInterests
+        ? candidates.filter((loc) => !matchesInterests(loc, interests))
+        : [];
+
+    // Boost saved locations within each pool by increasing their popularity weight
+    const getWeight = (loc) => {
+        const base = getPopularityWeight(loc);
+        const savedBoost = savedLocationIds.includes(loc.id) ? 1.5 : 1;
+        return base * savedBoost;
+    };
+
+    let selectedLocations = [];
+    if (!hasInterests || matched.length === 0) {
+        // No interests selected — just sample from everyone
+        const weights = candidates.map(getWeight);
+        selectedLocations = weightedSampleWithoutReplacement(candidates, weights, totalStops, rand);
+    } else {
+        // Guarantee at least 60% of stops come from interest-matched locations
+        const guaranteedCount = Math.min(
+            Math.floor(totalStops * 0.6),
+            matched.length
+        );
+        const remainingCount = Math.min(
+            totalStops - guaranteedCount,
+            unmatched.length
+        );
+
+        const matchedWeights = matched.map(getWeight);
+        const unmatchedWeights = unmatched.map(getWeight);
+
+        const selectedMatched = weightedSampleWithoutReplacement(matched, matchedWeights, guaranteedCount, rand);
+        const selectedOther = weightedSampleWithoutReplacement(unmatched, unmatchedWeights, remainingCount, rand);
+        selectedLocations = [...selectedMatched, ...selectedOther];
+
+        if (selectedLocations.length < totalStops) {
+            warnings.push(`Only found ${selectedLocations.length} locations matching your criteria.`);
+        }
     }
 
+    // Distribute evenly across days
+    const effectiveStopsPerDay = Math.ceil(selectedLocations.length / days);
 
-    // Group them into days NO heuristic yet
+
     const itineraryDays = [];
     let currentIndex = 0;
 
@@ -211,10 +234,6 @@ function generateItinerary(input, allLocations){
             totalStops: selectedLocations.length,
             seed,
             generatedAt: new Date().toISOString(),
-            method:{
-                selection:"seeded_shuffle_no_preferences",
-                ordering:"none_yet"
-            }
         },
         days: itineraryDays,
         warnings
