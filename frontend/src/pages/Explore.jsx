@@ -9,6 +9,7 @@ import {
   getBirminghamAttractionsMostSaved,
   getManchesterAttractionsMostSaved,
   getHighlyRatedCheapLocations,
+  getHiddenGems,
 } from "../utils/exploreCarousels";
 import { pillMatches } from "../utils/categoryMapping";
 import LocationCard from "../components/LocationCard";
@@ -132,8 +133,15 @@ export default function Explore() {
       setSimilarForYou(null);
       return;
     }
-    const randomIndex = Math.floor(Math.random() * savedLocations.length);
-    setSimilarForYou(savedLocations[randomIndex]);
+
+    // Keep this stable for a full day while still rotating over time.
+    const dayKey = new Date().toISOString().slice(0, 10);
+    let hash = 0;
+    for (let i = 0; i < dayKey.length; i += 1) {
+      hash = (hash * 31 + dayKey.charCodeAt(i)) >>> 0;
+    }
+    const index = hash % savedLocations.length;
+    setSimilarForYou(savedLocations[index]);
   }, [savedLocations]);
 
   // Fetching similar locations based on the random saved location
@@ -142,6 +150,7 @@ export default function Explore() {
     async function loadSimilar() {
       if (!similarForYou) {
         setSimilarLocations([]);
+        setSimilarLoading(false);
         return;
       }
       try {
@@ -170,6 +179,11 @@ export default function Explore() {
   const highlyRatedCheapLocations = useMemo(
     () => getHighlyRatedCheapLocations(popularLocations),
     [popularLocations],
+  );
+
+  const hiddenGems = useMemo(
+    () => getHiddenGems(locations),
+    [locations],
   );
 
   // handles pill selection and toggling
@@ -274,18 +288,17 @@ export default function Explore() {
           {!searchActive ? (
             <>
               {/* Discovery */}
-              {savedLocations.length > 0 && (
-                <LocationCarousel
-                  title={`Because you liked ${similarForYou?.name}`}
-                  locations={similarLocations}
-                  loading={similarLoading}
-                  emptyMessage="Save locations to see similar recommendations here!"
-                />
-              )}
+              <LocationCarousel
+                title={savedLocations.length > 0 ? `Because you liked ${similarForYou?.name}` : "For You"}
+                locations={similarLocations}
+                loading={similarLoading}
+                emptyMessage="Save a few locations to unlock personalized recommendations."
+              />
               <div className="tt-carousel-divider"></div>
               <LocationCarousel
-                title="London Attractions"
-                locations={getLondonAttractionsMostSaved(locations)}
+                title="Hidden Gems"
+                locations={hiddenGems}
+                emptyMessage="We are brewing hidden gems. Check back soon."
               />
               <div className="tt-carousel-divider"></div>
               <LocationCarousel
@@ -294,14 +307,19 @@ export default function Explore() {
               />
               <div className="tt-carousel-divider"></div>
               <LocationCarousel
-                title="Manchester Attractions"
-                locations={getManchesterAttractionsMostSaved(locations)}
+                title="Popular Right Now"
+                // slice top 10 locations based on saved count for the carousel
+                locations={popularLocations.slice(0, 10)}
               />
               <div className="tt-carousel-divider"></div>
               <LocationCarousel
-                title="Popular Locations"
-                // slice top 10 locations based on saved count for the carousel
-                locations={popularLocations.slice(0, 10)}
+                title="London Attractions"
+                locations={getLondonAttractionsMostSaved(locations)}
+              />
+              <div className="tt-carousel-divider"></div>
+              <LocationCarousel
+                title="Manchester Attractions"
+                locations={getManchesterAttractionsMostSaved(locations)}
               />
               <div className="tt-carousel-divider"></div>
               <LocationCarousel
