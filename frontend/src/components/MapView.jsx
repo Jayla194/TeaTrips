@@ -152,6 +152,7 @@ export default function MapView({
                         <Popup>
                             <strong>{location.name}</strong>
                             {location.day ? <div>Day {location.day}</div> : null}
+                            {location.stopOrder ? <div>Stop {location.stopOrder}</div> : null}
                         </Popup>
                     )}
                 </Marker>
