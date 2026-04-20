@@ -15,7 +15,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { apiUrl } from "../utils/api";
 import { getDayColour, getDayStopColour } from "../utils/dayColours";
-import { optimizeItineraryByDayCounts, routeDistanceKm } from "../utils/routeOptimization";
+import { optimiseItineraryByDayCounts, routeDistanceKm } from "../utils/routeOptimisation";
 
 function createBlankItinerary() {
     return {
@@ -710,7 +710,7 @@ export default function Itinerary() {
             const distanceByDays = (days) =>
                 days.reduce((sum, day) => sum + routeDistanceKm(Array.isArray(day?.stops) ? day.stops : []), 0);
 
-            const nextDays = optimizeItineraryByDayCounts(prev.days, prev?.hotel);
+            const nextDays = optimiseItineraryByDayCounts(prev.days, prev?.hotel);
             const totalBeforeKm = distanceByDays(prev.days);
             const totalAfterKm = distanceByDays(nextDays);
             const reducedKm = Math.max(0, totalBeforeKm - totalAfterKm);

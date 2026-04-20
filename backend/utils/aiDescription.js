@@ -4,7 +4,7 @@ const locationModel = require("../models/locationModel");
 const reviewModel = require("../models/reviewModel");
 
 
-// tidy up spacing so the saved text is easier to read.
+// Tidy up spacing so the saved text is easier to read.
 function clean(text) {
     return String(text || "")
         .replace(/\s+/g, " ")
