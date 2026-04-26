@@ -138,6 +138,32 @@
     0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
+:root.tt-dark .tt-btn:disabled,
+:root.tt-dark .tt-btn[disabled] {
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.28),
+    0 4px 10px rgba(0, 0, 0, 0.18) !important;
+  opacity: 0.6;
+  filter: saturate(0.7) brightness(0.92);
+}
+
+:root.tt-dark .tt-btn:disabled:hover,
+:root.tt-dark .tt-btn[disabled]:hover,
+:root.tt-dark .tt-btn:disabled:active,
+:root.tt-dark .tt-btn[disabled]:active {
+  transform: none !important;
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.28),
+    0 4px 10px rgba(0, 0, 0, 0.18) !important;
+}
+
+:root.tt-dark .tt-btn:disabled .tt-save-icon,
+:root.tt-dark .tt-btn[disabled] .tt-save-icon {
+  opacity: 0.6;
+}
+
 :root.tt-dark .tt-btn-primary {
   background: #372618 !important;
   color: var(--tt-ink) !important;
@@ -263,7 +289,7 @@
 
 
 :root.tt-dark .tt-warning-banner {
-  background: linear-gradient(180deg, #d9b185, rgb(158, 118, 75));
+  background: linear-gradient(180deg, #c89a65, #8f653c);
   color: var(--tt-warm-white);
   border-color: rgba(240, 226, 207, 0.28);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -275,6 +301,34 @@
 
 :root.tt-dark .tt-warning-banner .btn-close {
   filter: invert(1) brightness(0.9);
+}
+
+:root.tt-dark .tt-cookie-notice {
+  border-color: rgba(240, 226, 207, 0.28);
+  background: linear-gradient(180deg, #d9b185, rgb(158, 118, 75));
+  color: var(--tt-warm-white);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+:root.tt-dark .tt-cookie-notice::before {
+  display: none;
+}
+
+:root.tt-dark .tt-cookie-notice-close {
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--tt-warm-white);
+  opacity: 0.9;
+  filter: invert(1) brightness(0.9);
+}
+
+:root.tt-dark .tt-cookie-notice-close:hover {
+  background: rgba(255, 255, 255, 0.26);
+  opacity: 1;
+}
+
+:root.tt-dark .tt-footer-note {
+  color: rgba(240, 226, 207, 0.58);
 }
 
 

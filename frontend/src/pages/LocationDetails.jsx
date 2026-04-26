@@ -455,10 +455,10 @@ export default function LocationDetails(){
                 {/* Save Locations Button */}
                 <button className={`tt-btn tt-btn-secondary ${isSaved ? "opacity-100": ""} `}
                 onClick={toggleSave}
-                disabled={saving || isLoggedIn === false}
-                title={isLoggedIn === false ? "Login to save" : isSaved ? "Remove" : "Save"}>
+                disabled={saving || isLoggedIn !== true}
+                title={isLoggedIn !== true ? "Login to save" : isSaved ? "Remove" : "Save"}>
                     <SaveIcon className="tt-save-icon" />
-                    {isLoggedIn === false ? "Login to save" : saving ? "Saving..." : isSaved ? "Saved" : "Save"}
+                    {isLoggedIn !== true ? "Login to save" : saving ? "Saving..." : isSaved ? "Saved" : "Save"}
                 </button>
             </div>
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-1 gap-3">
@@ -623,9 +623,9 @@ export default function LocationDetails(){
                             <button
                                 className="tt-btn"
                                 onClick={() => setReviewOpen(true)}
-                                disabled={isLoggedIn === false || hasSubmittedReview}
+                                disabled={isLoggedIn !== true || hasSubmittedReview}
                             >
-                                {isLoggedIn === false
+                                {isLoggedIn !== true
                                     ? "Login to review"
                                     : hasSubmittedReview
                                     ? "Review submitted"

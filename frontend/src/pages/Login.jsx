@@ -14,7 +14,6 @@ function Login () {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [cookieConsent, setCookieConsent] = useState(false);
 
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -52,10 +51,6 @@ function Login () {
         // Validation
         if (!email || !password) {
             setError("Please fill out all fields")
-            return;
-        }
-        if (!cookieConsent) {
-            setError("Please agree to TeaTrips using an essential cookie to keep you signed in.");
             return;
         }
         try {
@@ -151,19 +146,6 @@ function Login () {
                                     </Form.Group>
                                 </Col>
                             </Row>
-
-                            <Form.Group className="mb-3">
-                                <label className="tt-inline-option tt-cookie-consent d-flex align-items-start gap-2 w-100 mb-0">
-                                    <input
-                                        type="checkbox"
-                                        checked={cookieConsent}
-                                        onChange={(e) => setCookieConsent(e.target.checked)}
-                                    />
-                                    <span className="small">
-                                        I understand TeaTrips uses an essential cookie to keep me signed in and manage my account session.
-                                    </span>
-                                </label>
-                            </Form.Group>
 
                             <div className="tt-form-footer">
                                 <Button className="fw-bold tt-login-btn px-4"

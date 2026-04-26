@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import TopNav from "./components/layout/TopNav";
 import Footer from "./components/layout/Footer";
+import CookieNotice from "./components/layout/CookieNotice";
 
 import Home from "./pages/Home";
 import Register from "./pages/Registration";
@@ -34,6 +35,7 @@ function App() {
         </Routes>
       </main>
 
+      <CookieNotice />
       <Footer />
     </BrowserRouter>
   );

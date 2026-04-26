@@ -39,6 +39,7 @@ export default function Explore() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
   const [popularLocations, setPopularLocations] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
 
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +52,33 @@ export default function Explore() {
   const [similarLoading, setSimilarLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  // Check whether the current user has an active session
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function loadSession() {
+      try {
+        const res = await fetch(apiUrl("/api/auth/user"), {
+          credentials: "include",
+        });
+
+        if (!isCancelled) {
+          setIsLoggedIn(res.ok ? Boolean((await res.json())?.user) : false);
+        }
+      } catch {
+        if (!isCancelled) {
+          setIsLoggedIn(false);
+        }
+      }
+    }
+
+    loadSession();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   //fetch locations
   useEffect(() => {
@@ -106,6 +134,14 @@ export default function Explore() {
 
   // Loading saved Locations
   useEffect(() => {
+    if (isLoggedIn !== true) {
+      setSavedLocations([]);
+      setSimilarForYou(null);
+      setSimilarLocations([]);
+      setSimilarLoading(false);
+      return;
+    }
+
     let isCancelled = false;
     async function loadSaved() {
       try {
@@ -125,7 +161,7 @@ export default function Explore() {
     return () => {
       isCancelled = true;
     };
-  }, []);
+  }, [isLoggedIn]);
 
   // Picking a random location from saved locations to find similar
   useEffect(() => {
@@ -288,13 +324,16 @@ export default function Explore() {
           {!searchActive ? (
             <>
               {/* Discovery */}
-              <LocationCarousel
-                title={savedLocations.length > 0 ? `Because you liked ${similarForYou?.name}` : "For You"}
-                locations={similarLocations}
-                loading={similarLoading}
-                emptyMessage="Save a few locations to unlock personalized recommendations."
-              />
-              <div className="tt-carousel-divider"></div>
+              {isLoggedIn && savedLocations.length > 0 && (
+                <>
+                  <LocationCarousel
+                    title={similarForYou?.name ? `Because you liked ${similarForYou.name}` : "For You"}
+                    locations={similarLocations}
+                    loading={similarLoading}
+                  />
+                  <div className="tt-carousel-divider"></div>
+                </>
+              )}
               <LocationCarousel
                 title="Hidden Gems"
                 locations={hiddenGems}

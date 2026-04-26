@@ -12,6 +12,9 @@ export default function Footer(){
                     <div className="tt-footer-tagline">
                     Travel plans, brewed to perfection
                     </div>
+                    <div className="tt-footer-note">
+                    Cookies help keep you signed in and remember your session.
+                    </div>
                 </div>
 
                 {/* Middle */}
