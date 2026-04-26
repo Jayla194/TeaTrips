@@ -1,14 +1,14 @@
 const reviewModel = require('../models/reviewModel');
 const jwt = require("jsonwebtoken");
 
-function sanitizeCommentForDb(comment) {
+function cleanComment(comment) {
     if (typeof comment !== "string") return comment;
     return comment
         .replace(/\u0000/g, "")
         .replace(/[\u{10000}-\u{10FFFF}]/gu, "");
 }
 
-function isCommentEncodingError(error) {
+function hasCharacterError(error) {
     const code = String(error?.code || "").toUpperCase();
     const msg = String(error?.message || "");
     return code === "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD" || msg.includes("Incorrect string value");
@@ -41,14 +41,14 @@ async function getByLocation(req, res) {
     }
 
     const sort = (req.query.sort || 'recent').toLowerCase();
-    const sortMap = {
+    const sorts = {
         recent: "r.created_at DESC",
         liked: "r.like_count DESC",
         highest: "r.rating DESC",
         lowest: "r.rating ASC"
     };
 
-    const orderBy = sortMap[sort] || sortMap.recent;
+    const orderBy = sorts[sort] || sorts.recent;
 
     try {
         const userId = getUserIdFromToken(req);
@@ -74,7 +74,7 @@ async function getByUser(req, res) {
 async function create(req, res) {
     const userId = req.user.user_id;
     const locationId = Number(req.params.locationId);
-    let { comment, rating } = req.body;
+    let { comment, rating: ratingInput } = req.body;
 
     if (!Number.isInteger(locationId)){
         return res.status(400).json({ error: 'Invalid location ID' });
@@ -92,39 +92,38 @@ async function create(req, res) {
     } else {
         comment = "";
     }
-    const ratingNum = Number(rating);
-    const isHalfStep = Number.isFinite(ratingNum) && Math.round(ratingNum * 2) / 2 === ratingNum;
-    if (!isHalfStep || ratingNum < 0.5 || ratingNum > 5) {
+    const rating = Number(ratingInput);
+    const isValidRating = Number.isFinite(rating) && Math.round(rating * 2) / 2 === rating;
+    if (!isValidRating || rating < 0.5 || rating > 5) {
         return res.status(400).json({ error: 'Rating must be between 0.5 and 5 in 0.5 steps' });
     }
 
     try {
-        let commentToSave = comment;
         let result;
 
         try {
             result = await reviewModel.createReview({
                 user_id: userId,
                 location_id: locationId,
-                comment: commentToSave,
-                rating: ratingNum
+                comment: comment,
+                rating: rating
             });
         } catch (error) {
-            if (!commentToSave || !isCommentEncodingError(error)) {
+            if (!comment || !hasCharacterError(error)) {
                 throw error;
             }
 
-            const sanitizedComment = sanitizeCommentForDb(commentToSave);
-            if (sanitizedComment === commentToSave) {
+            const cleanedComment = cleanComment(comment);
+            if (cleanedComment === comment) {
                 throw error;
             }
 
-            commentToSave = sanitizedComment;
+            comment = cleanedComment;
             result = await reviewModel.createReview({
                 user_id: userId,
                 location_id: locationId,
-                comment: commentToSave,
-                rating: ratingNum
+                comment: comment,
+                rating: rating
             });
         }
 
@@ -152,7 +151,7 @@ async function create(req, res) {
 async function update(req, res) {
     const userId = req.user.user_id;
     const reviewId = Number(req.params.reviewId);
-    let { comment, rating } = req.body;
+    let { comment, rating: ratingInput } = req.body;
     
     if (!Number.isInteger(reviewId)) {
         return res.status(400).json({ error: 'Invalid review ID' });
@@ -177,31 +176,31 @@ async function update(req, res) {
             }
             updateData.comment = typeof comment === 'string' && comment.trim() === "" ? "" : (comment ?? "");
         }
-        if (rating !== undefined) {
-            const ratingNum = Number(rating);
-            const isHalfStep = Number.isFinite(ratingNum) && Math.round(ratingNum * 2) / 2 === ratingNum;
-            if (!isHalfStep || ratingNum < 0.5 || ratingNum > 5) {
+        if (ratingInput !== undefined) {
+            const rating = Number(ratingInput);
+            const isValidRating = Number.isFinite(rating) && Math.round(rating * 2) / 2 === rating;
+            if (!isValidRating || rating < 0.5 || rating > 5) {
                 return res.status(400).json({ error: 'Rating must be between 0.5 and 5 in 0.5 steps' });
             }
-            updateData.rating = ratingNum;
+            updateData.rating = rating;
         }
         
         try {
             await reviewModel.updateReview(reviewId, updateData);
         } catch (error) {
             const hasCommentUpdate = Object.prototype.hasOwnProperty.call(updateData, "comment");
-            if (!hasCommentUpdate || typeof updateData.comment !== "string" || !isCommentEncodingError(error)) {
+            if (!hasCommentUpdate || typeof updateData.comment !== "string" || !hasCharacterError(error)) {
                 throw error;
             }
 
-            const sanitizedComment = sanitizeCommentForDb(updateData.comment);
-            if (sanitizedComment === updateData.comment) {
+            const cleanedComment = cleanComment(updateData.comment);
+            if (cleanedComment === updateData.comment) {
                 throw error;
             }
 
             await reviewModel.updateReview(reviewId, {
                 ...updateData,
-                comment: sanitizedComment,
+                comment: cleanedComment,
             });
         }
 
@@ -212,7 +211,7 @@ async function update(req, res) {
     }
 }
 
-// DELETE /api/reviews/:reviewId (author delete)
+// DELETE /api/reviews/:reviewId (soft delete)
 async function remove(req, res) {
     const userId = req.user.user_id;
     const userRole = req.user.role;
@@ -231,7 +230,7 @@ async function remove(req, res) {
         String(rawVisibility).toLowerCase() === "true";
 
     try {
-        // Admin moderation path: hide/unhide by visibility value.
+        // Admin moderation path
         if (userRole === "admin") {
             const existingAny = await reviewModel.getReviewByIdAny(reviewId);
             if (!existingAny) {

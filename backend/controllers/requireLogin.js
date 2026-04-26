@@ -12,13 +12,13 @@ function requireLogin(req,res,next){
     }
 
     try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const tokenData = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!payload?.user_id) {
+    if (!tokenData?.user_id) {
         return res.status(401).json({ message: "Missing user_id" });
     }
 
-    req.user = { user_id: payload.user_id, role: payload.role };
+    req.user = { user_id: tokenData.user_id, role: tokenData.role };
     next();
     } catch (err) {
         return res.status(401).json({ message: "Invalid login" });

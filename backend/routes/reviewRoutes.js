@@ -16,6 +16,5 @@ router.delete('/:reviewId', requireLogin, reviewController.remove);
 router.post('/:reviewId/like', requireLogin, reviewController.like);
 router.delete('/:reviewId/like', requireLogin, reviewController.unlike);
 
-// admin routes
 
 module.exports = router;

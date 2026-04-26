@@ -6,6 +6,7 @@ import  LocationCarousel from "../components/LocationCarousel";
 import WarningBanner from "../components/WarningBanner";
 import ReviewModal from "../components/reviews/reviewModal";
 import ReviewCard from "../components/reviews/reviewCard";
+import NotFound from "./NotFound";
 import { SaveIcon } from "../components/icons";
 
 
@@ -30,6 +31,7 @@ export default function LocationDetails(){
     const [location, setLocation] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error,setError] = useState("");
+    const [notFound, setNotFound] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(null);
     const [isSaved, setIsSaved] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -58,8 +60,16 @@ export default function LocationDetails(){
             try{
                 setLoading(true);
                 setError("");
+                setNotFound(false);
 
                 const res = await fetch(apiUrl(`/api/locations/${id}`));
+                if (res.status === 404) {
+                    if (!cancelled) {
+                        setLocation(null);
+                        setNotFound(true);
+                    }
+                    return;
+                }
                 if (!res.ok) throw new Error(`Failed to load (${res.status})`);
 
                 const data = await res.json();
@@ -408,6 +418,32 @@ export default function LocationDetails(){
         const num = Number(location?.avg_rating);
         return Number.isFinite(num) ? num : null;
     }, [location?.avg_rating]);
+
+    // Refetch location after reviews load to get updated avg_rating
+    useEffect(() => {
+        if (!reviewsLoading && reviews.length > 0 && location) {
+            let cancelled = false;
+
+            async function refreshLocation() {
+                try {
+                    const res = await fetch(apiUrl(`/api/locations/${id}`));
+                    if (!res.ok) return;
+                    const updated = await res.json();
+                    if (!cancelled) {
+                        setLocation(updated);
+                    }
+                } catch (err) {
+                    // Silent fail - not critical if refresh doesn't work
+                }
+            }
+
+            refreshLocation();
+            return () => {
+                cancelled = true;
+            };
+        }
+    }, [reviewsLoading, reviews.length, location?.id, id]);
+    
     const rating_val = useMemo(() => (avgRatingNum === null ? null : rating(avgRatingNum)), [avgRatingNum]);
     const price = useMemo(()=> priceRating(location?.price_tier),[location?.price_tier]);
     // Use the generated description if we have one, otherwise show the short summary.
@@ -429,6 +465,10 @@ export default function LocationDetails(){
                 </p>
             </div>
         );
+    }
+
+    if (notFound) {
+        return <NotFound />;
     }
 
     if (!location) return null;

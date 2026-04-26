@@ -35,9 +35,9 @@ async function generatePublicItinerary(req, res){
         if (!Number.isFinite(stopsPerDay) || stopsPerDay < 1 || stopsPerDay > 6){
             return res.status(400).json({error:"Stops per day must be a number between 1 and 6."})
         }
-        const LocationsInCity = await getLocationsByCityWithSavedStats(city);
+        const cityLocations = await getLocationsByCityWithSavedStats(city);
         
-        const GeneratorInput = {
+        const generatorInput = {
             city,
             days,
             stopsPerDay,
@@ -45,7 +45,7 @@ async function generatePublicItinerary(req, res){
             includeHotels,
         };
 
-        const itineraryJson = generateItinerary( GeneratorInput, LocationsInCity,);
+        const itineraryJson = generateItinerary(generatorInput, cityLocations);
         let hotel = null;
         if (includeHotels){
                 hotel = await selectHotel({ city, itinerary: itineraryJson });
@@ -60,7 +60,7 @@ async function generatePublicItinerary(req, res){
     }
 }
 
-function normaliseDate(dateStr) {
+function toIsoDate(dateStr) {
     if (!dateStr) return null;
     const date = new Date(`${dateStr}T00:00:00Z`);
     if (Number.isNaN(date.getTime())) return null;
@@ -128,8 +128,8 @@ async function saveItinerary(req, res) {
 
     const tripName = typeof req.body?.tripName === "string" ? req.body.tripName.trim() : "";
     const city = typeof req.body?.city === "string" ? req.body.city.trim() : "";
-    const startDate = normaliseDate(req.body?.startDate);
-    const endDate = normaliseDate(req.body?.endDate);
+    const startDate = toIsoDate(req.body?.startDate);
+    const endDate = toIsoDate(req.body?.endDate);
     const hotelLocationId = Number(req.body?.hotelLocationId);
     const days = Array.isArray(req.body?.days) ? req.body.days : [];
 
@@ -234,7 +234,7 @@ async function listUserItineraries(req, res) {
 }
 
 // Maps database rows to the format needed for itinerary builder
-function mapItineraryRowsToBuilderData(baseItinerary, rows) {
+function buildItineraryData(baseItinerary, rows) {
     const dayMap = new Map();
 
     for (const row of rows) {
@@ -328,7 +328,7 @@ async function getUserItinerary(req, res) {
             }
 
             const rows = await getItineraryStopsWithLocations(itineraryId, conn);
-            return res.json(mapItineraryRowsToBuilderData(baseItinerary, rows));
+            return res.json(buildItineraryData(baseItinerary, rows));
         } finally {
             conn.release();
         }
@@ -345,8 +345,8 @@ async function updateUserItinerary(req, res) {
 
     const tripName = typeof req.body?.tripName === "string" ? req.body.tripName.trim() : "";
     const city = typeof req.body?.city === "string" ? req.body.city.trim() : "";
-    const startDate = normaliseDate(req.body?.startDate);
-    const endDate = normaliseDate(req.body?.endDate);
+    const startDate = toIsoDate(req.body?.startDate);
+    const endDate = toIsoDate(req.body?.endDate);
     const hotelLocationId = Number(req.body?.hotelLocationId);
     const days = Array.isArray(req.body?.days) ? req.body.days : [];
 
@@ -388,8 +388,8 @@ async function updateUserItinerary(req, res) {
             return res.status(404).json({ message: "Itinerary not found" });
         }
 
-        const existingStartDate = normaliseDate(existing.start_date);
-        const existingEndDate = normaliseDate(existing.end_date);
+        const existingStartDate = toIsoDate(existing.start_date);
+        const existingEndDate = toIsoDate(existing.end_date);
 
         if (hasDateAlreadyPassed(existingEndDate || existingStartDate)) {
             await conn.rollback();

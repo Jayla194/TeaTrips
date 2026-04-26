@@ -1,5 +1,4 @@
 // handles saving and unsaving locations for logged-in users
-// handles saving and unsaving locations for logged-in users
 const {
     saveLocation: saveLocationModel,
     unsaveLocation: unsaveLocationModel,
@@ -34,8 +33,8 @@ async function unsaveLocation(req, res) {
     }
 
     try {
-        const result = await unsaveLocationModel(userId, locationId);
-        if (result.affectedRows === 0) {
+        const unsaveResult = await unsaveLocationModel(userId, locationId);
+        if (unsaveResult.affectedRows === 0) {
         return res.status(404).json({ message: "Location not saved" });
         }
         return res.json({ message: "Location removed" });

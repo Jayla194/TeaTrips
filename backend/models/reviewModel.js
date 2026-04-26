@@ -177,7 +177,7 @@ async function getAllReviews(visibility = "visible") {
     return rows;
 }
 
-// Admin: set review visibility (hide/unhide)
+// Admin set review visibility (hide/unhide)
 async function setReviewVisibility(reviewId, isVisible, adminUserId) {
     const visibleFlag = isVisible ? 1 : 0;
     const sql = `
@@ -192,7 +192,7 @@ async function setReviewVisibility(reviewId, isVisible, adminUserId) {
     return result;
 }
 
-// Persist latest visible-review average into locations.avg_rating
+// Persist latest visible-review average into locations avg_rating
 async function refreshLocationAverageRating(locationId) {
     const sql = `
         UPDATE locations l

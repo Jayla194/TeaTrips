@@ -65,17 +65,17 @@ async function getPopularLocations(req, res) {
 // Get similar locations api/locations/id/similar
 async function getSimilarLocations(req, res) {
     try {
-        const id = req.params.id;
+        const locationId = req.params.id;
         const limit = Math.max(1, Math.min(20, parseInt(req.query.limit, 10) || 6));
-        const current = await locationModel.getLocationById(id);
+        const currentLocation = await locationModel.getLocationById(locationId);
 
-        if (!current) {
+        if (!currentLocation) {
             return res.status(404).json({ error: "location not found" });
         }
 
         const allLocations = await locationModel.getAllLocations();
-        const similar = similarLocations(current, allLocations, limit);
-        res.json(similar);
+        const similarResults = similarLocations(currentLocation, allLocations, limit);
+        res.json(similarResults);
     }catch (err){
         res.status(500).json({error:"database error"});
     }
@@ -115,7 +115,7 @@ async function createLocation(req, res) {
 
         let lat = Number(req.body?.lat);
         let lon = Number(req.body?.lon);
-        let geocodeSource = "manual";
+        let coordinatesSource = "manual";
 
         if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
             const geocoded = await geocodeLocation({ name, address, city, postcode });
@@ -128,7 +128,7 @@ async function createLocation(req, res) {
 
             lat = geocoded.lat;
             lon = geocoded.lon;
-            geocodeSource = "nominatim";
+            coordinatesSource = "nominatim";
         }
 
         const payload = {
@@ -160,7 +160,7 @@ async function createLocation(req, res) {
             location: {
                 ...payload,
                 id,
-                geocodeSource,
+                geocodeSource: coordinatesSource,
             },
         });
     } catch (err) {

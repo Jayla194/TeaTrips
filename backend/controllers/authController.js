@@ -49,7 +49,7 @@ function setCookie(res, payload){
 exports.register = async (req, res) => {
     try {
         const { first_name, last_name, email, password} = req.body;
-        const normEmail = email?.trim().toLowerCase();
+        const cleanEmail = email?.trim().toLowerCase();
         const firstName = typeof first_name === "string" ? first_name.trim() : "";
         const lastName = typeof last_name === "string" ? last_name.trim() : "";
 
@@ -63,12 +63,12 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: lastNameError });
         }
 
-        if (!normEmail || !password) {
+        if (!cleanEmail || !password) {
             return res.status(400).json({ message: "Email and password are required" });
         }
 
-        const exists = await findUserIdByEmail(normEmail);
-        if (exists.length) {
+        const existingUsers = await findUserIdByEmail(cleanEmail);
+        if (existingUsers.length) {
             return res.status(409).json({message:"Email already in use"});
         }
 
@@ -77,7 +77,7 @@ exports.register = async (req, res) => {
         const result = await createUser({
             first_name: firstName,
             last_name: lastName,
-            email: normEmail,
+            email: cleanEmail,
             password_hash,
             role: "user",
         });
@@ -89,7 +89,7 @@ exports.register = async (req, res) => {
                 user_id: result.insertId,
                 first_name: firstName,
                 last_name: lastName,
-                email: normEmail,
+                email: cleanEmail,
                 role: "user",
             },
         });
@@ -103,15 +103,15 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     try{
         const {email, password} = req.body;
-        const normEmail = email?.trim().toLowerCase();
+        const cleanEmail = email?.trim().toLowerCase();
 
-        const user = await findUserByEmail(normEmail);
+        const user = await findUserByEmail(cleanEmail);
         if (!user){
             return res.status(401).json({message:"Invalid Email or Password"})
         }
 
-        const ok = await bcrypt.compare(password,user.password_hash);
-        if (!ok){
+        const passwordMatches = await bcrypt.compare(password,user.password_hash);
+        if (!passwordMatches){
             return res.status(401).json({message:"Invalid Email or Password"})
         }
 
@@ -173,8 +173,8 @@ exports.changePassword = async (req, res) => {
         const user = await findUserAuthById(payload.user_id);
         if (!user) return res.status(401).json({ message: "Not logged in" });
 
-        const ok = await bcrypt.compare(currentPassword, user.password_hash);
-        if (!ok) {
+        const passwordMatches = await bcrypt.compare(currentPassword, user.password_hash);
+        if (!passwordMatches) {
             return res.status(401).json({ message: "Current password is incorrect" });
         }
 
