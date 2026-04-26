@@ -145,10 +145,13 @@ CREATE TABLE IF NOT EXISTS review_likes (
 -- Import CSV
 
 -- Make sure `locations.csv` is placed in a `data` folder relative to this file.
--- Uncomment to run:
+-- Uncomment the block you want to run.
 
 -- Location Table
 
+-- SET FOREIGN_KEY_CHECKS = 0;
+-- TRUNCATE TABLE locations;
+-- SET FOREIGN_KEY_CHECKS = 1;
 -- LOAD DATA LOCAL INFILE './data/locations.csv'
 -- INTO TABLE locations
 -- FIELDS TERMINATED BY ',' 
@@ -160,6 +163,9 @@ CREATE TABLE IF NOT EXISTS review_likes (
 
 -- User Table
 
+-- SET FOREIGN_KEY_CHECKS = 0;
+-- TRUNCATE TABLE users;
+-- SET FOREIGN_KEY_CHECKS = 1;
 -- LOAD DATA LOCAL INFILE './data/users.csv'
 -- INTO TABLE users
 -- FIELDS TERMINATED BY ','
@@ -167,5 +173,89 @@ CREATE TABLE IF NOT EXISTS review_likes (
 -- LINES TERMINATED BY '\n'
 -- IGNORE 1 ROWS;
 -- (user_id, first_name, last_name, email, password_hash, role);
+
+
+-- Saved Locations Table
+
+-- SET FOREIGN_KEY_CHECKS = 0;
+-- TRUNCATE TABLE saved_locations;
+-- SET FOREIGN_KEY_CHECKS = 1;
+-- LOAD DATA LOCAL INFILE './data/saved_locations.csv'
+-- INTO TABLE saved_locations
+-- FIELDS TERMINATED BY ','
+-- ENCLOSED BY '"'
+-- LINES TERMINATED BY '\n'
+-- IGNORE 1 ROWS
+-- (id, user_id, location_id, created_at);
+
+
+-- Itineraries Table
+
+-- SET FOREIGN_KEY_CHECKS = 0;
+-- TRUNCATE TABLE itineraries;
+-- SET FOREIGN_KEY_CHECKS = 1;
+-- LOAD DATA LOCAL INFILE './data/itineraries.csv'
+-- INTO TABLE itineraries
+-- FIELDS TERMINATED BY ','
+-- ENCLOSED BY '"'
+-- LINES TERMINATED BY '\n'
+-- IGNORE 1 ROWS
+-- (itinerary_id, user_id, trip_name, city, start_date, end_date, hotel_location_id, created_at, updated_at);
+
+
+-- Itinerary Days Table
+
+-- SET FOREIGN_KEY_CHECKS = 0;
+-- TRUNCATE TABLE itinerary_days;
+-- SET FOREIGN_KEY_CHECKS = 1;
+-- LOAD DATA LOCAL INFILE './data/itinerary_days.csv'
+-- INTO TABLE itinerary_days
+-- FIELDS TERMINATED BY ','
+-- ENCLOSED BY '"'
+-- LINES TERMINATED BY '\n'
+-- IGNORE 1 ROWS
+-- (itinerary_day_id, itinerary_id, day_number, trip_date);
+
+
+-- Itinerary Stops Table
+
+-- SET FOREIGN_KEY_CHECKS = 0;
+-- TRUNCATE TABLE itinerary_stops;
+-- SET FOREIGN_KEY_CHECKS = 1;
+-- LOAD DATA LOCAL INFILE './data/itinerary_stops.csv'
+-- INTO TABLE itinerary_stops
+-- FIELDS TERMINATED BY ','
+-- ENCLOSED BY '"'
+-- LINES TERMINATED BY '\n'
+-- IGNORE 1 ROWS
+-- (stop_id, itinerary_day_id, location_id, stop_position, start_time, end_time, notes);
+
+
+-- Reviews Table
+
+-- SET FOREIGN_KEY_CHECKS = 0;
+-- TRUNCATE TABLE reviews;
+-- SET FOREIGN_KEY_CHECKS = 1;
+-- LOAD DATA LOCAL INFILE './data/reviews.csv'
+-- INTO TABLE reviews
+-- FIELDS TERMINATED BY ';'
+-- ENCLOSED BY '"'
+-- LINES TERMINATED BY '\n'
+-- IGNORE 1 ROWS
+-- (review_id, user_id, location_id, rating, comment, like_count, created_at, is_visible, deleted_at);
+
+
+-- Review Likes Table
+
+-- SET FOREIGN_KEY_CHECKS = 0;
+-- TRUNCATE TABLE review_likes;
+-- SET FOREIGN_KEY_CHECKS = 1;
+-- LOAD DATA LOCAL INFILE './data/review_likes.csv'
+-- INTO TABLE review_likes
+-- FIELDS TERMINATED BY ','
+-- ENCLOSED BY '"'
+-- LINES TERMINATED BY '\n'
+-- IGNORE 1 ROWS
+-- (review_id, user_id, created_at);
 
  

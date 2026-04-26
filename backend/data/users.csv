@@ -1,8 +1,25 @@
-﻿user_id,first_name,last_name,email,password_hash,role
-0,Jayla,Green,jayla@test.com,$2b$10$cMTciufOHLyV6fo7hH8z4eod8Pjc7wyE7Cs5/Q4QpuDwxNf6eMmoS,user
-1,Admin,User,Admin@email.com,$2b$10$cMTciufOHLyV6fo7hH8z4eod8Pjc7wyE7Cs5/Q4QpuDwxNf6eMmoS,admin
-2,Jude,Duarte,Jude@gmail.com,$2b$10$cMTciufOHLyV6fo7hH8z4eod8Pjc7wyE7Cs5/Q4QpuDwxNf6eMmoS,user
-4,Jayla,Green,jayla194green@gmail.com,$2b$10$AXZ4i1tOmMnfl7OlY4CNeefwosBIZcp34oo.cLtJP7KFb/xFs6B7i,user
-7,Henry,Castillo,HCastle@gmail.com,$2b$10$ZZ10N6eCRxNex.XWvBeuAejqWu2BcBaeOwEpyQxc9QCoMBtd1mkSy,user
-8,Isla,Fields,Nature@yahoo.co.uk,$2b$10$q.XImWGU6xMdsp2998Ojg.2mSwmXMsq6o5OzZ1H4s7i.XH9m4utGe,user
-9,Chloe,Summers,chloe.summers@testmai.com,$2b$10$.tXbPQJrnPievtGEH7kpo.B3EH.n082yutHTAEWH69KFqaBkijeWO,user
+"user_id","first_name","last_name","email","password_hash","role","created_at"
+1,"Jayla","Green","jayla@test.com","$2b$10$cMTciufOHLyV6fo7hH8z4eod8Pjc7wyE7Cs5/Q4QpuDwxNf6eMmoS","user","2026-04-15 15:58:27"
+2,"Admin","User","admin@email.com","$2b$10$AXZ4i1tOmMnfl7OlY4CNeefwosBIZcp34oo.cLtJP7KFb/xFs6B7i","admin","2026-04-15 15:58:27"
+3,"Jude","Duarte","jude@gmail.com","$2b$10$cMTciufOHLyV6fo7hH8z4eod8Pjc7wyE7Cs5/Q4QpuDwxNf6eMmoS","user","2026-04-15 15:58:27"
+4,"Jayla","Green","jayla194green@gmail.com","$2b$10$AXZ4i1tOmMnfl7OlY4CNeefwosBIZcp34oo.cLtJP7KFb/xFs6B7i","user","2026-04-15 15:58:27"
+5,"John","Smith","johnsmith@email.com","$2b$10$Vi6d/bBE4viVdxJkquFuZOFVMhCwNPizIg0BAtP7eOD4UaYfuAHnq","user","2026-04-15 15:58:27"
+6,"Bob","Lane","bob@email.com","$2b$10$eS17JqPbjAxHaGMZR96v5OpkzvKbzER/XTqrh07HMi8QXKthppvOK","user","2026-04-15 15:58:27"
+7,"Henry","Castillo","hcastle@gmail.com","$2b$10$ZZ10N6eCRxNex.XWvBeuAejqWu2BcBaeOwEpyQxc9QCoMBtd1mkSy","user","2026-04-15 15:58:27"
+8,"Isla","Fields","nature@yahoo.co.uk","$2b$10$q.XImWGU6xMdsp2998Ojg.2mSwmXMsq6o5OzZ1H4s7i.XH9m4utGe","user","2026-04-15 15:58:27"
+9,"Chloe","Summers","chloe.summers@testmai.com","$2b$10$.tXbPQJrnPievtGEH7kpo.B3EH.n082yutHTAEWH69KFqaBkijeWO","user","2026-04-15 15:58:27"
+10,"Jayla","Green","test@email.com","$2b$10$OAMvK/HQ2ykzyxX/dVplFuVjMEv0uHIUU9ZWHiQ/BTrGnGx2Fz16y","user","2026-04-15 15:58:27"
+11,"Matthias","Heintz","mmh21@leicester.ac.uk","$2b$10$KTJquhdPMXyvr8qbVsSbpOJM/VJZGQr/AtKt/E7JWzm3hf3kFv0ja","user","2026-04-15 15:58:27"
+12,"Harry","Potter","imawizard@gmail.com","$2b$10$i4qqmMZP3WnoQc0D2Jhyq.d.iZvfE7uAvphdZs/.Fuu8QHgOnpku6","user","2026-04-15 15:58:27"
+13,"dani","ella","danimillie2004@gmail.com","$2b$10$cCWX1quda1yYAXGb5if78.Nn5B87Tofc5igM.y9IksLVQtMbWKb9u","user","2026-04-15 15:58:27"
+14,"Charlotte","Gallo","charlotte@gmail.com","$2b$10$1NySlTwDDR.I0kjRiTSb0.njpTKA.9Vt9J5iaddSol6P4xCGvQF2S","user","2026-04-17 09:22:36"
+15,"James","Smith","jamiesmith@gmail.com","$2b$10$11TbX61/hwPxant85.ktbOUWinpPtqJZVX02.H0yb5AoMSojqztwm","user","2026-04-17 19:27:09"
+16,"Rubber","Dinghy","rubberdinghyrapids@gmail.com","$2b$10$dW/KPqVKOE4A31.JHs.5FeCek8wT0r85kn4bmvHcMfU4AUMv3DdI6","user","2026-04-18 12:29:54"
+17,"Bethany","Jones","bethanyamber133@gmail.com","$2b$10$51Hh0xFaHc4W7PrVols9a.cI4Q4mTByUPWqzE.oglbds4GLUtAWn.","user","2026-04-19 13:11:34"
+18,"Lucy","Lucy","????@gmail.com","$2b$10$uLon6F84IPoFp48nGUITUuTnNAGpypg/E9jGpz7Cddqw7V862ek9a","user","2026-04-19 15:00:56"
+19,"Petal","Jay","petal@gmail.com","$2b$10$6CzPzhUElsdTYfyq42TJTe61ywcUqqRGS2SBoDSNGlMGiD0fYlBce","user","2026-04-19 15:46:03"
+20,"Ninja","Unicorn","hayleygreen83@hotmail.com","$2b$10$M2GUsJ6ysq4l7Np1gOgJCOhpB1RuTUz9kB01fCMI32CLouHw51ZVq","user","2026-04-19 18:10:15"
+21,"Geraldina","Spottina","geraldinaspottina@coconuts.com","$2b$10$tIJKJsyXAIc/xlJGhUY/.ux3QHmZ1db3D5tZI1AJsRfCBV7aMqMoa","user","2026-04-19 18:41:08"
+22,"suzanne","wildman","suzannewildman@btinternet.com","$2b$10$Ri/4Stwu6sB2PDSnnpt8tuQnFQTBLvF7Yij0E1ddSQj3Pph74I10q","user","2026-04-20 07:32:15"
+23,"Kat","Kat","kateg610@gmail.com","$2b$10$MY/coL0BgfxfZfQr9MGN7.9waK6nhwQpVxYTr2LIJzS9osIcGf20O","user","2026-04-20 12:56:43"
+24,"Anisha","C","kdjfhhsgdkjh@gmail.com","$2b$10$g2T3.iPTNomNU0LjHrYO9ee054RsSfnQDLr060Lxup7COOiMNStIO","user","2026-04-22 20:59:03"
