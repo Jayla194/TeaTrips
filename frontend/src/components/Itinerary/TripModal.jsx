@@ -4,6 +4,7 @@ import Select from "react-select";
 import { itineraryPreferences } from "../../utils/categoryMapping";
 import { apiUrl } from "../../utils/api";
 import DatePicker from "react-datepicker";
+import { createPortal } from "react-dom";
 import WarningBanner from "../WarningBanner";
 
 function formatLocalDate(date) {
@@ -33,6 +34,8 @@ export default function TripModal({ isOpen, onClose, onGenerate, errorMessage, o
 
     const modalRef = useRef(null);
     const previouslyFocusedElement = useRef(null);
+
+    const PopperContainer = ({ children }) => createPortal(children, document.body);
 
     const today = useMemo(() => {
         const now = new Date();
@@ -219,6 +222,8 @@ export default function TripModal({ isOpen, onClose, onGenerate, errorMessage, o
                                         placeholderText="Select date"
                                         className="tt-form-input tt-date-input"
                                         calendarClassName="tt-datepicker"
+                                        popperClassName="tt-trip-datepicker-popper"
+                                        popperContainer={PopperContainer}
                                         showPopperArrow={false}
                                     />
                                 </div>
@@ -234,6 +239,8 @@ export default function TripModal({ isOpen, onClose, onGenerate, errorMessage, o
                                         placeholderText="Select date"
                                         className="tt-form-input tt-date-input"
                                         calendarClassName="tt-datepicker"
+                                        popperClassName="tt-trip-datepicker-popper"
+                                        popperContainer={PopperContainer}
                                         showPopperArrow={false}
                                     />
                                 </div>

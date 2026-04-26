@@ -1,32 +1,64 @@
 const { getHotelsByCity } = require("../models/locationModel");
 
-// Stack Overflow (2020). Seeding the random number generator in JavaScript.
-// Available at: https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
+// Picks a hotel for the given city by minimizing average distance to all stops
 
-function createSeededRandom(seed){
-    let internalState = seed >>> 0;
-
-    return function random(){
-        internalState += 0x6D2B79F5;
-
-        let temp = internalState;
-        temp = Math.imul(temp ^ (temp >>> 15), temp | 1);
-        temp ^= temp + Math.imul(temp ^ (temp >>> 7), temp | 61);
-
-        return ((temp ^ (temp >>> 14)) >>> 0) /  4294967296;
-    };
+// Converts lat and lon to a coordinate
+function toPoint(x) {
+    const lat = Number(x?.lat);
+    const lon = Number(x?.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    return { lat, lon };
 }
 
+// Calculates distance between 2 points
+function haversineDistanceKm(a, b) {
+    const toRadians = (degrees) => (degrees * Math.PI) / 180;
+    const earthRadiusKm = 6371;
 
+    const dLat = toRadians(b.lat - a.lat);
+    const dLon = toRadians(b.lon - a.lon);
+    const lat1 = toRadians(a.lat);
+    const lat2 = toRadians(b.lat);
 
-async function selectHotel({ city, itinerary, seed }) {
+    const h =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    return 2 * earthRadiusKm * Math.asin(Math.sqrt(h));
+}
+
+// Selects the best hotel for the given city and itinerary
+async function selectHotel({ city, itinerary }) {
     const hotels = await getHotelsByCity(city);
     if (!hotels.length) return null;
 
-    const random = createSeededRandom(seed ?? itinerary?.meta?.seed ?? Date.now());
-    const index = Math.floor(random() * hotels.length);
-    return hotels[index];
-}
+    const allStops = itinerary?.days?.flatMap((day) => day?.stops ?? []) ?? [];
 
+    const geoStops = allStops.map(toPoint).filter(Boolean);
+    if (geoStops.length === 0) {
+        return hotels[0];
+    }
+
+    let bestHotel = null;
+    let bestScore = null;
+
+    for (const hotel of hotels) {
+        const hotelPoint = toPoint(hotel);
+        if (!hotelPoint) continue;
+
+        let totalDistance = 0;
+        for (const stopPoint of geoStops) {
+            totalDistance += haversineDistanceKm(hotelPoint, stopPoint);
+        }
+
+        const avgDistance = totalDistance / geoStops.length;
+        if (bestScore === null || avgDistance < bestScore) {
+            bestScore = avgDistance;
+            bestHotel = hotel;
+        }
+    }
+
+    return bestHotel ?? hotels[0];
+}
 
 module.exports = { selectHotel };

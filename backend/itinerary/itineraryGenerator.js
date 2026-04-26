@@ -8,64 +8,16 @@ const INTEREST_TAGS = {
     "Nature": ["nature", "park"],
 };
 
-
-
-// Notes:
-// Find difference between start date and end date for num of days
-// Calculate total locations needed for each day
-// filter locations by city
-// fill remaining slots with non-saved locations
-// distribute locations evenly across days
-// return itinerary object
-
-
-
-
-// Stack Overflow (2020). Seeding the random number generator in JavaScript.
-// Available at: https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
-
-function createSeededRandom(seed){
-    let internalState = seed >>> 0;
-
-    return function random(){
-        internalState += 0x6D2B79F5;
-
-        let temp = internalState;
-        temp = Math.imul(temp ^ (temp >>> 15), temp | 1);
-        temp ^= temp + Math.imul(temp ^ (temp >>> 7), temp | 61);
-
-        return ((temp ^ (temp >>> 14)) >>> 0) /  4294967296;
-    };
-}
-
-// Shuffle Locations in a controlled random way based on random seed#
-function shuffleWithSeed(array, seed){
-    const random = createSeededRandom(seed);
-
-    const shuffled = array.slice();
-
-    for(let i = shuffled.length -1; i> 0; i--){
-        const j = Math.floor(random() * (i+1));
-
-        const temp = shuffled [i];
-        shuffled[i] = shuffled[j];
-        shuffled[j] = temp;
-    }
-    return shuffled;
-}
-
-
-// Weighted sampling without replacement based on popularity weight and user interests
 function weightedSampleWithoutReplacement(items, weights, sampleSize, rand){
     const selected = [];
     const itemsCopy = items.slice();
     const weightsCopy = weights.slice();
     
-    // If weights are all zero (e.g. no ratings/saves), fallback to uniform random selection
+    // If weights are all zero then use uniform sampling
     for (let k = 0; k < sampleSize && itemsCopy.length > 0; k++){
         const totalWeight = weightsCopy.reduce((sum, w) => sum + w, 0);
         if (totalWeight <= 0) {
-            // uniform pick
+            // uniform random
             const idx = Math.floor(rand() * itemsCopy.length);
             selected.push(itemsCopy[idx]);
             itemsCopy.splice(idx, 1);
@@ -133,18 +85,18 @@ function isHotel(location){
 }
 
 function generateItinerary(input, allLocations){
-    const { city, days, stopsPerDay, seed, interests, savedLocationIds = [] } = input;
+    const { city, days, stopsPerDay, interests, savedLocationIds = [] } = input;
     const warnings = [];
 
     if (!Array.isArray(allLocations) || allLocations.length === 0){
         return {
-            meta: {city, days, stopsPerDay, seed},
+            meta: { city, days, stopsPerDay },
             days: [],
             warnings:["No locations available for the selected city"]
         };
     }
 
-    const rand = createSeededRandom(seed ?? Date.now());
+    const rand = Math.random;
     const totalStops = days * stopsPerDay;
 
     // Remove hotels from candidates
@@ -168,7 +120,7 @@ function generateItinerary(input, allLocations){
 
     let selectedLocations = [];
     if (!hasInterests || matched.length === 0) {
-        // No interests selected — just sample from everyone
+        // No interests selected
         const weights = candidates.map(getWeight);
         selectedLocations = weightedSampleWithoutReplacement(candidates, weights, totalStops, rand);
     } else {
@@ -232,7 +184,6 @@ function generateItinerary(input, allLocations){
             days,
             stopsPerDay: effectiveStopsPerDay,
             totalStops: selectedLocations.length,
-            seed,
             generatedAt: new Date().toISOString(),
         },
         days: itineraryDays,

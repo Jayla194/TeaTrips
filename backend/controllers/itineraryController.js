@@ -1,8 +1,4 @@
-// Connector between database, generator and response
-// Controller Reads Request, Validates Input, Fetches the Data, Calls Generator and returns a JSON
-
 const { generateItinerary } = require("../itinerary/itineraryGenerator");
-const { getLocationsByCity } = require("../models/locationModel");
 const { selectHotel } = require("../itinerary/hotelSelector");
 const db = require("../config/db");
 const {
@@ -18,29 +14,17 @@ const {
 } = require("../models/itineraryModel");
 const { getLocationsByCityWithSavedStats } = require("../models/locationModel");
 
-
-// For logged out users with no preferences
 async function generatePublicItinerary(req, res){
     try {
-        // Reads input from frontend
         const cityInput = req.body.city;
         const daysInput = req.body.days;
-        const seedInput = req.body.seed;
         const stopsPerDayInput = req.body.stopsPerDay;
         const interests = Array.isArray(req.body.interests) ? req.body.interests : [];
-        // Default to true unless user sets to false
         const includeHotels = Boolean(req.body.includeHotels !== false);
-        
-        // Used Later
-        const budget = req.body.budget;
 
-
-        // Validate Input
         const city = typeof cityInput === "string" ? cityInput.trim() : "";
         const days = Number(daysInput);
         const stopsPerDay = Number(stopsPerDayInput);
-        // If no seed provided, create one to generate something different
-        const seed = seedInput ? Number(seedInput) : Math.floor(Math.random()* 1000000);
         
         if (!city){
             return res.status(400).json({error:"Please provide a city."});
@@ -51,26 +35,20 @@ async function generatePublicItinerary(req, res){
         if (!Number.isFinite(stopsPerDay) || stopsPerDay < 1 || stopsPerDay > 6){
             return res.status(400).json({error:"Stops per day must be a number between 1 and 6."})
         }
-        // Fetch all locations in specified city with saved count
         const LocationsInCity = await getLocationsByCityWithSavedStats(city);
         
-        // Call generator
         const GeneratorInput = {
             city,
             days,
             stopsPerDay,
-            seed,
             interests,
             includeHotels,
         };
 
-        // Return itinerary json to frontend
         const itineraryJson = generateItinerary( GeneratorInput, LocationsInCity,);
-
-        // Include hotel recommendation if requested by user
         let hotel = null;
         if (includeHotels){
-                hotel = await selectHotel({city, itinerary:itineraryJson, seed});
+                hotel = await selectHotel({ city, itinerary: itineraryJson });
         }
         
         return res.json({ ...itineraryJson, hotel });
@@ -239,7 +217,7 @@ async function saveItinerary(req, res) {
     }
 }
 
-// Profile page - list of user's saved itineraries with basic info
+// Profile page - list of user's saved itineraries
 async function listUserItineraries(req, res) {
     const userId = req.user?.user_id;
     if (!userId) {

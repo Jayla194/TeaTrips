@@ -5,7 +5,6 @@ const MODEL = "gemma-3-4b-it";
 
 async function generateText(prompt) {
     try {
-        // This sends the prompt to Gemini and asks for one response.
         const res = await axios.post(
             `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
             {
@@ -22,7 +21,7 @@ async function generateText(prompt) {
             }
         );
 
-        // Pull the first text block out of Gemini's response.
+        // Pull the first text block from response
         const text = res.data.candidates?.[0]?.content?.parts
             ?.map((part) => part?.text || "")
             .join("")

@@ -1,7 +1,7 @@
 const axios = require("axios");
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
 
-// Build a query string from non-empty values
+// Build a query string from values
 function buildQuery(parts) {
     return parts
         .map((part) => String(part || "").trim())
@@ -10,8 +10,8 @@ function buildQuery(parts) {
 }
 
 function getQueryVariants({ name, address, city, postcode }) {
-    // Try most-specific first, then progressively simpler fallbacks.
-    // This improves match rates when one field is noisy or formatted oddly.
+    // Try most-specific first, then progressively simpler fallbacks
+    // This improves match rates
     return [
         buildQuery([name, address, city, postcode]),
         buildQuery([address, city, postcode]),
@@ -31,7 +31,7 @@ async function geocodeLocation({ name, address, city, postcode }) {
     }
 
     for (const query of queries) {
-        // Nominatim returns an array of candidates; we use the top match.
+        //  Use the top match returned
         const response = await axios.get(NOMINATIM_URL, {
             params: {
                 q: query,

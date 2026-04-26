@@ -1,24 +1,16 @@
-/* ============================================================
-   TeaTrips — Dark Espresso Mode
-   Apply by toggling class "tt-dark" on the <html> element
-   ============================================================ */
-
 :root.tt-dark {
-  /* Core palette — stepped lightness so each surface layer is readable */
-  --tt-bg:           #1c1309;   /* page background  */
+  --tt-bg:           #1c1309;
   --tt-nav:          rgba(82, 56, 38, 0.96);
   --tt-ink:          #f0e2cf;
-  --tt-cream:        #2a1d12;   /* headers/accented surfaces */
-  --tt-card:         #2e2016;   /* cards sit on top of bg  */
+  --tt-cream:        #2a1d12;
+  --tt-card:         #2e2016;
   --tt-border:       rgba(240, 226, 207, 0.13);
-  --tt-warm-white:   #261a10;   /* inputs / inner surfaces  */
+  --tt-warm-white:   #261a10;
 
-  /* Shadows */
   --tt-shadow-light:  rgba(0, 0, 0, 0.30);
   --tt-shadow-medium: rgba(0, 0, 0, 0.45);
   --tt-shadow-heavy:  rgba(0, 0, 0, 0.60);
 
-  /* Accent colours */
   --tt-accent:        #d29a41;
   --tt-accent-muted:  rgba(210, 154, 65, 0.25);
 }
@@ -32,7 +24,6 @@
   color: var(--tt-ink);
 }
 
-/* Subtle noise / grain overlay — replaces the light-mode white dots */
 :root.tt-dark body::before {
   background-image:
     radial-gradient(circle at 12% 8%,  rgba(255,200,120,0.04) 0 2px, transparent 3px),
@@ -322,7 +313,6 @@
 }
 
 :root.tt-dark .tt-how-icon {
-  /* Invert to warm cream in dark mode */
   filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(600%) hue-rotate(340deg) brightness(98%);
 }
 
@@ -567,7 +557,6 @@
   background: rgba(240, 226, 207, 0.04);
 }
 
-/* Select wrap arrow — light version for dark bg */
 :root.tt-dark .tt-select-wrap::before {
   background: rgba(240, 226, 207, 0.18);
 }
@@ -664,6 +653,18 @@
 :root.tt-dark .tt-datepicker .react-datepicker__day-name,
 :root.tt-dark .tt-datepicker .react-datepicker__day {
   color: var(--tt-ink);
+}
+
+:root.tt-dark .tt-datepicker .react-datepicker__day--disabled {
+  color: rgba(240, 226, 207, 0.28);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+:root.tt-dark .tt-datepicker .react-datepicker__day--disabled:hover,
+:root.tt-dark .tt-datepicker .react-datepicker__day--disabled:active {
+  background: transparent;
+  transform: none;
 }
 
 :root.tt-dark .tt-datepicker .react-datepicker__day--selected,
@@ -1330,7 +1331,6 @@
   color: var(--tt-ink);
 }
 
-/* Review modal */
 :root.tt-dark .tt-review-modal {
   background: var(--tt-card);
   border-color: rgba(240, 226, 207, 0.11);
@@ -1438,7 +1438,7 @@
 }
 
 :root.tt-dark .tt-tea-loading-text {
-  color: var(--tt-ink);
+  color: #2a1a0f;
 }
 
 :root.tt-dark .tt-tea-progress {
@@ -1493,19 +1493,16 @@
 /* ==================
     TEABAG ICON (SVG inline)
    ================== */
-/* The SVG uses hardcoded fill colour — in dark mode we invert it slightly */
 :root.tt-dark .tt-teabag-icon {
   filter: brightness(0) invert(1);
   opacity: 0.5;
 }
 
-/* Footer teabag watermark */
 :root.tt-dark .tt-footer::after {
   filter: brightness(0) invert(1);
   opacity: 0.06;
 }
 
-/* Itinerary card teabag watermark */
 :root.tt-dark .tt-itinerary-card::after {
   filter: brightness(0) invert(1);
   opacity: 0.12;

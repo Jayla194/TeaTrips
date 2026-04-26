@@ -957,7 +957,6 @@ font-style: italic;
   width: 50px;
   height: 50px;
   display: block;
-  /* Makes SVGs match your brown color - remove filter line below to keep original colors */
   filter: brightness(0) saturate(100%) invert(13%) sepia(18%) saturate(2095%) hue-rotate(358deg) brightness(96%) contrast(91%);
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
@@ -1520,7 +1519,6 @@ transition: all 0.2s ease;
     LOCATION DETAILS PAGE
    ================== */
 
-/* GOOGLE MAPS BTN*/
 .tt-map-btn {
   display: inline-flex;
   align-items: center;
@@ -2189,6 +2187,18 @@ transition: all 0.2s ease;
   font-weight: 600;
 }
 
+.tt-datepicker .react-datepicker__day--disabled {
+  color: rgba(43, 31, 22, 0.32);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.tt-datepicker .react-datepicker__day--disabled:hover,
+.tt-datepicker .react-datepicker__day--disabled:active {
+  background: transparent;
+  transform: none;
+}
+
 .tt-datepicker .react-datepicker__day--selected,
 .tt-datepicker .react-datepicker__day--keyboard-selected {
   background: #5b3d27;
@@ -2201,6 +2211,10 @@ transition: all 0.2s ease;
 
 .react-datepicker-popper {
   z-index: 2000;
+}
+
+.tt-trip-datepicker-popper {
+  z-index: 31010 !important;
 }
 
 @media (max-width: 768px) {
@@ -2272,7 +2286,6 @@ transition: all 0.2s ease;
   border-radius: 10px;
 }
 
-/* Itinerary page scroll + sticky map layout */
 .tt-itinerary-page {
   min-height: 100vh;
 }
@@ -2354,7 +2367,6 @@ body.tt-modal-open .tt-footer {
   z-index: 0 !important;
 }
 
-/* Fallback for modals that do not toggle body.tt-modal-open */
 body:has(.tt-modal-backdrop) .tt-navbar,
 body:has(.tt-modal-backdrop) .tt-footer,
 body:has(.tt-trip-overlay) .tt-navbar,
@@ -2626,7 +2638,7 @@ body:has(.tt-trp-overlay) .tt-footer {
 }
 
 .tt-trip-modal .react-datepicker-popper {
-  z-index: 11010 !important;
+  z-index: 100 !important;
 }
 
 .tt-trip-modal .tt-modal-body {
@@ -3390,7 +3402,6 @@ body:has(.tt-trp-overlay) .tt-footer {
 }
 
 
-/* Review modal */
 .tt-review-modal {
   border-radius: 22px;
   border: 1px solid rgba(73, 52, 34, 0.08);
@@ -3524,7 +3535,6 @@ body:has(.tt-trp-overlay) .tt-footer {
 }
 
 
-/* Star rating input */
 .tt-stars-input {
     position: relative;
     font-size: 1.6rem;
@@ -3593,7 +3603,6 @@ body:has(.tt-trp-overlay) .tt-footer {
 }
 
 
-/* Review grid layout */
 .tt-review-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -3873,7 +3882,6 @@ body:has(.tt-trp-overlay) .tt-footer {
 }
 
 
-/* Reviews header */
 .tt-reviews-header {
   display: flex;
   align-items: flex-start;

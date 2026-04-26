@@ -4,7 +4,7 @@ const locationModel = require("../models/locationModel");
 const reviewModel = require("../models/reviewModel");
 
 
-// Tidy up spacing so the saved text is easier to read.
+// Tidy up spacing so the saved text is easier to read
 function clean(text) {
     return String(text || "")
         .replace(/\s+/g, " ")
@@ -24,7 +24,7 @@ async function getOrGenerateDescription(locationId) {
         return currentDescription;
     }
 
-    // Only generate when the description is missing, and use a few reviews for context.
+    // Only generate when the description is missing, and use a few reviews for context
     const reviews = await reviewModel.getTopReviewsByLocation(locationId, 3);
 
     try {
@@ -36,7 +36,7 @@ async function getOrGenerateDescription(locationId) {
             throw new Error("Empty LLM response");
         }
 
-        // Save the new description so future page loads do not regenerate it.
+        // Save the new description so future page loads do not regenerate it
         await locationModel.updateLocationDescription(locationId, {
             description: cleaned,
             review_count_at_generation: await reviewModel.getReviewCountByLocation(locationId),
@@ -45,7 +45,7 @@ async function getOrGenerateDescription(locationId) {
 
         return cleaned;
     } catch (err) {
-        // If Gemini fails, do not save anything so description_long stays empty.
+        // If Gemini fails, do not save anything so description_long stays empty
         console.error(`Error generating description for location ${locationId}:`, err.message);
         return clean(location.description_short || "");
     }
