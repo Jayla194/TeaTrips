@@ -3042,17 +3042,25 @@ body:has(.tt-trp-overlay) .tt-footer {
   box-shadow: 0 4px 0 rgba(139, 90, 60, 0.15), 0 12px 28px rgba(139, 90, 60, 0.15);
 }
 
-.tt-day-header-btn {
-  width: 100%;
-  border: 0;
+.tt-day-header {
+  display: flex;
+  align-items: center;
   border-bottom: 1px solid rgba(139, 90, 60, 0.2);
   background: linear-gradient(to right, #ffe6c2, var(--tt-nav));
   padding: 6px 14px;
+  gap: 6px;
+}
+
+.tt-day-header-btn {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   text-align: left;
-  transition: background 0.2s ease;
+  cursor: pointer;
 }
 
 
@@ -3083,6 +3091,30 @@ body:has(.tt-trp-overlay) .tt-footer {
   font-weight: 800;
   font-size: 1.2rem;
   color: rgba(43, 31, 22, 0.8);
+}
+
+.tt-day-delete-btn {
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  font-size: 1.5rem;
+  color: rgba(139, 90, 60, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.tt-day-delete-btn:hover {
+  color: rgba(139, 90, 60, 1);
+  background: rgba(139, 90, 60, 0.15);
+}
+
+.tt-day-delete-btn:active {
+  background: rgba(139, 90, 60, 0.25);
 }
 
 .tt-day-body {

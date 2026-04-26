@@ -197,6 +197,20 @@ export default function Itinerary() {
         setEndDate(normalizeDateInput(parsed.endDate));
     }}, []);
 
+    // Initialize dates to today on first load if not set
+    useEffect(() => {
+        if (startDate || endDate || editParam) return; // Don't override if editing or dates already set
+
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        const todayFormatted = `${year}-${month}-${day}`;
+        
+        setStartDate(todayFormatted);
+        setEndDate(todayFormatted);
+    }, []);
+
     // Loads itinerary in edit mode
     useEffect(() => {
         if (!editParam) return;
@@ -624,6 +638,27 @@ export default function Itinerary() {
         });
     }
 
+    function handleRemoveDay(dayNumber) {
+        if (readOnlyPastTrip) return;
+        if (dayNumber === 1) return; // Cannot remove day 1
+
+        setItinerary((prev) => {
+            if (!prev) return prev;
+            const nextDays = prev.days
+                .filter((day) => day.day !== dayNumber)
+                .map((day, index) => ({
+                    ...day,
+                    day: index + 1, // Renumber days sequentially
+                }));
+            
+            return {
+                ...prev,
+                meta: { ...(prev.meta || {}), days: nextDays.length },
+                days: nextDays,
+            };
+        });
+    }
+
     function handleClearItineraryConfirm() {
         if (readOnlyPastTrip) return;
         setItinerary(createBlankItinerary());
@@ -951,7 +986,9 @@ export default function Itinerary() {
                                 <div className="d-flex align-items-center gap-2">
                                     <h1 className="tt-title mb-0">Itinerary Builder</h1>
                                 </div>
+                                
                                 <div className="tt-itinerary-actions d-flex gap-2">
+                                    
                                     <Button
                                         className="tt-btn tt-btn-secondary"
                                         onClick={handleSaveItinerary}
@@ -967,6 +1004,12 @@ export default function Itinerary() {
                                         onClick={() => setShowGenerateModal(true)}>
                                         Generate Trip
                                     </Button>
+                                    
+                                    <OverlayTrigger placement="bottom" trigger={["hover", "focus"]} overlay={builderHelp}>
+                                        <button type="button" className="tt-help-trigger" aria-label="How to build a trip">
+                                            i
+                                        </button>
+                                    </OverlayTrigger>
                                 </div>
                             </div>
                             {readOnlyPastTrip && (
@@ -1006,7 +1049,8 @@ export default function Itinerary() {
                                 startDate={startDate}
                                 setStartDate={setStartDate}
                                 endDate={endDate}
-                                setEndDate={setEndDate}/>
+                                setEndDate={setEndDate}
+                                dayCount={itinerary.days.length}/>
                             {loading && (
                                 <div className="tt-tea-progress mt-3">
                                 <div className="tt-tea-progress-top">
@@ -1076,6 +1120,7 @@ export default function Itinerary() {
                                         onMoveStop={handleMoveStop}
                                         onAddStop={handleOpenAddLocation}
                                         onOpenStop={handleOpenStop}
+                                        onRemoveDay={handleRemoveDay}
                                     />
                                 ))}
                                 <ShowInfoModal
@@ -1116,13 +1161,6 @@ export default function Itinerary() {
 
                     {/* Right Side Map */}
                     <Col lg={5} xl={6} className="mb-4 tt-itinerary-map-col">
-                        <div className="tt-itinerary-map-top">
-                            <OverlayTrigger placement="bottom" trigger={["hover", "focus"]} overlay={builderHelp}>
-                                <button type="button" className="tt-help-trigger" aria-label="How to build a trip">
-                                    i
-                                </button>
-                            </OverlayTrigger>
-                        </div>
                         <div className="tt-map-container tt-itinerary-map-sticky">
                             <MapView
                                 showMarkers={itineraryMapLocations.length > 0}

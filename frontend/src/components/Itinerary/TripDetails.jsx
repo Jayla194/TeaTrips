@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Card, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 
@@ -9,7 +9,7 @@ function formatLocalDate(date) {
     return `${year}-${month}-${day}`;
 }
 
-export default function TripDetails({tripName,setTripName,startDate,setStartDate,endDate,setEndDate}){
+export default function TripDetails({tripName,setTripName,startDate,setStartDate,endDate,setEndDate,dayCount=0}){
     const [collapsed, setCollapsed] = useState(false);
 
     const today = useMemo(() => {
@@ -49,6 +49,16 @@ export default function TripDetails({tripName,setTripName,startDate,setStartDate
         const days = Math.ceil((end - start) / (1000*60*60*24)) +1;
         return days > 0 ? days : 0;
     };
+
+    // Auto-adjust end date when day count changes
+    useEffect(() => {
+        if (dayCount > 0 && startDate) {
+            const start = new Date(startDate);
+            const end = new Date(start);
+            end.setDate(end.getDate() + (dayCount - 1));
+            setEndDate(formatLocalDate(end));
+        }
+    }, [dayCount, startDate, setEndDate]);
 
 
     return(

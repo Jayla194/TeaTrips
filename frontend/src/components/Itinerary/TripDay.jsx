@@ -9,28 +9,43 @@ export default function TripDay({
   onMoveStop,
   onOpenStop,
   onAddStop,
+  onRemoveDay,
 }) {
   const [collapsed, setCollapsed] = useState(false);
   if (!day) return null;
 
   const stops = Array.isArray(day.stops) ? day.stops : [];
+  const canRemoveDay = day.day !== 1; // Cannot remove day 1
 
   return (
     <div
       className="tt-day-card"
       style={{ borderLeft: `6px solid ${getDayColour(day.day)}` }}
     >
-      <button
-        className="tt-day-header-btn"
-        type="button"
-        onClick={() => setCollapsed((prev) => !prev)}
-        aria-expanded={!collapsed}
-      >
-        <div className="tt-day-header-left">
-          <h3 className="tt-day-title mb-0">Day {day.day}</h3>
-        </div>
-        <span className="tt-day-chevron">{collapsed ? "+" : "-"}</span>
-      </button>
+      <div className="tt-day-header">
+        <button
+          className="tt-day-header-btn"
+          type="button"
+          onClick={() => setCollapsed((prev) => !prev)}
+          aria-expanded={!collapsed}
+        >
+          <div className="tt-day-header-left">
+            <h3 className="tt-day-title mb-0">Day {day.day}</h3>
+          </div>
+          <span className="tt-day-chevron">{collapsed ? "+" : "-"}</span>
+        </button>
+        {!readOnly && canRemoveDay && (
+          <button
+            className="tt-day-delete-btn"
+            type="button"
+            onClick={() => onRemoveDay?.(day.day)}
+            aria-label={`Delete day ${day.day}`}
+            title={`Delete day ${day.day}`}
+          >
+            ×
+          </button>
+        )}
+      </div>
             {!collapsed && (
                 <div className="tt-day-body">
                     {/* Inline add button keeps manual flow lightweight */}
