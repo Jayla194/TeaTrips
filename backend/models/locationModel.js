@@ -62,7 +62,7 @@ async function getAllCities() {
 
 // Return hotels in a city (for itinerary suggestions) api/locations/city/:city/hotels
 async function getHotelsByCity(city) {
-    const [rows] = await db.query("SELECT * FROM locations WHERE city = ? AND type = ?", [city, "hotel"]);
+    const [rows] = await db.query("SELECT * FROM locations WHERE city = ? AND type = ?", [city, "Hotel"]);
     return rows;
 }
 

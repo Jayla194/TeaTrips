@@ -480,7 +480,7 @@ export default function LocationDetails(){
             {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <button className="tt-btn" onClick={()=> navigate(-1)}>
-                    <strong>{"\u21a9"}</strong> Back
+                    <strong>←</strong> Back
                 </button>
 
                 {error && (

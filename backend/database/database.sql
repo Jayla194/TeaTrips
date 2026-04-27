@@ -142,24 +142,15 @@ CREATE TABLE IF NOT EXISTS review_likes (
 
 
 
--- Import CSV
+-- Import data using Node.js scripts
 
--- Make sure `locations.csv` is placed in a `data` folder relative to this file.
--- Uncomment the block you want to run.
+-- Locations Table
+-- Run: node database/importLocations.js
+-- Imports from: backend/data/locations.json
 
--- Location Table
-
--- SET FOREIGN_KEY_CHECKS = 0;
--- TRUNCATE TABLE locations;
--- SET FOREIGN_KEY_CHECKS = 1;
--- LOAD DATA LOCAL INFILE './data/locations.csv'
--- INTO TABLE locations
--- FIELDS TERMINATED BY ',' 
--- ENCLOSED BY '"'
--- LINES TERMINATED BY '\n'
--- IGNORE 1 ROWS;
-
-
+-- Reviews Table
+-- Run: node database/importReviews.js
+-- Imports from: backend/data/reviews.json
 
 -- User Table
 
@@ -230,22 +221,12 @@ CREATE TABLE IF NOT EXISTS review_likes (
 -- IGNORE 1 ROWS
 -- (stop_id, itinerary_day_id, location_id, stop_position, start_time, end_time, notes);
 
-
 -- Reviews Table
-
--- SET FOREIGN_KEY_CHECKS = 0;
--- TRUNCATE TABLE reviews;
--- SET FOREIGN_KEY_CHECKS = 1;
--- LOAD DATA LOCAL INFILE './data/reviews.csv'
--- INTO TABLE reviews
--- FIELDS TERMINATED BY ';'
--- ENCLOSED BY '"'
--- LINES TERMINATED BY '\n'
--- IGNORE 1 ROWS
--- (review_id, user_id, location_id, rating, comment, like_count, created_at, is_visible, deleted_at);
+-- Run: node database/importReviews.js
+-- Imports from: backend/data/reviews.json
 
 
--- Review Likes Table
+-- Saved Locations Table
 
 -- SET FOREIGN_KEY_CHECKS = 0;
 -- TRUNCATE TABLE review_likes;

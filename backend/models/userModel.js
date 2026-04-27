@@ -45,6 +45,11 @@ async function updateUserPassword(userId, password_hash) {
     return result;
 }
 
+async function deleteUserById(userId) {
+    const [result] = await db.query("DELETE FROM users WHERE user_id = ?", [userId]);
+    return result;
+}
+
 module.exports = {
     findUserIdByEmail,
     createUser,
@@ -52,4 +57,5 @@ module.exports = {
     findUserById,
     findUserAuthById,
     updateUserPassword,
+    deleteUserById,
 };

@@ -54,9 +54,7 @@ function inferCityFromItinerary(data) {
     const metaCity = String(data?.meta?.city || "").trim();
     if (metaCity) return metaCity;
 
-    const hotelCity = String(data?.hotel?.city || "").trim();
-    if (hotelCity) return hotelCity;
-
+    // Prioritize getting city from the first location in the itinerary
     if (Array.isArray(data?.days)) {
         for (const day of data.days) {
             if (!Array.isArray(day?.stops)) continue;
@@ -64,6 +62,10 @@ function inferCityFromItinerary(data) {
             if (stopWithCity) return String(stopWithCity.city).trim();
         }
     }
+
+    // Fall back to hotel city if no locations found
+    const hotelCity = String(data?.hotel?.city || "").trim();
+    if (hotelCity) return hotelCity;
 
     return "";
 }
@@ -759,21 +761,16 @@ export default function Itinerary() {
 
             setSaveError(null);
             if (changedAnyDay && reducedKm > 0.01) {
-                setSaveMessage(
-                    `Optimized route and day clustering. Estimated distance reduced by ` +
-                    `${reducedKm.toFixed(1)} km (${totalBeforeKm.toFixed(1)} -> ${totalAfterKm.toFixed(1)} km).`
-                );
+                setSaveMessage("Route was optimised.");
                 return { ...prev, days: nextDays };
             }
 
             if (changedAnyDay) {
-                setSaveMessage(
-                    "Reordered stops across days (same stop count per day), but total distance stayed similar."
-                );
+                setSaveMessage("Route was optimised.");
                 return { ...prev, days: nextDays };
             }
 
-            setSaveMessage("No shorter route found. This is common with 1-2 stops per day.");
+            setSaveMessage("No further optimisation available.");
             return prev;
         });
     }

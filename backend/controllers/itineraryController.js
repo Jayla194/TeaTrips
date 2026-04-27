@@ -130,7 +130,8 @@ async function saveItinerary(req, res) {
     const city = typeof req.body?.city === "string" ? req.body.city.trim() : "";
     const startDate = toIsoDate(req.body?.startDate);
     const endDate = toIsoDate(req.body?.endDate);
-    const hotelLocationId = Number(req.body?.hotelLocationId);
+    const hotelLocationIdRaw = req.body?.hotelLocationId;
+    const hotelLocationId = hotelLocationIdRaw > 0 ? Number(hotelLocationIdRaw) : null;
     const days = Array.isArray(req.body?.days) ? req.body.days : [];
 
     if (!userId) {
@@ -173,7 +174,7 @@ async function saveItinerary(req, res) {
                 city,
                 start_date: startDate,
                 end_date: endDate,
-                hotel_location_id: Number.isInteger(hotelLocationId) ? hotelLocationId : null,
+                hotel_location_id: hotelLocationId,
             },
             conn,
         );
@@ -347,7 +348,8 @@ async function updateUserItinerary(req, res) {
     const city = typeof req.body?.city === "string" ? req.body.city.trim() : "";
     const startDate = toIsoDate(req.body?.startDate);
     const endDate = toIsoDate(req.body?.endDate);
-    const hotelLocationId = Number(req.body?.hotelLocationId);
+    const hotelLocationIdRaw = req.body?.hotelLocationId;
+    const hotelLocationId = hotelLocationIdRaw > 0 ? Number(hotelLocationIdRaw) : null;
     const days = Array.isArray(req.body?.days) ? req.body.days : [];
 
     if (!userId) {
@@ -409,7 +411,7 @@ async function updateUserItinerary(req, res) {
             city,
             start_date: startDate,
             end_date: endDate,
-            hotel_location_id: Number.isInteger(hotelLocationId) ? hotelLocationId : null,
+            hotel_location_id: hotelLocationId,
         });
 
         await deleteItineraryDaysByItineraryId(conn, itineraryId);

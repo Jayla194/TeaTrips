@@ -7,6 +7,7 @@ import ReviewCard from "../components/reviews/reviewCard";
 import ReviewModal from "../components/reviews/reviewModal";
 import ChangePasswordModal from "../components/changePasswordModal";
 import ConfirmModal from "../components/ConfirmModal";
+import { DeleteIcon } from "../components/icons";
 import {
     OverviewIcon,
     SaveIcon,
@@ -36,6 +37,7 @@ export default function Profile(){
     const [reviewOpen, setReviewOpen] = useState(false);
     const [editingReview, setEditingReview] = useState(null);
     const [reviewDeleteTarget, setReviewDeleteTarget] = useState(null);
+    const [itineraryDeleteTarget, setItineraryDeleteTarget] = useState(null);
 
     // Controls which profile section is visible in the main panel
     const [activeSection, setActiveSection] = useState("overview");
@@ -50,6 +52,7 @@ export default function Profile(){
     });
     const [prefsOpen, setPrefsOpen] = useState(false);
     const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+    const [deleteAccountPending, setDeleteAccountPending] = useState(false);
 
     const navigate = useNavigate();
 
@@ -286,6 +289,27 @@ export default function Profile(){
         setReviewDeleteTarget(reviewId);
     }
 
+    function handleDeleteItineraryRequest(itineraryId) {
+        setItineraryDeleteTarget(itineraryId);
+    }
+
+    async function handleDeleteItinerary(itineraryId) {
+        try {
+            const res = await fetch(apiUrl(`/api/itinerary/${itineraryId}`), {
+                method: "DELETE",
+                credentials: "include",
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setItineraryError(data.error || "Failed to delete itinerary");
+                return;
+            }
+            setItineraries((prev) => prev.filter((itinerary) => itinerary.itinerary_id !== itineraryId));
+        } catch (err) {
+            setItineraryError(err.message || "Failed to delete itinerary");
+        }
+    }
+
     async function handleDeleteReview(reviewId) {
         try {
             const res = await fetch(apiUrl(`/api/reviews/${reviewId}`), {
@@ -300,6 +324,32 @@ export default function Profile(){
             setReviews((prev) => prev.filter((review) => review.review_id !== reviewId));
         } catch (err) {
             setReviewsError(err.message || "Failed to delete review");
+        }
+    }
+
+    async function handleDeleteAccount() {
+        if (deleteAccountPending) return;
+
+        try {
+            setDeleteAccountPending(true);
+            setError("");
+
+            const res = await fetch(apiUrl("/api/auth/account"), {
+                method: "DELETE",
+                credentials: "include",
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setError(data.message || data.error || "Failed to delete account");
+                return;
+            }
+
+            window.location.href = "/";
+        } catch (err) {
+            setError(err.message || "Failed to delete account");
+        } finally {
+            setDeleteAccountPending(false);
         }
     }
 
@@ -526,13 +576,25 @@ export default function Profile(){
                                                     {hasHappened && (
                                                         <div className="tt-itinerary-note">This trip has already happened.</div>
                                                     )}
-                                                    <button
-                                                        type="button"
-                                                        className="tt-btn tt-btn-secondary mt-3"
-                                                        onClick={() => navigate(`/itinerary?edit=${itinerary.itinerary_id}`)}
-                                                    >
-                                                        {hasHappened ? "View itinerary" : "Edit itinerary"}
-                                                    </button>
+                                                    <div style={{display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "1rem"}}>
+                                                        <button
+                                                            type="button"
+                                                            className="tt-btn tt-btn-secondary"
+                                                            onClick={() => navigate(`/itinerary?edit=${itinerary.itinerary_id}`)}
+                                                        >
+                                                            {hasHappened ? "View itinerary" : "Edit itinerary"}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="tt-review-action-btn tt-review-delete-btn"
+                                                            onClick={() => handleDeleteItineraryRequest(itinerary.itinerary_id)}
+                                                            aria-label="Delete itinerary"
+                                                            title="Delete itinerary"
+                                                            style={{padding: "0.375rem"}}
+                                                        >
+                                                            <DeleteIcon className="tt-review-delete-icon" />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         );
@@ -639,16 +701,36 @@ export default function Profile(){
             }}
         />
         <ConfirmModal
+            isOpen={Boolean(itineraryDeleteTarget)}
+            title="Delete itinerary"
+            message="This action will permanently remove your itinerary. This cannot be undone."
+            confirmLabel="Delete itinerary"
+            cancelLabel="Keep itinerary"
+            confirmClassName="tt-btn tt-btn-secondary"
+            onCancel={() => setItineraryDeleteTarget(null)}
+            onConfirm={() => {
+                if (itineraryDeleteTarget) {
+                    handleDeleteItinerary(itineraryDeleteTarget);
+                }
+                setItineraryDeleteTarget(null);
+            }}
+        />
+        <ConfirmModal
             isOpen={showDeleteAccount}
             title="Delete account"
             message="This action cannot be undone. All your data will be removed."
-            confirmLabel="Delete account"
+            confirmLabel={deleteAccountPending ? "Deleting..." : "Delete account"}
             cancelLabel="Keep account"
             confirmClassName="tt-btn tt-btn-secondary"
-            onCancel={() => setShowDeleteAccount(false)}
+            onCancel={() => {
+                if (!deleteAccountPending) {
+                    setShowDeleteAccount(false);
+                }
+            }}
             onConfirm={() => {
+                if (deleteAccountPending) return;
                 setShowDeleteAccount(false);
-                // TODO: hook up delete account
+                handleDeleteAccount();
             }}
         />
     </div>

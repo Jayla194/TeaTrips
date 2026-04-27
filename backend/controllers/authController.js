@@ -9,6 +9,7 @@ const {
     findUserById,
     findUserAuthById,
     updateUserPassword,
+    deleteUserById,
 } = require("../models/userModel");
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -184,5 +185,25 @@ exports.changePassword = async (req, res) => {
         return res.json({ message: "Password updated" });
     } catch (err) {
         return res.status(401).json({ message: "Not logged in" });
+    }
+};
+
+// Delete current logged-in account and all related data via DB cascades
+exports.deleteAccount = async (req, res) => {
+    const userId = req.user?.user_id;
+    if (!userId) {
+        return res.status(401).json({ message: "Not logged in" });
+    }
+
+    try {
+        const result = await deleteUserById(userId);
+        if (!result.affectedRows) {
+            return res.status(404).json({ message: "Account not found" });
+        }
+
+        res.clearCookie("tt_token", cookieOptions);
+        return res.json({ message: "Account deleted" });
+    } catch (err) {
+        return res.status(500).json({ message: "Server Error" });
     }
 };
